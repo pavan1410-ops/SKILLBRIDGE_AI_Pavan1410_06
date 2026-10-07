@@ -1,0 +1,175 @@
+<html>
+<head>
+<title>preloaded.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #7a7e85;}
+.s1 { color: #bcbec4;}
+.s2 { color: #5f826b; font-style: italic;}
+.s3 { color: #cf8e6d;}
+.s4 { color: #bcbec4;}
+.s5 { color: #6aab73;}
+.s6 { color: #2aacb8;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+preloaded.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0"># util/preloaded.py</span>
+<a name="l2"><span class="ln">2    </span></a><span class="s0"># Copyright (C) 2005-2026 the SQLAlchemy authors and contributors</span>
+<a name="l3"><span class="ln">3    </span></a><span class="s0"># &lt;see AUTHORS file&gt;</span>
+<a name="l4"><span class="ln">4    </span></a><span class="s0">#</span>
+<a name="l5"><span class="ln">5    </span></a><span class="s0"># This module is part of SQLAlchemy and is released under</span>
+<a name="l6"><span class="ln">6    </span></a><span class="s0"># the MIT License: https://www.opensource.org/licenses/mit-license.php</span>
+<a name="l7"><span class="ln">7    </span></a><span class="s0"># mypy: allow-untyped-defs, allow-untyped-calls</span>
+<a name="l8"><span class="ln">8    </span></a>
+<a name="l9"><span class="ln">9    </span></a><span class="s2">&quot;&quot;&quot;supplies the &quot;preloaded&quot; registry to resolve circular module imports at 
+<a name="l10"><span class="ln">10   </span></a>runtime. 
+<a name="l11"><span class="ln">11   </span></a> 
+<a name="l12"><span class="ln">12   </span></a>&quot;&quot;&quot;</span>
+<a name="l13"><span class="ln">13   </span></a>
+<a name="l14"><span class="ln">14   </span></a><span class="s3">from </span><span class="s1">__future__ </span><span class="s3">import </span><span class="s1">annotations</span>
+<a name="l15"><span class="ln">15   </span></a>
+<a name="l16"><span class="ln">16   </span></a><span class="s3">import </span><span class="s1">sys</span>
+<a name="l17"><span class="ln">17   </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">Any</span>
+<a name="l18"><span class="ln">18   </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">Callable</span>
+<a name="l19"><span class="ln">19   </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">TYPE_CHECKING</span>
+<a name="l20"><span class="ln">20   </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">TypeVar</span>
+<a name="l21"><span class="ln">21   </span></a>
+<a name="l22"><span class="ln">22   </span></a><span class="s1">_FN </span><span class="s4">= </span><span class="s1">TypeVar</span><span class="s4">(</span><span class="s5">&quot;_FN&quot;</span><span class="s4">, </span><span class="s1">bound</span><span class="s4">=</span><span class="s1">Callable</span><span class="s4">[..., </span><span class="s1">Any</span><span class="s4">])</span>
+<a name="l23"><span class="ln">23   </span></a>
+<a name="l24"><span class="ln">24   </span></a>
+<a name="l25"><span class="ln">25   </span></a><span class="s3">if </span><span class="s1">TYPE_CHECKING</span><span class="s4">:</span>
+<a name="l26"><span class="ln">26   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy </span><span class="s3">import </span><span class="s1">dialects </span><span class="s3">as </span><span class="s1">_dialects</span>
+<a name="l27"><span class="ln">27   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy </span><span class="s3">import </span><span class="s1">orm </span><span class="s3">as </span><span class="s1">_orm</span>
+<a name="l28"><span class="ln">28   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">engine </span><span class="s3">import </span><span class="s1">cursor </span><span class="s3">as </span><span class="s1">_engine_cursor</span>
+<a name="l29"><span class="ln">29   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">engine </span><span class="s3">import </span><span class="s1">default </span><span class="s3">as </span><span class="s1">_engine_default</span>
+<a name="l30"><span class="ln">30   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">engine </span><span class="s3">import </span><span class="s1">reflection </span><span class="s3">as </span><span class="s1">_engine_reflection</span>
+<a name="l31"><span class="ln">31   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">engine </span><span class="s3">import </span><span class="s1">result </span><span class="s3">as </span><span class="s1">_engine_result</span>
+<a name="l32"><span class="ln">32   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">engine </span><span class="s3">import </span><span class="s1">url </span><span class="s3">as </span><span class="s1">_engine_url</span>
+<a name="l33"><span class="ln">33   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">attributes </span><span class="s3">as </span><span class="s1">_orm_attributes</span>
+<a name="l34"><span class="ln">34   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">base </span><span class="s3">as </span><span class="s1">_orm_base</span>
+<a name="l35"><span class="ln">35   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">clsregistry </span><span class="s3">as </span><span class="s1">_orm_clsregistry</span>
+<a name="l36"><span class="ln">36   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">decl_api </span><span class="s3">as </span><span class="s1">_orm_decl_api</span>
+<a name="l37"><span class="ln">37   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">decl_base </span><span class="s3">as </span><span class="s1">_orm_decl_base</span>
+<a name="l38"><span class="ln">38   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">dependency </span><span class="s3">as </span><span class="s1">_orm_dependency</span>
+<a name="l39"><span class="ln">39   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">descriptor_props </span><span class="s3">as </span><span class="s1">_orm_descriptor_props</span>
+<a name="l40"><span class="ln">40   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">mapperlib </span><span class="s3">as </span><span class="s1">_orm_mapper</span>
+<a name="l41"><span class="ln">41   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">properties </span><span class="s3">as </span><span class="s1">_orm_properties</span>
+<a name="l42"><span class="ln">42   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">relationships </span><span class="s3">as </span><span class="s1">_orm_relationships</span>
+<a name="l43"><span class="ln">43   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">session </span><span class="s3">as </span><span class="s1">_orm_session</span>
+<a name="l44"><span class="ln">44   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">state </span><span class="s3">as </span><span class="s1">_orm_state</span>
+<a name="l45"><span class="ln">45   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">strategies </span><span class="s3">as </span><span class="s1">_orm_strategies</span>
+<a name="l46"><span class="ln">46   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">strategy_options </span><span class="s3">as </span><span class="s1">_orm_strategy_options</span>
+<a name="l47"><span class="ln">47   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">orm </span><span class="s3">import </span><span class="s1">util </span><span class="s3">as </span><span class="s1">_orm_util</span>
+<a name="l48"><span class="ln">48   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">default_comparator </span><span class="s3">as </span><span class="s1">_sql_default_comparator</span>
+<a name="l49"><span class="ln">49   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">dml </span><span class="s3">as </span><span class="s1">_sql_dml</span>
+<a name="l50"><span class="ln">50   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">elements </span><span class="s3">as </span><span class="s1">_sql_elements</span>
+<a name="l51"><span class="ln">51   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">functions </span><span class="s3">as </span><span class="s1">_sql_functions</span>
+<a name="l52"><span class="ln">52   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">naming </span><span class="s3">as </span><span class="s1">_sql_naming</span>
+<a name="l53"><span class="ln">53   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">schema </span><span class="s3">as </span><span class="s1">_sql_schema</span>
+<a name="l54"><span class="ln">54   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">selectable </span><span class="s3">as </span><span class="s1">_sql_selectable</span>
+<a name="l55"><span class="ln">55   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">sqltypes </span><span class="s3">as </span><span class="s1">_sql_sqltypes</span>
+<a name="l56"><span class="ln">56   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">traversals </span><span class="s3">as </span><span class="s1">_sql_traversals</span>
+<a name="l57"><span class="ln">57   </span></a>    <span class="s3">from </span><span class="s1">sqlalchemy</span><span class="s4">.</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">util </span><span class="s3">as </span><span class="s1">_sql_util</span>
+<a name="l58"><span class="ln">58   </span></a>
+<a name="l59"><span class="ln">59   </span></a>    <span class="s0"># sigh, appease mypy 0.971 which does not accept imports as instance</span>
+<a name="l60"><span class="ln">60   </span></a>    <span class="s0"># variables of a module</span>
+<a name="l61"><span class="ln">61   </span></a>    <span class="s1">dialects </span><span class="s4">= </span><span class="s1">_dialects</span>
+<a name="l62"><span class="ln">62   </span></a>    <span class="s1">engine_cursor </span><span class="s4">= </span><span class="s1">_engine_cursor</span>
+<a name="l63"><span class="ln">63   </span></a>    <span class="s1">engine_default </span><span class="s4">= </span><span class="s1">_engine_default</span>
+<a name="l64"><span class="ln">64   </span></a>    <span class="s1">engine_reflection </span><span class="s4">= </span><span class="s1">_engine_reflection</span>
+<a name="l65"><span class="ln">65   </span></a>    <span class="s1">engine_result </span><span class="s4">= </span><span class="s1">_engine_result</span>
+<a name="l66"><span class="ln">66   </span></a>    <span class="s1">engine_url </span><span class="s4">= </span><span class="s1">_engine_url</span>
+<a name="l67"><span class="ln">67   </span></a>    <span class="s1">orm_clsregistry </span><span class="s4">= </span><span class="s1">_orm_clsregistry</span>
+<a name="l68"><span class="ln">68   </span></a>    <span class="s1">orm_base </span><span class="s4">= </span><span class="s1">_orm_base</span>
+<a name="l69"><span class="ln">69   </span></a>    <span class="s1">orm </span><span class="s4">= </span><span class="s1">_orm</span>
+<a name="l70"><span class="ln">70   </span></a>    <span class="s1">orm_attributes </span><span class="s4">= </span><span class="s1">_orm_attributes</span>
+<a name="l71"><span class="ln">71   </span></a>    <span class="s1">orm_decl_api </span><span class="s4">= </span><span class="s1">_orm_decl_api</span>
+<a name="l72"><span class="ln">72   </span></a>    <span class="s1">orm_decl_base </span><span class="s4">= </span><span class="s1">_orm_decl_base</span>
+<a name="l73"><span class="ln">73   </span></a>    <span class="s1">orm_descriptor_props </span><span class="s4">= </span><span class="s1">_orm_descriptor_props</span>
+<a name="l74"><span class="ln">74   </span></a>    <span class="s1">orm_dependency </span><span class="s4">= </span><span class="s1">_orm_dependency</span>
+<a name="l75"><span class="ln">75   </span></a>    <span class="s1">orm_mapper </span><span class="s4">= </span><span class="s1">_orm_mapper</span>
+<a name="l76"><span class="ln">76   </span></a>    <span class="s1">orm_properties </span><span class="s4">= </span><span class="s1">_orm_properties</span>
+<a name="l77"><span class="ln">77   </span></a>    <span class="s1">orm_relationships </span><span class="s4">= </span><span class="s1">_orm_relationships</span>
+<a name="l78"><span class="ln">78   </span></a>    <span class="s1">orm_session </span><span class="s4">= </span><span class="s1">_orm_session</span>
+<a name="l79"><span class="ln">79   </span></a>    <span class="s1">orm_strategies </span><span class="s4">= </span><span class="s1">_orm_strategies</span>
+<a name="l80"><span class="ln">80   </span></a>    <span class="s1">orm_strategy_options </span><span class="s4">= </span><span class="s1">_orm_strategy_options</span>
+<a name="l81"><span class="ln">81   </span></a>    <span class="s1">orm_state </span><span class="s4">= </span><span class="s1">_orm_state</span>
+<a name="l82"><span class="ln">82   </span></a>    <span class="s1">orm_util </span><span class="s4">= </span><span class="s1">_orm_util</span>
+<a name="l83"><span class="ln">83   </span></a>    <span class="s1">sql_default_comparator </span><span class="s4">= </span><span class="s1">_sql_default_comparator</span>
+<a name="l84"><span class="ln">84   </span></a>    <span class="s1">sql_dml </span><span class="s4">= </span><span class="s1">_sql_dml</span>
+<a name="l85"><span class="ln">85   </span></a>    <span class="s1">sql_elements </span><span class="s4">= </span><span class="s1">_sql_elements</span>
+<a name="l86"><span class="ln">86   </span></a>    <span class="s1">sql_functions </span><span class="s4">= </span><span class="s1">_sql_functions</span>
+<a name="l87"><span class="ln">87   </span></a>    <span class="s1">sql_naming </span><span class="s4">= </span><span class="s1">_sql_naming</span>
+<a name="l88"><span class="ln">88   </span></a>    <span class="s1">sql_selectable </span><span class="s4">= </span><span class="s1">_sql_selectable</span>
+<a name="l89"><span class="ln">89   </span></a>    <span class="s1">sql_traversals </span><span class="s4">= </span><span class="s1">_sql_traversals</span>
+<a name="l90"><span class="ln">90   </span></a>    <span class="s1">sql_schema </span><span class="s4">= </span><span class="s1">_sql_schema</span>
+<a name="l91"><span class="ln">91   </span></a>    <span class="s1">sql_sqltypes </span><span class="s4">= </span><span class="s1">_sql_sqltypes</span>
+<a name="l92"><span class="ln">92   </span></a>    <span class="s1">sql_util </span><span class="s4">= </span><span class="s1">_sql_util</span>
+<a name="l93"><span class="ln">93   </span></a>
+<a name="l94"><span class="ln">94   </span></a>
+<a name="l95"><span class="ln">95   </span></a><span class="s3">class </span><span class="s1">_ModuleRegistry</span><span class="s4">:</span>
+<a name="l96"><span class="ln">96   </span></a>    <span class="s2">&quot;&quot;&quot;Registry of modules to load in a package init file. 
+<a name="l97"><span class="ln">97   </span></a> 
+<a name="l98"><span class="ln">98   </span></a>    To avoid potential thread safety issues for imports that are deferred 
+<a name="l99"><span class="ln">99   </span></a>    in a function, like https://bugs.python.org/issue38884, these modules 
+<a name="l100"><span class="ln">100  </span></a>    are added to the system module cache by importing them after the packages 
+<a name="l101"><span class="ln">101  </span></a>    has finished initialization. 
+<a name="l102"><span class="ln">102  </span></a> 
+<a name="l103"><span class="ln">103  </span></a>    A global instance is provided under the name :attr:`.preloaded`. Use 
+<a name="l104"><span class="ln">104  </span></a>    the function :func:`.preload_module` to register modules to load and 
+<a name="l105"><span class="ln">105  </span></a>    :meth:`.import_prefix` to load all the modules that start with the 
+<a name="l106"><span class="ln">106  </span></a>    given path. 
+<a name="l107"><span class="ln">107  </span></a> 
+<a name="l108"><span class="ln">108  </span></a>    While the modules are loaded in the global module cache, it's advisable 
+<a name="l109"><span class="ln">109  </span></a>    to access them using :attr:`.preloaded` to ensure that it was actually 
+<a name="l110"><span class="ln">110  </span></a>    registered. Each registered module is added to the instance ``__dict__`` 
+<a name="l111"><span class="ln">111  </span></a>    in the form `&lt;package&gt;_&lt;module&gt;`, omitting ``sqlalchemy`` from the package 
+<a name="l112"><span class="ln">112  </span></a>    name. Example: ``sqlalchemy.sql.util`` becomes ``preloaded.sql_util``. 
+<a name="l113"><span class="ln">113  </span></a>    &quot;&quot;&quot;</span>
+<a name="l114"><span class="ln">114  </span></a>
+<a name="l115"><span class="ln">115  </span></a>    <span class="s3">def </span><span class="s1">__init__</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">prefix</span><span class="s4">=</span><span class="s5">&quot;sqlalchemy.&quot;</span><span class="s4">):</span>
+<a name="l116"><span class="ln">116  </span></a>        <span class="s1">self</span><span class="s4">.</span><span class="s1">module_registry </span><span class="s4">= </span><span class="s1">set</span><span class="s4">()</span>
+<a name="l117"><span class="ln">117  </span></a>        <span class="s1">self</span><span class="s4">.</span><span class="s1">prefix </span><span class="s4">= </span><span class="s1">prefix</span>
+<a name="l118"><span class="ln">118  </span></a>
+<a name="l119"><span class="ln">119  </span></a>    <span class="s3">def </span><span class="s1">preload_module</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, *</span><span class="s1">deps</span><span class="s4">: </span><span class="s1">str</span><span class="s4">) </span><span class="s1">-&gt; Callable</span><span class="s4">[[</span><span class="s1">_FN</span><span class="s4">], </span><span class="s1">_FN</span><span class="s4">]:</span>
+<a name="l120"><span class="ln">120  </span></a>        <span class="s2">&quot;&quot;&quot;Adds the specified modules to the list to load. 
+<a name="l121"><span class="ln">121  </span></a> 
+<a name="l122"><span class="ln">122  </span></a>        This method can be used both as a normal function and as a decorator. 
+<a name="l123"><span class="ln">123  </span></a>        No change is performed to the decorated object. 
+<a name="l124"><span class="ln">124  </span></a>        &quot;&quot;&quot;</span>
+<a name="l125"><span class="ln">125  </span></a>        <span class="s1">self</span><span class="s4">.</span><span class="s1">module_registry</span><span class="s4">.</span><span class="s1">update</span><span class="s4">(</span><span class="s1">deps</span><span class="s4">)</span>
+<a name="l126"><span class="ln">126  </span></a>        <span class="s3">return lambda </span><span class="s1">fn</span><span class="s4">: </span><span class="s1">fn</span>
+<a name="l127"><span class="ln">127  </span></a>
+<a name="l128"><span class="ln">128  </span></a>    <span class="s3">def </span><span class="s1">import_prefix</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">path</span><span class="s4">: </span><span class="s1">str</span><span class="s4">) </span><span class="s1">-&gt; </span><span class="s3">None</span><span class="s4">:</span>
+<a name="l129"><span class="ln">129  </span></a>        <span class="s2">&quot;&quot;&quot;Resolve all the modules in the registry that start with the 
+<a name="l130"><span class="ln">130  </span></a>        specified path. 
+<a name="l131"><span class="ln">131  </span></a>        &quot;&quot;&quot;</span>
+<a name="l132"><span class="ln">132  </span></a>        <span class="s3">for </span><span class="s1">module </span><span class="s3">in </span><span class="s1">self</span><span class="s4">.</span><span class="s1">module_registry</span><span class="s4">:</span>
+<a name="l133"><span class="ln">133  </span></a>            <span class="s3">if </span><span class="s1">self</span><span class="s4">.</span><span class="s1">prefix</span><span class="s4">:</span>
+<a name="l134"><span class="ln">134  </span></a>                <span class="s1">key </span><span class="s4">= </span><span class="s1">module</span><span class="s4">.</span><span class="s1">split</span><span class="s4">(</span><span class="s1">self</span><span class="s4">.</span><span class="s1">prefix</span><span class="s4">)[-</span><span class="s6">1</span><span class="s4">].</span><span class="s1">replace</span><span class="s4">(</span><span class="s5">&quot;.&quot;</span><span class="s4">, </span><span class="s5">&quot;_&quot;</span><span class="s4">)</span>
+<a name="l135"><span class="ln">135  </span></a>            <span class="s3">else</span><span class="s4">:</span>
+<a name="l136"><span class="ln">136  </span></a>                <span class="s1">key </span><span class="s4">= </span><span class="s1">module</span>
+<a name="l137"><span class="ln">137  </span></a>            <span class="s3">if </span><span class="s4">(</span>
+<a name="l138"><span class="ln">138  </span></a>                <span class="s3">not </span><span class="s1">path </span><span class="s3">or </span><span class="s1">module</span><span class="s4">.</span><span class="s1">startswith</span><span class="s4">(</span><span class="s1">path</span><span class="s4">)</span>
+<a name="l139"><span class="ln">139  </span></a>            <span class="s4">) </span><span class="s3">and </span><span class="s1">key </span><span class="s3">not in </span><span class="s1">self</span><span class="s4">.</span><span class="s1">__dict__</span><span class="s4">:</span>
+<a name="l140"><span class="ln">140  </span></a>                <span class="s1">__import__</span><span class="s4">(</span><span class="s1">module</span><span class="s4">, </span><span class="s1">globals</span><span class="s4">(), </span><span class="s1">locals</span><span class="s4">())</span>
+<a name="l141"><span class="ln">141  </span></a>                <span class="s1">self</span><span class="s4">.</span><span class="s1">__dict__</span><span class="s4">[</span><span class="s1">key</span><span class="s4">] = </span><span class="s1">globals</span><span class="s4">()[</span><span class="s1">key</span><span class="s4">] = </span><span class="s1">sys</span><span class="s4">.</span><span class="s1">modules</span><span class="s4">[</span><span class="s1">module</span><span class="s4">]</span>
+<a name="l142"><span class="ln">142  </span></a>
+<a name="l143"><span class="ln">143  </span></a>
+<a name="l144"><span class="ln">144  </span></a><span class="s1">_reg </span><span class="s4">= </span><span class="s1">_ModuleRegistry</span><span class="s4">()</span>
+<a name="l145"><span class="ln">145  </span></a><span class="s1">preload_module </span><span class="s4">= </span><span class="s1">_reg</span><span class="s4">.</span><span class="s1">preload_module</span>
+<a name="l146"><span class="ln">146  </span></a><span class="s1">import_prefix </span><span class="s4">= </span><span class="s1">_reg</span><span class="s4">.</span><span class="s1">import_prefix</span>
+<a name="l147"><span class="ln">147  </span></a>
+<a name="l148"><span class="ln">148  </span></a><span class="s0"># this appears to do absolutely nothing for any version of mypy</span>
+<a name="l149"><span class="ln">149  </span></a><span class="s0"># if TYPE_CHECKING:</span>
+<a name="l150"><span class="ln">150  </span></a><span class="s0">#    def __getattr__(key: str) -&gt; ModuleType:</span>
+<a name="l151"><span class="ln">151  </span></a><span class="s0">#        ...</span>
+<a name="l152"><span class="ln">152  </span></a></pre>
+</body>
+</html>

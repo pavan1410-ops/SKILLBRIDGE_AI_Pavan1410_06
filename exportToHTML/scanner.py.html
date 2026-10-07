@@ -1,0 +1,127 @@
+<html>
+<head>
+<title>scanner.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #5f826b; font-style: italic;}
+.s1 { color: #bcbec4;}
+.s2 { color: #cf8e6d;}
+.s3 { color: #bcbec4;}
+.s4 { color: #2aacb8;}
+.s5 { color: #6aab73;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+scanner.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">&quot;&quot;&quot; 
+<a name="l2"><span class="ln">2    </span></a>    pygments.scanner 
+<a name="l3"><span class="ln">3    </span></a>    ~~~~~~~~~~~~~~~~ 
+<a name="l4"><span class="ln">4    </span></a> 
+<a name="l5"><span class="ln">5    </span></a>    This library implements a regex based scanner. Some languages 
+<a name="l6"><span class="ln">6    </span></a>    like Pascal are easy to parse but have some keywords that 
+<a name="l7"><span class="ln">7    </span></a>    depend on the context. Because of this it's impossible to lex 
+<a name="l8"><span class="ln">8    </span></a>    that just by using a regular expression lexer like the 
+<a name="l9"><span class="ln">9    </span></a>    `RegexLexer`. 
+<a name="l10"><span class="ln">10   </span></a> 
+<a name="l11"><span class="ln">11   </span></a>    Have a look at the `DelphiLexer` to get an idea of how to use 
+<a name="l12"><span class="ln">12   </span></a>    this scanner. 
+<a name="l13"><span class="ln">13   </span></a> 
+<a name="l14"><span class="ln">14   </span></a>    :copyright: Copyright 2006-2025 by the Pygments team, see AUTHORS. 
+<a name="l15"><span class="ln">15   </span></a>    :license: BSD, see LICENSE for details. 
+<a name="l16"><span class="ln">16   </span></a>&quot;&quot;&quot;</span>
+<a name="l17"><span class="ln">17   </span></a><span class="s2">import </span><span class="s1">re</span>
+<a name="l18"><span class="ln">18   </span></a>
+<a name="l19"><span class="ln">19   </span></a>
+<a name="l20"><span class="ln">20   </span></a><span class="s2">class </span><span class="s1">EndOfText</span><span class="s3">(</span><span class="s1">RuntimeError</span><span class="s3">):</span>
+<a name="l21"><span class="ln">21   </span></a>    <span class="s0">&quot;&quot;&quot; 
+<a name="l22"><span class="ln">22   </span></a>    Raise if end of text is reached and the user 
+<a name="l23"><span class="ln">23   </span></a>    tried to call a match function. 
+<a name="l24"><span class="ln">24   </span></a>    &quot;&quot;&quot;</span>
+<a name="l25"><span class="ln">25   </span></a>
+<a name="l26"><span class="ln">26   </span></a>
+<a name="l27"><span class="ln">27   </span></a><span class="s2">class </span><span class="s1">Scanner</span><span class="s3">:</span>
+<a name="l28"><span class="ln">28   </span></a>    <span class="s0">&quot;&quot;&quot; 
+<a name="l29"><span class="ln">29   </span></a>    Simple scanner 
+<a name="l30"><span class="ln">30   </span></a> 
+<a name="l31"><span class="ln">31   </span></a>    All method patterns are regular expression strings (not 
+<a name="l32"><span class="ln">32   </span></a>    compiled expressions!) 
+<a name="l33"><span class="ln">33   </span></a>    &quot;&quot;&quot;</span>
+<a name="l34"><span class="ln">34   </span></a>
+<a name="l35"><span class="ln">35   </span></a>    <span class="s2">def </span><span class="s1">__init__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">text</span><span class="s3">, </span><span class="s1">flags</span><span class="s3">=</span><span class="s4">0</span><span class="s3">):</span>
+<a name="l36"><span class="ln">36   </span></a>        <span class="s0">&quot;&quot;&quot; 
+<a name="l37"><span class="ln">37   </span></a>        :param text:    The text which should be scanned 
+<a name="l38"><span class="ln">38   </span></a>        :param flags:   default regular expression flags 
+<a name="l39"><span class="ln">39   </span></a>        &quot;&quot;&quot;</span>
+<a name="l40"><span class="ln">40   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">data </span><span class="s3">= </span><span class="s1">text</span>
+<a name="l41"><span class="ln">41   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">data_length </span><span class="s3">= </span><span class="s1">len</span><span class="s3">(</span><span class="s1">text</span><span class="s3">)</span>
+<a name="l42"><span class="ln">42   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">start_pos </span><span class="s3">= </span><span class="s4">0</span>
+<a name="l43"><span class="ln">43   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">pos </span><span class="s3">= </span><span class="s4">0</span>
+<a name="l44"><span class="ln">44   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">flags </span><span class="s3">= </span><span class="s1">flags</span>
+<a name="l45"><span class="ln">45   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">last </span><span class="s3">= </span><span class="s2">None</span>
+<a name="l46"><span class="ln">46   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">match </span><span class="s3">= </span><span class="s2">None</span>
+<a name="l47"><span class="ln">47   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">_re_cache </span><span class="s3">= {}</span>
+<a name="l48"><span class="ln">48   </span></a>
+<a name="l49"><span class="ln">49   </span></a>    <span class="s2">def </span><span class="s1">eos</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+<a name="l50"><span class="ln">50   </span></a>        <span class="s0">&quot;&quot;&quot;`True` if the scanner reached the end of text.&quot;&quot;&quot;</span>
+<a name="l51"><span class="ln">51   </span></a>        <span class="s2">return </span><span class="s1">self</span><span class="s3">.</span><span class="s1">pos </span><span class="s3">&gt;= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">data_length</span>
+<a name="l52"><span class="ln">52   </span></a>    <span class="s1">eos </span><span class="s3">= </span><span class="s1">property</span><span class="s3">(</span><span class="s1">eos</span><span class="s3">, </span><span class="s1">eos</span><span class="s3">.</span><span class="s1">__doc__</span><span class="s3">)</span>
+<a name="l53"><span class="ln">53   </span></a>
+<a name="l54"><span class="ln">54   </span></a>    <span class="s2">def </span><span class="s1">check</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">pattern</span><span class="s3">):</span>
+<a name="l55"><span class="ln">55   </span></a>        <span class="s0">&quot;&quot;&quot; 
+<a name="l56"><span class="ln">56   </span></a>        Apply `pattern` on the current position and return 
+<a name="l57"><span class="ln">57   </span></a>        the match object. (Doesn't touch pos). Use this for 
+<a name="l58"><span class="ln">58   </span></a>        lookahead. 
+<a name="l59"><span class="ln">59   </span></a>        &quot;&quot;&quot;</span>
+<a name="l60"><span class="ln">60   </span></a>        <span class="s2">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">eos</span><span class="s3">:</span>
+<a name="l61"><span class="ln">61   </span></a>            <span class="s2">raise </span><span class="s1">EndOfText</span><span class="s3">()</span>
+<a name="l62"><span class="ln">62   </span></a>        <span class="s2">if </span><span class="s1">pattern </span><span class="s2">not in </span><span class="s1">self</span><span class="s3">.</span><span class="s1">_re_cache</span><span class="s3">:</span>
+<a name="l63"><span class="ln">63   </span></a>            <span class="s1">self</span><span class="s3">.</span><span class="s1">_re_cache</span><span class="s3">[</span><span class="s1">pattern</span><span class="s3">] = </span><span class="s1">re</span><span class="s3">.</span><span class="s1">compile</span><span class="s3">(</span><span class="s1">pattern</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">flags</span><span class="s3">)</span>
+<a name="l64"><span class="ln">64   </span></a>        <span class="s2">return </span><span class="s1">self</span><span class="s3">.</span><span class="s1">_re_cache</span><span class="s3">[</span><span class="s1">pattern</span><span class="s3">].</span><span class="s1">match</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">data</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">pos</span><span class="s3">)</span>
+<a name="l65"><span class="ln">65   </span></a>
+<a name="l66"><span class="ln">66   </span></a>    <span class="s2">def </span><span class="s1">test</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">pattern</span><span class="s3">):</span>
+<a name="l67"><span class="ln">67   </span></a>        <span class="s0">&quot;&quot;&quot;Apply a pattern on the current position and check 
+<a name="l68"><span class="ln">68   </span></a>        if it patches. Doesn't touch pos. 
+<a name="l69"><span class="ln">69   </span></a>        &quot;&quot;&quot;</span>
+<a name="l70"><span class="ln">70   </span></a>        <span class="s2">return </span><span class="s1">self</span><span class="s3">.</span><span class="s1">check</span><span class="s3">(</span><span class="s1">pattern</span><span class="s3">) </span><span class="s2">is not None</span>
+<a name="l71"><span class="ln">71   </span></a>
+<a name="l72"><span class="ln">72   </span></a>    <span class="s2">def </span><span class="s1">scan</span><span class="s3">(</span><span class="s1">self</span><span class="s3">, </span><span class="s1">pattern</span><span class="s3">):</span>
+<a name="l73"><span class="ln">73   </span></a>        <span class="s0">&quot;&quot;&quot; 
+<a name="l74"><span class="ln">74   </span></a>        Scan the text for the given pattern and update pos/match 
+<a name="l75"><span class="ln">75   </span></a>        and related fields. The return value is a boolean that 
+<a name="l76"><span class="ln">76   </span></a>        indicates if the pattern matched. The matched value is 
+<a name="l77"><span class="ln">77   </span></a>        stored on the instance as ``match``, the last value is 
+<a name="l78"><span class="ln">78   </span></a>        stored as ``last``. ``start_pos`` is the position of the 
+<a name="l79"><span class="ln">79   </span></a>        pointer before the pattern was matched, ``pos`` is the 
+<a name="l80"><span class="ln">80   </span></a>        end position. 
+<a name="l81"><span class="ln">81   </span></a>        &quot;&quot;&quot;</span>
+<a name="l82"><span class="ln">82   </span></a>        <span class="s2">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">eos</span><span class="s3">:</span>
+<a name="l83"><span class="ln">83   </span></a>            <span class="s2">raise </span><span class="s1">EndOfText</span><span class="s3">()</span>
+<a name="l84"><span class="ln">84   </span></a>        <span class="s2">if </span><span class="s1">pattern </span><span class="s2">not in </span><span class="s1">self</span><span class="s3">.</span><span class="s1">_re_cache</span><span class="s3">:</span>
+<a name="l85"><span class="ln">85   </span></a>            <span class="s1">self</span><span class="s3">.</span><span class="s1">_re_cache</span><span class="s3">[</span><span class="s1">pattern</span><span class="s3">] = </span><span class="s1">re</span><span class="s3">.</span><span class="s1">compile</span><span class="s3">(</span><span class="s1">pattern</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">flags</span><span class="s3">)</span>
+<a name="l86"><span class="ln">86   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">last </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">match</span>
+<a name="l87"><span class="ln">87   </span></a>        <span class="s1">m </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">_re_cache</span><span class="s3">[</span><span class="s1">pattern</span><span class="s3">].</span><span class="s1">match</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">data</span><span class="s3">, </span><span class="s1">self</span><span class="s3">.</span><span class="s1">pos</span><span class="s3">)</span>
+<a name="l88"><span class="ln">88   </span></a>        <span class="s2">if </span><span class="s1">m </span><span class="s2">is None</span><span class="s3">:</span>
+<a name="l89"><span class="ln">89   </span></a>            <span class="s2">return False</span>
+<a name="l90"><span class="ln">90   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">start_pos </span><span class="s3">= </span><span class="s1">m</span><span class="s3">.</span><span class="s1">start</span><span class="s3">()</span>
+<a name="l91"><span class="ln">91   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">pos </span><span class="s3">= </span><span class="s1">m</span><span class="s3">.</span><span class="s1">end</span><span class="s3">()</span>
+<a name="l92"><span class="ln">92   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">match </span><span class="s3">= </span><span class="s1">m</span><span class="s3">.</span><span class="s1">group</span><span class="s3">()</span>
+<a name="l93"><span class="ln">93   </span></a>        <span class="s2">return True</span>
+<a name="l94"><span class="ln">94   </span></a>
+<a name="l95"><span class="ln">95   </span></a>    <span class="s2">def </span><span class="s1">get_char</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+<a name="l96"><span class="ln">96   </span></a>        <span class="s0">&quot;&quot;&quot;Scan exactly one char.&quot;&quot;&quot;</span>
+<a name="l97"><span class="ln">97   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">scan</span><span class="s3">(</span><span class="s5">'.'</span><span class="s3">)</span>
+<a name="l98"><span class="ln">98   </span></a>
+<a name="l99"><span class="ln">99   </span></a>    <span class="s2">def </span><span class="s1">__repr__</span><span class="s3">(</span><span class="s1">self</span><span class="s3">):</span>
+<a name="l100"><span class="ln">100  </span></a>        <span class="s2">return </span><span class="s5">'&lt;%s %d/%d&gt;' </span><span class="s3">% (</span>
+<a name="l101"><span class="ln">101  </span></a>            <span class="s1">self</span><span class="s3">.</span><span class="s1">__class__</span><span class="s3">.</span><span class="s1">__name__</span><span class="s3">,</span>
+<a name="l102"><span class="ln">102  </span></a>            <span class="s1">self</span><span class="s3">.</span><span class="s1">pos</span><span class="s3">,</span>
+<a name="l103"><span class="ln">103  </span></a>            <span class="s1">self</span><span class="s3">.</span><span class="s1">data_length</span>
+<a name="l104"><span class="ln">104  </span></a>        <span class="s3">)</span>
+<a name="l105"><span class="ln">105  </span></a></pre>
+</body>
+</html>

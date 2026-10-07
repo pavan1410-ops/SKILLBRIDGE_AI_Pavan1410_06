@@ -1,0 +1,150 @@
+<html>
+<head>
+<title>pymssql.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #7a7e85;}
+.s1 { color: #bcbec4;}
+.s2 { color: #6aab73;}
+.s3 { color: #cf8e6d;}
+.s4 { color: #bcbec4;}
+.s5 { color: #2aacb8;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+pymssql.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0"># dialects/mssql/pymssql.py</span>
+<a name="l2"><span class="ln">2    </span></a><span class="s0"># Copyright (C) 2005-2026 the SQLAlchemy authors and contributors</span>
+<a name="l3"><span class="ln">3    </span></a><span class="s0"># &lt;see AUTHORS file&gt;</span>
+<a name="l4"><span class="ln">4    </span></a><span class="s0">#</span>
+<a name="l5"><span class="ln">5    </span></a><span class="s0"># This module is part of SQLAlchemy and is released under</span>
+<a name="l6"><span class="ln">6    </span></a><span class="s0"># the MIT License: https://www.opensource.org/licenses/mit-license.php</span>
+<a name="l7"><span class="ln">7    </span></a><span class="s0"># mypy: ignore-errors</span>
+<a name="l8"><span class="ln">8    </span></a>
+<a name="l9"><span class="ln">9    </span></a>
+<a name="l10"><span class="ln">10   </span></a><span class="s2">&quot;&quot;&quot; 
+<a name="l11"><span class="ln">11   </span></a>.. dialect:: mssql+pymssql 
+<a name="l12"><span class="ln">12   </span></a>    :name: pymssql 
+<a name="l13"><span class="ln">13   </span></a>    :dbapi: pymssql 
+<a name="l14"><span class="ln">14   </span></a>    :connectstring: mssql+pymssql://&lt;username&gt;:&lt;password&gt;@&lt;freetds_name&gt;/?charset=utf8 
+<a name="l15"><span class="ln">15   </span></a> 
+<a name="l16"><span class="ln">16   </span></a>pymssql is a Python module that provides a Python DBAPI interface around 
+<a name="l17"><span class="ln">17   </span></a>`FreeTDS &lt;https://www.freetds.org/&gt;`_. 
+<a name="l18"><span class="ln">18   </span></a> 
+<a name="l19"><span class="ln">19   </span></a>.. versionchanged:: 2.0.5 
+<a name="l20"><span class="ln">20   </span></a> 
+<a name="l21"><span class="ln">21   </span></a>    pymssql was restored to SQLAlchemy's continuous integration testing 
+<a name="l22"><span class="ln">22   </span></a> 
+<a name="l23"><span class="ln">23   </span></a> 
+<a name="l24"><span class="ln">24   </span></a>&quot;&quot;&quot;  </span><span class="s0"># noqa</span>
+<a name="l25"><span class="ln">25   </span></a>
+<a name="l26"><span class="ln">26   </span></a><span class="s3">import </span><span class="s1">re</span>
+<a name="l27"><span class="ln">27   </span></a>
+<a name="l28"><span class="ln">28   </span></a><span class="s3">from </span><span class="s4">.</span><span class="s1">base </span><span class="s3">import </span><span class="s1">MSDialect</span>
+<a name="l29"><span class="ln">29   </span></a><span class="s3">from </span><span class="s4">.</span><span class="s1">base </span><span class="s3">import </span><span class="s1">MSIdentifierPreparer</span>
+<a name="l30"><span class="ln">30   </span></a><span class="s3">from </span><span class="s4">... </span><span class="s3">import </span><span class="s1">types </span><span class="s3">as </span><span class="s1">sqltypes</span>
+<a name="l31"><span class="ln">31   </span></a><span class="s3">from </span><span class="s4">... </span><span class="s3">import </span><span class="s1">util</span>
+<a name="l32"><span class="ln">32   </span></a><span class="s3">from </span><span class="s4">...</span><span class="s1">engine </span><span class="s3">import </span><span class="s1">processors</span>
+<a name="l33"><span class="ln">33   </span></a>
+<a name="l34"><span class="ln">34   </span></a>
+<a name="l35"><span class="ln">35   </span></a><span class="s3">class </span><span class="s1">_MSNumeric_pymssql</span><span class="s4">(</span><span class="s1">sqltypes</span><span class="s4">.</span><span class="s1">Numeric</span><span class="s4">):</span>
+<a name="l36"><span class="ln">36   </span></a>    <span class="s3">def </span><span class="s1">result_processor</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">dialect</span><span class="s4">, </span><span class="s1">type_</span><span class="s4">):</span>
+<a name="l37"><span class="ln">37   </span></a>        <span class="s3">if not </span><span class="s1">self</span><span class="s4">.</span><span class="s1">asdecimal</span><span class="s4">:</span>
+<a name="l38"><span class="ln">38   </span></a>            <span class="s3">return </span><span class="s1">processors</span><span class="s4">.</span><span class="s1">to_float</span>
+<a name="l39"><span class="ln">39   </span></a>        <span class="s3">else</span><span class="s4">:</span>
+<a name="l40"><span class="ln">40   </span></a>            <span class="s3">return </span><span class="s1">sqltypes</span><span class="s4">.</span><span class="s1">Numeric</span><span class="s4">.</span><span class="s1">result_processor</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">dialect</span><span class="s4">, </span><span class="s1">type_</span><span class="s4">)</span>
+<a name="l41"><span class="ln">41   </span></a>
+<a name="l42"><span class="ln">42   </span></a>
+<a name="l43"><span class="ln">43   </span></a><span class="s3">class </span><span class="s1">MSIdentifierPreparer_pymssql</span><span class="s4">(</span><span class="s1">MSIdentifierPreparer</span><span class="s4">):</span>
+<a name="l44"><span class="ln">44   </span></a>    <span class="s3">def </span><span class="s1">__init__</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">dialect</span><span class="s4">):</span>
+<a name="l45"><span class="ln">45   </span></a>        <span class="s1">super</span><span class="s4">().</span><span class="s1">__init__</span><span class="s4">(</span><span class="s1">dialect</span><span class="s4">)</span>
+<a name="l46"><span class="ln">46   </span></a>        <span class="s0"># pymssql has the very unusual behavior that it uses pyformat</span>
+<a name="l47"><span class="ln">47   </span></a>        <span class="s0"># yet does not require that percent signs be doubled</span>
+<a name="l48"><span class="ln">48   </span></a>        <span class="s1">self</span><span class="s4">.</span><span class="s1">_double_percents </span><span class="s4">= </span><span class="s3">False</span>
+<a name="l49"><span class="ln">49   </span></a>
+<a name="l50"><span class="ln">50   </span></a>
+<a name="l51"><span class="ln">51   </span></a><span class="s3">class </span><span class="s1">MSDialect_pymssql</span><span class="s4">(</span><span class="s1">MSDialect</span><span class="s4">):</span>
+<a name="l52"><span class="ln">52   </span></a>    <span class="s1">supports_statement_cache </span><span class="s4">= </span><span class="s3">True</span>
+<a name="l53"><span class="ln">53   </span></a>    <span class="s1">supports_native_decimal </span><span class="s4">= </span><span class="s3">True</span>
+<a name="l54"><span class="ln">54   </span></a>    <span class="s1">supports_native_uuid </span><span class="s4">= </span><span class="s3">True</span>
+<a name="l55"><span class="ln">55   </span></a>    <span class="s1">driver </span><span class="s4">= </span><span class="s2">&quot;pymssql&quot;</span>
+<a name="l56"><span class="ln">56   </span></a>
+<a name="l57"><span class="ln">57   </span></a>    <span class="s1">preparer </span><span class="s4">= </span><span class="s1">MSIdentifierPreparer_pymssql</span>
+<a name="l58"><span class="ln">58   </span></a>
+<a name="l59"><span class="ln">59   </span></a>    <span class="s1">colspecs </span><span class="s4">= </span><span class="s1">util</span><span class="s4">.</span><span class="s1">update_copy</span><span class="s4">(</span>
+<a name="l60"><span class="ln">60   </span></a>        <span class="s1">MSDialect</span><span class="s4">.</span><span class="s1">colspecs</span><span class="s4">,</span>
+<a name="l61"><span class="ln">61   </span></a>        <span class="s4">{</span><span class="s1">sqltypes</span><span class="s4">.</span><span class="s1">Numeric</span><span class="s4">: </span><span class="s1">_MSNumeric_pymssql</span><span class="s4">, </span><span class="s1">sqltypes</span><span class="s4">.</span><span class="s1">Float</span><span class="s4">: </span><span class="s1">sqltypes</span><span class="s4">.</span><span class="s1">Float</span><span class="s4">},</span>
+<a name="l62"><span class="ln">62   </span></a>    <span class="s4">)</span>
+<a name="l63"><span class="ln">63   </span></a>
+<a name="l64"><span class="ln">64   </span></a>    <span class="s4">@</span><span class="s1">classmethod</span>
+<a name="l65"><span class="ln">65   </span></a>    <span class="s3">def </span><span class="s1">import_dbapi</span><span class="s4">(</span><span class="s1">cls</span><span class="s4">):</span>
+<a name="l66"><span class="ln">66   </span></a>        <span class="s1">module </span><span class="s4">= </span><span class="s1">__import__</span><span class="s4">(</span><span class="s2">&quot;pymssql&quot;</span><span class="s4">)</span>
+<a name="l67"><span class="ln">67   </span></a>        <span class="s0"># pymmsql &lt; 2.1.1 doesn't have a Binary method.  we use string</span>
+<a name="l68"><span class="ln">68   </span></a>        <span class="s1">client_ver </span><span class="s4">= </span><span class="s1">tuple</span><span class="s4">(</span><span class="s1">int</span><span class="s4">(</span><span class="s1">x</span><span class="s4">) </span><span class="s3">for </span><span class="s1">x </span><span class="s3">in </span><span class="s1">module</span><span class="s4">.</span><span class="s1">__version__</span><span class="s4">.</span><span class="s1">split</span><span class="s4">(</span><span class="s2">&quot;.&quot;</span><span class="s4">))</span>
+<a name="l69"><span class="ln">69   </span></a>        <span class="s3">if </span><span class="s1">client_ver </span><span class="s4">&lt; (</span><span class="s5">2</span><span class="s4">, </span><span class="s5">1</span><span class="s4">, </span><span class="s5">1</span><span class="s4">):</span>
+<a name="l70"><span class="ln">70   </span></a>            <span class="s0"># TODO: monkeypatching here is less than ideal</span>
+<a name="l71"><span class="ln">71   </span></a>            <span class="s1">module</span><span class="s4">.</span><span class="s1">Binary </span><span class="s4">= </span><span class="s3">lambda </span><span class="s1">x</span><span class="s4">: </span><span class="s1">x </span><span class="s3">if </span><span class="s1">hasattr</span><span class="s4">(</span><span class="s1">x</span><span class="s4">, </span><span class="s2">&quot;decode&quot;</span><span class="s4">) </span><span class="s3">else </span><span class="s1">str</span><span class="s4">(</span><span class="s1">x</span><span class="s4">)</span>
+<a name="l72"><span class="ln">72   </span></a>
+<a name="l73"><span class="ln">73   </span></a>        <span class="s3">if </span><span class="s1">client_ver </span><span class="s4">&lt; (</span><span class="s5">1</span><span class="s4">,):</span>
+<a name="l74"><span class="ln">74   </span></a>            <span class="s1">util</span><span class="s4">.</span><span class="s1">warn</span><span class="s4">(</span>
+<a name="l75"><span class="ln">75   </span></a>                <span class="s2">&quot;The pymssql dialect expects at least &quot;</span>
+<a name="l76"><span class="ln">76   </span></a>                <span class="s2">&quot;the 1.0 series of the pymssql DBAPI.&quot;</span>
+<a name="l77"><span class="ln">77   </span></a>            <span class="s4">)</span>
+<a name="l78"><span class="ln">78   </span></a>        <span class="s3">return </span><span class="s1">module</span>
+<a name="l79"><span class="ln">79   </span></a>
+<a name="l80"><span class="ln">80   </span></a>    <span class="s3">def </span><span class="s1">_get_server_version_info</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">connection</span><span class="s4">):</span>
+<a name="l81"><span class="ln">81   </span></a>        <span class="s1">vers </span><span class="s4">= </span><span class="s1">connection</span><span class="s4">.</span><span class="s1">exec_driver_sql</span><span class="s4">(</span><span class="s2">&quot;select @@version&quot;</span><span class="s4">).</span><span class="s1">scalar</span><span class="s4">()</span>
+<a name="l82"><span class="ln">82   </span></a>        <span class="s1">m </span><span class="s4">= </span><span class="s1">re</span><span class="s4">.</span><span class="s1">match</span><span class="s4">(</span><span class="s2">r&quot;Microsoft .*? - (\d+)\.(\d+)\.(\d+)\.(\d+)&quot;</span><span class="s4">, </span><span class="s1">vers</span><span class="s4">)</span>
+<a name="l83"><span class="ln">83   </span></a>        <span class="s3">if </span><span class="s1">m</span><span class="s4">:</span>
+<a name="l84"><span class="ln">84   </span></a>            <span class="s3">return </span><span class="s1">tuple</span><span class="s4">(</span><span class="s1">int</span><span class="s4">(</span><span class="s1">x</span><span class="s4">) </span><span class="s3">for </span><span class="s1">x </span><span class="s3">in </span><span class="s1">m</span><span class="s4">.</span><span class="s1">group</span><span class="s4">(</span><span class="s5">1</span><span class="s4">, </span><span class="s5">2</span><span class="s4">, </span><span class="s5">3</span><span class="s4">, </span><span class="s5">4</span><span class="s4">))</span>
+<a name="l85"><span class="ln">85   </span></a>        <span class="s3">else</span><span class="s4">:</span>
+<a name="l86"><span class="ln">86   </span></a>            <span class="s3">return None</span>
+<a name="l87"><span class="ln">87   </span></a>
+<a name="l88"><span class="ln">88   </span></a>    <span class="s3">def </span><span class="s1">create_connect_args</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">url</span><span class="s4">):</span>
+<a name="l89"><span class="ln">89   </span></a>        <span class="s1">opts </span><span class="s4">= </span><span class="s1">url</span><span class="s4">.</span><span class="s1">translate_connect_args</span><span class="s4">(</span><span class="s1">username</span><span class="s4">=</span><span class="s2">&quot;user&quot;</span><span class="s4">)</span>
+<a name="l90"><span class="ln">90   </span></a>        <span class="s1">opts</span><span class="s4">.</span><span class="s1">update</span><span class="s4">(</span><span class="s1">url</span><span class="s4">.</span><span class="s1">query</span><span class="s4">)</span>
+<a name="l91"><span class="ln">91   </span></a>        <span class="s1">port </span><span class="s4">= </span><span class="s1">opts</span><span class="s4">.</span><span class="s1">pop</span><span class="s4">(</span><span class="s2">&quot;port&quot;</span><span class="s4">, </span><span class="s3">None</span><span class="s4">)</span>
+<a name="l92"><span class="ln">92   </span></a>        <span class="s3">if </span><span class="s1">port </span><span class="s3">and </span><span class="s2">&quot;host&quot; </span><span class="s3">in </span><span class="s1">opts</span><span class="s4">:</span>
+<a name="l93"><span class="ln">93   </span></a>            <span class="s1">opts</span><span class="s4">[</span><span class="s2">&quot;host&quot;</span><span class="s4">] = </span><span class="s2">&quot;%s:%s&quot; </span><span class="s4">% (</span><span class="s1">opts</span><span class="s4">[</span><span class="s2">&quot;host&quot;</span><span class="s4">], </span><span class="s1">port</span><span class="s4">)</span>
+<a name="l94"><span class="ln">94   </span></a>        <span class="s3">return </span><span class="s4">([], </span><span class="s1">opts</span><span class="s4">)</span>
+<a name="l95"><span class="ln">95   </span></a>
+<a name="l96"><span class="ln">96   </span></a>    <span class="s3">def </span><span class="s1">is_disconnect</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">e</span><span class="s4">, </span><span class="s1">connection</span><span class="s4">, </span><span class="s1">cursor</span><span class="s4">):</span>
+<a name="l97"><span class="ln">97   </span></a>        <span class="s3">for </span><span class="s1">msg </span><span class="s3">in </span><span class="s4">(</span>
+<a name="l98"><span class="ln">98   </span></a>            <span class="s2">&quot;Adaptive Server connection timed out&quot;</span><span class="s4">,</span>
+<a name="l99"><span class="ln">99   </span></a>            <span class="s2">&quot;Net-Lib error during Connection reset by peer&quot;</span><span class="s4">,</span>
+<a name="l100"><span class="ln">100  </span></a>            <span class="s2">&quot;message 20003&quot;</span><span class="s4">,  </span><span class="s0"># connection timeout</span>
+<a name="l101"><span class="ln">101  </span></a>            <span class="s2">&quot;Error 10054&quot;</span><span class="s4">,</span>
+<a name="l102"><span class="ln">102  </span></a>            <span class="s2">&quot;Not connected to any MS SQL server&quot;</span><span class="s4">,</span>
+<a name="l103"><span class="ln">103  </span></a>            <span class="s2">&quot;Connection is closed&quot;</span><span class="s4">,</span>
+<a name="l104"><span class="ln">104  </span></a>            <span class="s2">&quot;message 20006&quot;</span><span class="s4">,  </span><span class="s0"># Write to the server failed</span>
+<a name="l105"><span class="ln">105  </span></a>            <span class="s2">&quot;message 20017&quot;</span><span class="s4">,  </span><span class="s0"># Unexpected EOF from the server</span>
+<a name="l106"><span class="ln">106  </span></a>            <span class="s2">&quot;message 20047&quot;</span><span class="s4">,  </span><span class="s0"># DBPROCESS is dead or not enabled</span>
+<a name="l107"><span class="ln">107  </span></a>            <span class="s2">&quot;The server failed to resume the transaction&quot;</span><span class="s4">,</span>
+<a name="l108"><span class="ln">108  </span></a>        <span class="s4">):</span>
+<a name="l109"><span class="ln">109  </span></a>            <span class="s3">if </span><span class="s1">msg </span><span class="s3">in </span><span class="s1">str</span><span class="s4">(</span><span class="s1">e</span><span class="s4">):</span>
+<a name="l110"><span class="ln">110  </span></a>                <span class="s3">return True</span>
+<a name="l111"><span class="ln">111  </span></a>        <span class="s3">else</span><span class="s4">:</span>
+<a name="l112"><span class="ln">112  </span></a>            <span class="s3">return False</span>
+<a name="l113"><span class="ln">113  </span></a>
+<a name="l114"><span class="ln">114  </span></a>    <span class="s3">def </span><span class="s1">get_isolation_level_values</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">dbapi_connection</span><span class="s4">):</span>
+<a name="l115"><span class="ln">115  </span></a>        <span class="s3">return </span><span class="s1">super</span><span class="s4">().</span><span class="s1">get_isolation_level_values</span><span class="s4">(</span><span class="s1">dbapi_connection</span><span class="s4">) + [</span>
+<a name="l116"><span class="ln">116  </span></a>            <span class="s2">&quot;AUTOCOMMIT&quot;</span>
+<a name="l117"><span class="ln">117  </span></a>        <span class="s4">]</span>
+<a name="l118"><span class="ln">118  </span></a>
+<a name="l119"><span class="ln">119  </span></a>    <span class="s3">def </span><span class="s1">set_isolation_level</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">dbapi_connection</span><span class="s4">, </span><span class="s1">level</span><span class="s4">):</span>
+<a name="l120"><span class="ln">120  </span></a>        <span class="s3">if </span><span class="s1">level </span><span class="s4">== </span><span class="s2">&quot;AUTOCOMMIT&quot;</span><span class="s4">:</span>
+<a name="l121"><span class="ln">121  </span></a>            <span class="s1">dbapi_connection</span><span class="s4">.</span><span class="s1">autocommit</span><span class="s4">(</span><span class="s3">True</span><span class="s4">)</span>
+<a name="l122"><span class="ln">122  </span></a>        <span class="s3">else</span><span class="s4">:</span>
+<a name="l123"><span class="ln">123  </span></a>            <span class="s1">dbapi_connection</span><span class="s4">.</span><span class="s1">autocommit</span><span class="s4">(</span><span class="s3">False</span><span class="s4">)</span>
+<a name="l124"><span class="ln">124  </span></a>            <span class="s1">super</span><span class="s4">().</span><span class="s1">set_isolation_level</span><span class="s4">(</span><span class="s1">dbapi_connection</span><span class="s4">, </span><span class="s1">level</span><span class="s4">)</span>
+<a name="l125"><span class="ln">125  </span></a>
+<a name="l126"><span class="ln">126  </span></a>
+<a name="l127"><span class="ln">127  </span></a><span class="s1">dialect </span><span class="s4">= </span><span class="s1">MSDialect_pymssql</span>
+<a name="l128"><span class="ln">128  </span></a></pre>
+</body>
+</html>

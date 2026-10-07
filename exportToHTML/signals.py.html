@@ -1,0 +1,84 @@
+<html>
+<head>
+<title>signals.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+signals.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">from </span><span class="s1">flask</span><span class="s2">.</span><span class="s1">signals </span><span class="s0">import </span><span class="s1">Namespace</span>
+<a name="l2"><span class="ln">2    </span></a>
+<a name="l3"><span class="ln">3    </span></a><span class="s1">_signals </span><span class="s2">= </span><span class="s1">Namespace</span><span class="s2">()</span>
+<a name="l4"><span class="ln">4    </span></a>
+<a name="l5"><span class="ln">5    </span></a><span class="s3">#: Sent when a user is logged in. In addition to the app (which is the</span>
+<a name="l6"><span class="ln">6    </span></a><span class="s3">#: sender), it is passed `user`, which is the user being logged in.</span>
+<a name="l7"><span class="ln">7    </span></a><span class="s1">user_logged_in </span><span class="s2">= </span><span class="s1">_signals</span><span class="s2">.</span><span class="s1">signal</span><span class="s2">(</span><span class="s4">&quot;logged-in&quot;</span><span class="s2">)</span>
+<a name="l8"><span class="ln">8    </span></a>
+<a name="l9"><span class="ln">9    </span></a><span class="s3">#: Sent when a user is logged out. In addition to the app (which is the</span>
+<a name="l10"><span class="ln">10   </span></a><span class="s3">#: sender), it is passed `user`, which is the user being logged out.</span>
+<a name="l11"><span class="ln">11   </span></a><span class="s1">user_logged_out </span><span class="s2">= </span><span class="s1">_signals</span><span class="s2">.</span><span class="s1">signal</span><span class="s2">(</span><span class="s4">&quot;logged-out&quot;</span><span class="s2">)</span>
+<a name="l12"><span class="ln">12   </span></a>
+<a name="l13"><span class="ln">13   </span></a><span class="s3">#: Sent when the user is loaded from the cookie. In addition to the app (which</span>
+<a name="l14"><span class="ln">14   </span></a><span class="s3">#: is the sender), it is passed `user`, which is the user being reloaded.</span>
+<a name="l15"><span class="ln">15   </span></a><span class="s1">user_loaded_from_cookie </span><span class="s2">= </span><span class="s1">_signals</span><span class="s2">.</span><span class="s1">signal</span><span class="s2">(</span><span class="s4">&quot;loaded-from-cookie&quot;</span><span class="s2">)</span>
+<a name="l16"><span class="ln">16   </span></a>
+<a name="l17"><span class="ln">17   </span></a><span class="s3">#: Sent when the user is loaded from the header. In addition to the app (which</span>
+<a name="l18"><span class="ln">18   </span></a><span class="s3">#: is the #: sender), it is passed `user`, which is the user being reloaded.</span>
+<a name="l19"><span class="ln">19   </span></a><span class="s1">_user_loaded_from_header </span><span class="s2">= </span><span class="s1">_signals</span><span class="s2">.</span><span class="s1">signal</span><span class="s2">(</span><span class="s4">&quot;loaded-from-header&quot;</span><span class="s2">)</span>
+<a name="l20"><span class="ln">20   </span></a>
+<a name="l21"><span class="ln">21   </span></a><span class="s3">#: Sent when the user is loaded from the request. In addition to the app (which</span>
+<a name="l22"><span class="ln">22   </span></a><span class="s3">#: is the #: sender), it is passed `user`, which is the user being reloaded.</span>
+<a name="l23"><span class="ln">23   </span></a><span class="s1">user_loaded_from_request </span><span class="s2">= </span><span class="s1">_signals</span><span class="s2">.</span><span class="s1">signal</span><span class="s2">(</span><span class="s4">&quot;loaded-from-request&quot;</span><span class="s2">)</span>
+<a name="l24"><span class="ln">24   </span></a>
+<a name="l25"><span class="ln">25   </span></a><span class="s3">#: Sent when a user's login is confirmed, marking it as fresh. (It is not</span>
+<a name="l26"><span class="ln">26   </span></a><span class="s3">#: called for a normal login.)</span>
+<a name="l27"><span class="ln">27   </span></a><span class="s3">#: It receives no additional arguments besides the app.</span>
+<a name="l28"><span class="ln">28   </span></a><span class="s1">user_login_confirmed </span><span class="s2">= </span><span class="s1">_signals</span><span class="s2">.</span><span class="s1">signal</span><span class="s2">(</span><span class="s4">&quot;login-confirmed&quot;</span><span class="s2">)</span>
+<a name="l29"><span class="ln">29   </span></a>
+<a name="l30"><span class="ln">30   </span></a><span class="s3">#: Sent when the `unauthorized` method is called on a `LoginManager`. It</span>
+<a name="l31"><span class="ln">31   </span></a><span class="s3">#: receives no additional arguments besides the app.</span>
+<a name="l32"><span class="ln">32   </span></a><span class="s1">user_unauthorized </span><span class="s2">= </span><span class="s1">_signals</span><span class="s2">.</span><span class="s1">signal</span><span class="s2">(</span><span class="s4">&quot;unauthorized&quot;</span><span class="s2">)</span>
+<a name="l33"><span class="ln">33   </span></a>
+<a name="l34"><span class="ln">34   </span></a><span class="s3">#: Sent when the `needs_refresh` method is called on a `LoginManager`. It</span>
+<a name="l35"><span class="ln">35   </span></a><span class="s3">#: receives no additional arguments besides the app.</span>
+<a name="l36"><span class="ln">36   </span></a><span class="s1">user_needs_refresh </span><span class="s2">= </span><span class="s1">_signals</span><span class="s2">.</span><span class="s1">signal</span><span class="s2">(</span><span class="s4">&quot;needs-refresh&quot;</span><span class="s2">)</span>
+<a name="l37"><span class="ln">37   </span></a>
+<a name="l38"><span class="ln">38   </span></a><span class="s3">#: Sent whenever the user is accessed/loaded</span>
+<a name="l39"><span class="ln">39   </span></a><span class="s3">#: receives no additional arguments besides the app.</span>
+<a name="l40"><span class="ln">40   </span></a><span class="s1">user_accessed </span><span class="s2">= </span><span class="s1">_signals</span><span class="s2">.</span><span class="s1">signal</span><span class="s2">(</span><span class="s4">&quot;accessed&quot;</span><span class="s2">)</span>
+<a name="l41"><span class="ln">41   </span></a>
+<a name="l42"><span class="ln">42   </span></a><span class="s3">#: Sent whenever session protection takes effect, and a session is either</span>
+<a name="l43"><span class="ln">43   </span></a><span class="s3">#: marked non-fresh or deleted. It receives no additional arguments besides</span>
+<a name="l44"><span class="ln">44   </span></a><span class="s3">#: the app.</span>
+<a name="l45"><span class="ln">45   </span></a><span class="s1">session_protected </span><span class="s2">= </span><span class="s1">_signals</span><span class="s2">.</span><span class="s1">signal</span><span class="s2">(</span><span class="s4">&quot;session-protected&quot;</span><span class="s2">)</span>
+<a name="l46"><span class="ln">46   </span></a>
+<a name="l47"><span class="ln">47   </span></a>
+<a name="l48"><span class="ln">48   </span></a><span class="s0">def </span><span class="s1">__getattr__</span><span class="s2">(</span><span class="s1">name</span><span class="s2">):</span>
+<a name="l49"><span class="ln">49   </span></a>    <span class="s0">if </span><span class="s1">name </span><span class="s2">== </span><span class="s4">&quot;user_loaded_from_header&quot;</span><span class="s2">:</span>
+<a name="l50"><span class="ln">50   </span></a>        <span class="s0">import </span><span class="s1">warnings</span>
+<a name="l51"><span class="ln">51   </span></a>
+<a name="l52"><span class="ln">52   </span></a>        <span class="s1">warnings</span><span class="s2">.</span><span class="s1">warn</span><span class="s2">(</span>
+<a name="l53"><span class="ln">53   </span></a>            <span class="s4">&quot;'user_loaded_from_header' is deprecated and will be&quot;</span>
+<a name="l54"><span class="ln">54   </span></a>            <span class="s4">&quot; removed in Flask-Login 0.7. Use&quot;</span>
+<a name="l55"><span class="ln">55   </span></a>            <span class="s4">&quot; 'user_loaded_from_request' instead.&quot;</span><span class="s2">,</span>
+<a name="l56"><span class="ln">56   </span></a>            <span class="s1">DeprecationWarning</span><span class="s2">,</span>
+<a name="l57"><span class="ln">57   </span></a>            <span class="s1">stacklevel</span><span class="s2">=</span><span class="s5">2</span><span class="s2">,</span>
+<a name="l58"><span class="ln">58   </span></a>        <span class="s2">)</span>
+<a name="l59"><span class="ln">59   </span></a>        <span class="s0">return </span><span class="s1">_user_loaded_from_header</span>
+<a name="l60"><span class="ln">60   </span></a>
+<a name="l61"><span class="ln">61   </span></a>    <span class="s0">raise </span><span class="s1">AttributeError</span><span class="s2">(</span><span class="s1">name</span><span class="s2">)</span>
+<a name="l62"><span class="ln">62   </span></a></pre>
+</body>
+</html>

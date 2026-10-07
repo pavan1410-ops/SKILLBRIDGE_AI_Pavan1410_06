@@ -1,0 +1,1240 @@
+{% extends "base.html" %}
+
+{% block title %}
+Course Certificates | SkillBridge AI
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   SKILLBRIDGE AI — CERTIFICATE VAULT
+========================================================= */
+
+.certificate-page {
+    min-height: calc(100vh - 72px);
+    padding: 20px 0 70px;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.certificate-hero {
+    position: relative;
+    overflow: hidden;
+
+    padding: 38px;
+
+    margin-bottom: 25px;
+
+    border-radius: 26px;
+
+    border: 1px solid rgba(167,139,250,.18);
+
+    background:
+        radial-gradient(
+            circle at 90% 10%,
+            rgba(167,139,250,.14),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 10% 100%,
+            rgba(56,189,248,.08),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            rgba(15,23,42,.96),
+            rgba(12,18,35,.90)
+        );
+
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.28);
+}
+
+
+.certificate-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+
+.certificate-eyebrow {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 7px 13px;
+
+    margin-bottom: 15px;
+
+    border-radius: 999px;
+
+    color: #a78bfa;
+
+    background:
+        rgba(167,139,250,.08);
+
+    border:
+        1px solid rgba(167,139,250,.18);
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+
+    text-transform: uppercase;
+}
+
+
+.certificate-hero h1 {
+    margin: 0;
+
+    font-size: clamp(30px, 4vw, 43px);
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+}
+
+
+.certificate-hero p {
+    max-width: 700px;
+
+    margin: 12px 0 0;
+
+    color: #8fa3bd;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   MAIN PANELS
+========================================================= */
+
+.certificate-panel {
+
+    padding: 28px;
+
+    margin-bottom: 24px;
+
+    border-radius: 21px;
+
+    border:
+        1px solid rgba(148,163,184,.11);
+
+    background:
+        rgba(15,23,42,.76);
+
+    backdrop-filter:
+        blur(16px);
+
+    box-shadow:
+        0 18px 45px rgba(0,0,0,.20);
+}
+
+
+.panel-heading {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    margin-bottom: 22px;
+}
+
+
+.panel-icon {
+
+    display: grid;
+
+    place-items: center;
+
+    width: 45px;
+
+    height: 45px;
+
+    flex: 0 0 45px;
+
+    border-radius: 14px;
+
+    color: #a78bfa;
+
+    background:
+        rgba(167,139,250,.08);
+
+    border:
+        1px solid rgba(167,139,250,.16);
+
+    font-size: 21px;
+}
+
+
+.panel-heading h2 {
+
+    margin: 0;
+
+    font-size: 20px;
+
+    font-weight: 750;
+}
+
+
+.panel-heading span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: #71839c;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   COURSE-ONLY NOTICE
+========================================================= */
+
+.certificate-notice {
+
+    display: flex;
+
+    gap: 14px;
+
+    align-items: flex-start;
+
+    padding: 16px;
+
+    margin-bottom: 24px;
+
+    border-radius: 14px;
+
+    background:
+        rgba(56,189,248,.055);
+
+    border:
+        1px solid rgba(56,189,248,.13);
+}
+
+
+.notice-icon {
+
+    font-size: 21px;
+}
+
+
+.certificate-notice strong {
+
+    color: #7dd3fc;
+}
+
+
+.notice-text {
+
+    color: #8fa3bd;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+}
+
+
+.notice-examples {
+
+    margin-top: 7px;
+
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.form-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 18px;
+}
+
+
+.form-group {
+
+    margin-bottom: 3px;
+}
+
+
+.form-group.full {
+
+    grid-column:
+        1 / -1;
+}
+
+
+.form-label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #cbd5e1;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .6px;
+}
+
+
+.form-control,
+.form-select {
+
+    width: 100%;
+
+    min-height: 46px;
+
+    padding: 11px 13px;
+
+    color: #e7eef8;
+
+    background:
+        rgba(7,15,28,.78);
+
+    border:
+        1px solid rgba(148,163,184,.14);
+
+    border-radius: 11px;
+
+    outline: none;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+
+.form-control::placeholder {
+
+    color: #53657c;
+}
+
+
+.form-control:focus,
+.form-select:focus {
+
+    color: #e7eef8;
+
+    background:
+        rgba(7,15,28,.95);
+
+    border-color:
+        #38bdf8;
+
+    box-shadow:
+        0 0 0 3px rgba(56,189,248,.08);
+}
+
+
+.form-select option {
+
+    background:
+        #0b1525;
+
+    color:
+        #e7eef8;
+}
+
+
+/* =========================================================
+   FILE INPUT
+========================================================= */
+
+input[type="file"].form-control {
+
+    padding:
+        8px 10px;
+}
+
+
+input[type="file"]::file-selector-button {
+
+    margin-right: 10px;
+
+    padding: 8px 12px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #334155,
+            #1e293b
+        );
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.file-help {
+
+    margin-top: 7px;
+
+    color: #64748b;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   UPLOAD BUTTON
+========================================================= */
+
+.upload-area {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 22px;
+}
+
+
+.upload-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 12px 20px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7c3aed,
+            #2563eb
+        );
+
+    border: none;
+
+    border-radius: 11px;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 9px 25px rgba(124,58,237,.18);
+
+    cursor: pointer;
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+
+.upload-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 13px 30px rgba(124,58,237,.28);
+}
+
+
+/* =========================================================
+   CERTIFICATE LIST
+========================================================= */
+
+.certificate-list {
+
+    display: grid;
+
+    gap: 14px;
+}
+
+
+.certificate {
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        58px 1fr auto;
+
+    align-items: center;
+
+    gap: 17px;
+
+    padding: 20px;
+
+    border-radius: 17px;
+
+    border:
+        1px solid rgba(148,163,184,.10);
+
+    background:
+        rgba(255,255,255,.025);
+
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        background .25s ease;
+}
+
+
+.certificate:hover {
+
+    transform:
+        translateY(-3px);
+
+    border-color:
+        rgba(167,139,250,.25);
+
+    background:
+        rgba(167,139,250,.035);
+}
+
+
+/* =========================================================
+   CERTIFICATE ICON
+========================================================= */
+
+.certificate-icon {
+
+    width: 54px;
+
+    height: 54px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 15px;
+
+    color: #a78bfa;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(124,58,237,.14),
+            rgba(37,99,235,.10)
+        );
+
+    border:
+        1px solid rgba(167,139,250,.16);
+
+    font-size: 25px;
+}
+
+
+/* =========================================================
+   CERTIFICATE INFORMATION
+========================================================= */
+
+.certificate-title {
+
+    color: #e7eef8;
+
+    font-size: 16px;
+
+    font-weight: 750;
+}
+
+
+.certificate-course {
+
+    margin-top: 5px;
+
+    color: #38bdf8;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+.certificate-info {
+
+    margin-top: 7px;
+
+    color: #71839c;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.certificate-status {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 8px;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    color: #34d399;
+
+    background:
+        rgba(52,211,153,.07);
+
+    border:
+        1px solid rgba(52,211,153,.14);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: .5px;
+}
+
+
+/* =========================================================
+   VIEW BUTTON
+========================================================= */
+
+.view-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 10px 14px;
+
+    color: #e7eef8;
+
+    background:
+        rgba(56,189,248,.06);
+
+    border:
+        1px solid rgba(56,189,248,.15);
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    transition:
+        all .2s ease;
+}
+
+
+.view-button:hover {
+
+    color: white;
+
+    background:
+        rgba(56,189,248,.12);
+
+    border-color:
+        rgba(56,189,248,.30);
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty {
+
+    padding: 45px 20px;
+
+    text-align: center;
+
+    border:
+        1px dashed rgba(148,163,184,.16);
+
+    border-radius: 16px;
+}
+
+
+.empty-icon {
+
+    width: 65px;
+
+    height: 65px;
+
+    display: grid;
+
+    place-items: center;
+
+    margin: 0 auto 17px;
+
+    border-radius: 18px;
+
+    color: #a78bfa;
+
+    background:
+        rgba(167,139,250,.08);
+
+    border:
+        1px solid rgba(167,139,250,.15);
+
+    font-size: 28px;
+}
+
+
+.empty h3 {
+
+    margin-bottom: 8px;
+
+    font-size: 20px;
+}
+
+
+.empty p {
+
+    max-width: 520px;
+
+    margin: auto;
+
+    color: #71839c;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   BOTTOM NAVIGATION
+========================================================= */
+
+.back {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color: #38bdf8;
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.back:hover {
+
+    color: #7dd3fc;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .certificate-hero {
+
+        padding: 26px 21px;
+
+        border-radius: 20px;
+    }
+
+
+    .certificate-panel {
+
+        padding: 21px;
+
+        border-radius: 18px;
+    }
+
+
+    .form-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .form-group.full {
+
+        grid-column: auto;
+    }
+
+
+    .upload-area {
+
+        justify-content: stretch;
+    }
+
+
+    .upload-button {
+
+        width: 100%;
+
+        justify-content: center;
+    }
+
+
+    .certificate {
+
+        grid-template-columns:
+            48px 1fr;
+
+        align-items: start;
+    }
+
+
+    .certificate-icon {
+
+        width: 46px;
+
+        height: 46px;
+
+        font-size: 21px;
+    }
+
+
+    .certificate-action {
+
+        grid-column:
+            2;
+    }
+
+
+    .view-button {
+
+        width: 100%;
+
+        justify-content: center;
+    }
+
+}
+
+</style>
+
+
+<div class="certificate-page">
+
+<div class="container">
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="certificate-hero">
+
+        <div class="certificate-hero-content">
+
+            <div class="certificate-eyebrow">
+                ✦ SkillBridge AI Credentials
+            </div>
+
+            <h1>
+                🎓 Certificate Vault
+            </h1>
+
+            <p>
+                Store and showcase your verified course certificates
+                as part of your SkillBridge AI career profile.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         UPLOAD CERTIFICATE
+    ====================================================== -->
+
+    <section class="certificate-panel">
+
+        <div class="panel-heading">
+
+            <div class="panel-icon">
+                📜
+            </div>
+
+            <div>
+
+                <h2>
+                    Upload Course Certificate
+                </h2>
+
+                <span>
+                    Add your completed learning credentials
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- COURSE-ONLY NOTICE -->
+
+        <div class="certificate-notice">
+
+            <div class="notice-icon">
+                🎓
+            </div>
+
+            <div class="notice-text">
+
+                <strong>
+                    Only course certificates are allowed.
+                </strong>
+
+                <div class="notice-examples">
+
+                    Examples:
+                    Python · SQL · Power BI · Data Analytics ·
+                    Cybersecurity · Machine Learning
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FORM -->
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-grid">
+
+
+                <!-- CERTIFICATE NAME -->
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Certificate Name
+                    </label>
+
+                    <input
+                        type="text"
+                        name="certificate_name"
+                        class="form-control"
+                        placeholder="Python for Data Science Certificate"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- COURSE NAME -->
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Course Name
+                    </label>
+
+                    <input
+                        type="text"
+                        name="course_name"
+                        class="form-control"
+                        placeholder="Python for Data Science"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- ORGANIZATION -->
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Issuing Organization
+                    </label>
+
+                    <input
+                        type="text"
+                        name="issuing_organization"
+                        class="form-control"
+                        placeholder="Coursera, Udemy, IBM..."
+                    >
+
+                </div>
+
+
+                <!-- TYPE -->
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Certificate Type
+                    </label>
+
+                    <select
+                        name="certificate_type"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="Course Certificate">
+                            Course Certificate
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- FILE -->
+
+                <div class="form-group full">
+
+                    <label class="form-label">
+                        Certificate File
+                    </label>
+
+                    <input
+                        type="file"
+                        name="certificate_file"
+                        class="form-control"
+                        accept=".pdf,.png,.jpg,.jpeg"
+                        required
+                    >
+
+                    <div class="file-help">
+                        Supported formats: PDF, PNG, JPG and JPEG
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="upload-area">
+
+                <button
+                    type="submit"
+                    class="upload-button"
+                >
+                    📤 Upload Certificate
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- =====================================================
+         SAVED CERTIFICATES
+    ====================================================== -->
+
+    <section class="certificate-panel">
+
+        <div class="panel-heading">
+
+            <div class="panel-icon">
+                🏆
+            </div>
+
+            <div>
+
+                <h2>
+                    My Course Certificates
+                </h2>
+
+                <span>
+                    Your learning credentials and achievements
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {% if certificates %}
+
+            <div class="certificate-list">
+
+                {% for certificate in certificates %}
+
+                    <article class="certificate">
+
+
+                        <!-- ICON -->
+
+                        <div class="certificate-icon">
+                            🎓
+                        </div>
+
+
+                        <!-- INFORMATION -->
+
+                        <div>
+
+                            <div class="certificate-title">
+
+                                {{ certificate.certificate_name }}
+
+                            </div>
+
+
+                            <div class="certificate-course">
+
+                                {{ certificate.course_name }}
+
+                            </div>
+
+
+                            <div class="certificate-info">
+
+                                {% if certificate.issuing_organization %}
+
+                                    <strong>
+                                        Issued by:
+                                    </strong>
+
+                                    {{ certificate.issuing_organization }}
+
+                                    <br>
+
+                                {% endif %}
+
+
+                                <strong>
+                                    Uploaded:
+                                </strong>
+
+                                {{ certificate.uploaded_at.strftime('%d %b %Y') }}
+
+                            </div>
+
+
+                            <span class="certificate-status">
+
+                                ✓ Course Certificate
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- VIEW -->
+
+                        <div class="certificate-action">
+
+                            <a
+                                href="{{ url_for(
+                                    'static',
+                                    filename='uploads/certificates/' ~ certificate.file_name
+                                ) }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="view-button"
+                            >
+                                👁️ View Certificate
+                            </a>
+
+                        </div>
+
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+
+            <!-- EMPTY -->
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    📜
+                </div>
+
+                <h3>
+                    No Certificates Yet
+                </h3>
+
+                <p>
+                    Upload your first course certificate to strengthen
+                    your SkillBridge AI career profile and learning history.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         BACK
+    ====================================================== -->
+
+    <a
+        href="{{ url_for('dashboard.dashboard') }}"
+        class="back"
+    >
+        ← Back to Dashboard
+    </a>
+
+
+</div>
+
+</div>
+
+{% endblock %}

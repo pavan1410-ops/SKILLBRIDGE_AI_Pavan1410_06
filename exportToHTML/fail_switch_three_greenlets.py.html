@@ -1,0 +1,68 @@
+<html>
+<head>
+<title>fail_switch_three_greenlets.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #5f826b; font-style: italic;}
+.s1 { color: #bcbec4;}
+.s2 { color: #cf8e6d;}
+.s3 { color: #bcbec4;}
+.s4 { color: #6aab73;}
+.s5 { color: #7a7e85;}
+.s6 { color: #2aacb8;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+fail_switch_three_greenlets.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">&quot;&quot;&quot; 
+<a name="l2"><span class="ln">2    </span></a>Uses a trace function to switch greenlets at unexpected times. 
+<a name="l3"><span class="ln">3    </span></a> 
+<a name="l4"><span class="ln">4    </span></a>In the trace function, we switch from the current greenlet to another 
+<a name="l5"><span class="ln">5    </span></a>greenlet, which switches 
+<a name="l6"><span class="ln">6    </span></a>&quot;&quot;&quot;</span>
+<a name="l7"><span class="ln">7    </span></a><span class="s2">import </span><span class="s1">greenlet</span>
+<a name="l8"><span class="ln">8    </span></a>
+<a name="l9"><span class="ln">9    </span></a><span class="s1">g1 </span><span class="s3">= </span><span class="s2">None</span>
+<a name="l10"><span class="ln">10   </span></a><span class="s1">g2 </span><span class="s3">= </span><span class="s2">None</span>
+<a name="l11"><span class="ln">11   </span></a>
+<a name="l12"><span class="ln">12   </span></a><span class="s1">switch_to_g2 </span><span class="s3">= </span><span class="s2">False</span>
+<a name="l13"><span class="ln">13   </span></a>
+<a name="l14"><span class="ln">14   </span></a><span class="s2">def </span><span class="s1">tracefunc</span><span class="s3">(*</span><span class="s1">args</span><span class="s3">):</span>
+<a name="l15"><span class="ln">15   </span></a>    <span class="s1">print</span><span class="s3">(</span><span class="s4">'TRACE'</span><span class="s3">, *</span><span class="s1">args</span><span class="s3">)</span>
+<a name="l16"><span class="ln">16   </span></a>    <span class="s2">global </span><span class="s1">switch_to_g2</span>
+<a name="l17"><span class="ln">17   </span></a>    <span class="s2">if </span><span class="s1">switch_to_g2</span><span class="s3">:</span>
+<a name="l18"><span class="ln">18   </span></a>        <span class="s1">switch_to_g2 </span><span class="s3">= </span><span class="s2">False</span>
+<a name="l19"><span class="ln">19   </span></a>        <span class="s1">g2</span><span class="s3">.</span><span class="s1">switch</span><span class="s3">()</span>
+<a name="l20"><span class="ln">20   </span></a>    <span class="s1">print</span><span class="s3">(</span><span class="s4">'</span><span class="s2">\t</span><span class="s4">LEAVE TRACE'</span><span class="s3">, *</span><span class="s1">args</span><span class="s3">)</span>
+<a name="l21"><span class="ln">21   </span></a>
+<a name="l22"><span class="ln">22   </span></a><span class="s2">def </span><span class="s1">g1_run</span><span class="s3">():</span>
+<a name="l23"><span class="ln">23   </span></a>    <span class="s1">print</span><span class="s3">(</span><span class="s4">'In g1_run'</span><span class="s3">)</span>
+<a name="l24"><span class="ln">24   </span></a>    <span class="s2">global </span><span class="s1">switch_to_g2</span>
+<a name="l25"><span class="ln">25   </span></a>    <span class="s1">switch_to_g2 </span><span class="s3">= </span><span class="s2">True</span>
+<a name="l26"><span class="ln">26   </span></a>    <span class="s1">from_parent </span><span class="s3">= </span><span class="s1">greenlet</span><span class="s3">.</span><span class="s1">getcurrent</span><span class="s3">().</span><span class="s1">parent</span><span class="s3">.</span><span class="s1">switch</span><span class="s3">()</span>
+<a name="l27"><span class="ln">27   </span></a>    <span class="s1">print</span><span class="s3">(</span><span class="s4">'Return to g1_run'</span><span class="s3">)</span>
+<a name="l28"><span class="ln">28   </span></a>    <span class="s1">print</span><span class="s3">(</span><span class="s4">'From parent'</span><span class="s3">, </span><span class="s1">from_parent</span><span class="s3">)</span>
+<a name="l29"><span class="ln">29   </span></a>
+<a name="l30"><span class="ln">30   </span></a><span class="s2">def </span><span class="s1">g2_run</span><span class="s3">():</span>
+<a name="l31"><span class="ln">31   </span></a>    <span class="s5">#g1.switch()</span>
+<a name="l32"><span class="ln">32   </span></a>    <span class="s1">greenlet</span><span class="s3">.</span><span class="s1">getcurrent</span><span class="s3">().</span><span class="s1">parent</span><span class="s3">.</span><span class="s1">switch</span><span class="s3">()</span>
+<a name="l33"><span class="ln">33   </span></a>
+<a name="l34"><span class="ln">34   </span></a><span class="s1">greenlet</span><span class="s3">.</span><span class="s1">settrace</span><span class="s3">(</span><span class="s1">tracefunc</span><span class="s3">)</span>
+<a name="l35"><span class="ln">35   </span></a>
+<a name="l36"><span class="ln">36   </span></a><span class="s1">g1 </span><span class="s3">= </span><span class="s1">greenlet</span><span class="s3">.</span><span class="s1">greenlet</span><span class="s3">(</span><span class="s1">g1_run</span><span class="s3">)</span>
+<a name="l37"><span class="ln">37   </span></a><span class="s1">g2 </span><span class="s3">= </span><span class="s1">greenlet</span><span class="s3">.</span><span class="s1">greenlet</span><span class="s3">(</span><span class="s1">g2_run</span><span class="s3">)</span>
+<a name="l38"><span class="ln">38   </span></a>
+<a name="l39"><span class="ln">39   </span></a><span class="s5"># This switch didn't actually finish!</span>
+<a name="l40"><span class="ln">40   </span></a><span class="s5"># And if it did, it would raise TypeError</span>
+<a name="l41"><span class="ln">41   </span></a><span class="s5"># because g1_run() doesn't take any arguments.</span>
+<a name="l42"><span class="ln">42   </span></a><span class="s1">g1</span><span class="s3">.</span><span class="s1">switch</span><span class="s3">(</span><span class="s6">1</span><span class="s3">)</span>
+<a name="l43"><span class="ln">43   </span></a><span class="s1">print</span><span class="s3">(</span><span class="s4">'Back in main'</span><span class="s3">)</span>
+<a name="l44"><span class="ln">44   </span></a><span class="s1">g1</span><span class="s3">.</span><span class="s1">switch</span><span class="s3">(</span><span class="s6">2</span><span class="s3">)</span>
+<a name="l45"><span class="ln">45   </span></a></pre>
+</body>
+</html>

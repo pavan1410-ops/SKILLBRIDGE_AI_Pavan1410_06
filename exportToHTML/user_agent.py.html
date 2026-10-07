@@ -1,0 +1,69 @@
+<html>
+<head>
+<title>user_agent.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #5f826b; font-style: italic;}
+.s4 { color: #6aab73;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+user_agent.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">from </span><span class="s1">__future__ </span><span class="s0">import </span><span class="s1">annotations</span>
+<a name="l2"><span class="ln">2    </span></a>
+<a name="l3"><span class="ln">3    </span></a>
+<a name="l4"><span class="ln">4    </span></a><span class="s0">class </span><span class="s1">UserAgent</span><span class="s2">:</span>
+<a name="l5"><span class="ln">5    </span></a>    <span class="s3">&quot;&quot;&quot;Represents a parsed user agent header value. 
+<a name="l6"><span class="ln">6    </span></a> 
+<a name="l7"><span class="ln">7    </span></a>    The default implementation does no parsing, only the :attr:`string` 
+<a name="l8"><span class="ln">8    </span></a>    attribute is set. A subclass may parse the string to set the 
+<a name="l9"><span class="ln">9    </span></a>    common attributes or expose other information. Set 
+<a name="l10"><span class="ln">10   </span></a>    :attr:`werkzeug.wrappers.Request.user_agent_class` to use a 
+<a name="l11"><span class="ln">11   </span></a>    subclass. 
+<a name="l12"><span class="ln">12   </span></a> 
+<a name="l13"><span class="ln">13   </span></a>    :param string: The header value to parse. 
+<a name="l14"><span class="ln">14   </span></a> 
+<a name="l15"><span class="ln">15   </span></a>    .. versionadded:: 2.0 
+<a name="l16"><span class="ln">16   </span></a>        This replaces the previous ``useragents`` module, but does not 
+<a name="l17"><span class="ln">17   </span></a>        provide a built-in parser. 
+<a name="l18"><span class="ln">18   </span></a>    &quot;&quot;&quot;</span>
+<a name="l19"><span class="ln">19   </span></a>
+<a name="l20"><span class="ln">20   </span></a>    <span class="s1">platform</span><span class="s2">: </span><span class="s1">str </span><span class="s2">| </span><span class="s0">None </span><span class="s2">= </span><span class="s0">None</span>
+<a name="l21"><span class="ln">21   </span></a>    <span class="s4">&quot;&quot;&quot;The OS name, if it could be parsed from the string.&quot;&quot;&quot;</span>
+<a name="l22"><span class="ln">22   </span></a>
+<a name="l23"><span class="ln">23   </span></a>    <span class="s1">browser</span><span class="s2">: </span><span class="s1">str </span><span class="s2">| </span><span class="s0">None </span><span class="s2">= </span><span class="s0">None</span>
+<a name="l24"><span class="ln">24   </span></a>    <span class="s4">&quot;&quot;&quot;The browser name, if it could be parsed from the string.&quot;&quot;&quot;</span>
+<a name="l25"><span class="ln">25   </span></a>
+<a name="l26"><span class="ln">26   </span></a>    <span class="s1">version</span><span class="s2">: </span><span class="s1">str </span><span class="s2">| </span><span class="s0">None </span><span class="s2">= </span><span class="s0">None</span>
+<a name="l27"><span class="ln">27   </span></a>    <span class="s4">&quot;&quot;&quot;The browser version, if it could be parsed from the string.&quot;&quot;&quot;</span>
+<a name="l28"><span class="ln">28   </span></a>
+<a name="l29"><span class="ln">29   </span></a>    <span class="s1">language</span><span class="s2">: </span><span class="s1">str </span><span class="s2">| </span><span class="s0">None </span><span class="s2">= </span><span class="s0">None</span>
+<a name="l30"><span class="ln">30   </span></a>    <span class="s4">&quot;&quot;&quot;The browser language, if it could be parsed from the string.&quot;&quot;&quot;</span>
+<a name="l31"><span class="ln">31   </span></a>
+<a name="l32"><span class="ln">32   </span></a>    <span class="s0">def </span><span class="s1">__init__</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">string</span><span class="s2">: </span><span class="s1">str</span><span class="s2">) </span><span class="s1">-&gt; </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l33"><span class="ln">33   </span></a>        <span class="s1">self</span><span class="s2">.</span><span class="s1">string</span><span class="s2">: </span><span class="s1">str </span><span class="s2">= </span><span class="s1">string</span>
+<a name="l34"><span class="ln">34   </span></a>        <span class="s4">&quot;&quot;&quot;The original header value.&quot;&quot;&quot;</span>
+<a name="l35"><span class="ln">35   </span></a>
+<a name="l36"><span class="ln">36   </span></a>    <span class="s0">def </span><span class="s1">__repr__</span><span class="s2">(</span><span class="s1">self</span><span class="s2">) </span><span class="s1">-&gt; str</span><span class="s2">:</span>
+<a name="l37"><span class="ln">37   </span></a>        <span class="s0">return </span><span class="s4">f&quot;&lt;</span><span class="s0">{</span><span class="s1">type</span><span class="s2">(</span><span class="s1">self</span><span class="s2">).</span><span class="s1">__name__</span><span class="s0">} {</span><span class="s1">self</span><span class="s2">.</span><span class="s1">browser</span><span class="s0">}</span><span class="s4">/</span><span class="s0">{</span><span class="s1">self</span><span class="s2">.</span><span class="s1">version</span><span class="s0">}</span><span class="s4">&gt;&quot;</span>
+<a name="l38"><span class="ln">38   </span></a>
+<a name="l39"><span class="ln">39   </span></a>    <span class="s0">def </span><span class="s1">__str__</span><span class="s2">(</span><span class="s1">self</span><span class="s2">) </span><span class="s1">-&gt; str</span><span class="s2">:</span>
+<a name="l40"><span class="ln">40   </span></a>        <span class="s0">return </span><span class="s1">self</span><span class="s2">.</span><span class="s1">string</span>
+<a name="l41"><span class="ln">41   </span></a>
+<a name="l42"><span class="ln">42   </span></a>    <span class="s0">def </span><span class="s1">__bool__</span><span class="s2">(</span><span class="s1">self</span><span class="s2">) </span><span class="s1">-&gt; bool</span><span class="s2">:</span>
+<a name="l43"><span class="ln">43   </span></a>        <span class="s0">return </span><span class="s1">bool</span><span class="s2">(</span><span class="s1">self</span><span class="s2">.</span><span class="s1">browser</span><span class="s2">)</span>
+<a name="l44"><span class="ln">44   </span></a>
+<a name="l45"><span class="ln">45   </span></a>    <span class="s0">def </span><span class="s1">to_header</span><span class="s2">(</span><span class="s1">self</span><span class="s2">) </span><span class="s1">-&gt; str</span><span class="s2">:</span>
+<a name="l46"><span class="ln">46   </span></a>        <span class="s3">&quot;&quot;&quot;Convert to a header value.&quot;&quot;&quot;</span>
+<a name="l47"><span class="ln">47   </span></a>        <span class="s0">return </span><span class="s1">self</span><span class="s2">.</span><span class="s1">string</span>
+<a name="l48"><span class="ln">48   </span></a></pre>
+</body>
+</html>

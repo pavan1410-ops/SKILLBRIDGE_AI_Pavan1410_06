@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Profile | SkillBridge AI</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0b1220;
+            color: #e5e7eb;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .header p {
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        /* =========================================
+           CARDS
+        ========================================= */
+
+        .card {
+            background: #111827;
+            border: 1px solid #263449;
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .card h2 {
+            color: #60a5fa;
+            margin-top: 0;
+            margin-bottom: 22px;
+        }
+
+        /* =========================================
+           GRID
+        ========================================= */
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        /* =========================================
+           LABELS
+        ========================================= */
+
+        label {
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        /* =========================================
+           INPUTS
+        ========================================= */
+
+        input,
+        select {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            outline: none;
+            font-size: 15px;
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        /* =========================================
+           LINKEDIN CARD
+        ========================================= */
+
+        .linkedin-card {
+            background: linear-gradient(
+                135deg,
+                #111827,
+                #0f1b2d
+            );
+
+            border: 1px solid #263449;
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .linkedin-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .linkedin-title h2 {
+            margin: 0;
+            color: #60a5fa;
+        }
+
+        .linkedin-description {
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .linkedin-input {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .linkedin-input small {
+            margin-top: 8px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .linkedin-preview {
+            margin-top: 18px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #0b1220;
+            border: 1px solid #263449;
+        }
+
+        .linkedin-preview-label {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .linkedin-preview a {
+            color: #22c55e;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .linkedin-preview a:hover {
+            text-decoration: underline;
+        }
+
+        /* =========================================
+           BUTTONS
+        ========================================= */
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .linkedin-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: #166534;
+            color: #dcfce7;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid #22c55e;
+        }
+
+        .linkedin-button:hover {
+            background: #15803d;
+        }
+
+        /* =========================================
+           FLASH MESSAGE
+        ========================================= */
+
+        .flash {
+            padding: 14px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background: #14532d;
+            color: #bbf7d0;
+            border: 1px solid #166534;
+        }
+
+        /* =========================================
+           PROFILE FOOTER INFO
+        ========================================= */
+
+        .profile-info {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #0f172a;
+            border: 1px solid #263449;
+        }
+
+        .profile-info h3 {
+            margin-top: 0;
+            color: #60a5fa;
+        }
+
+        .profile-info p {
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
+        @media (max-width: 700px) {
+
+            .container {
+                margin: 20px auto;
+                padding: 15px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+
+            .card,
+            .linkedin-card {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 25px;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn,
+            .linkedin-button {
+                text-align: center;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- =========================================
+         HEADER
+    ========================================= -->
+
+    <div class="header">
+
+        <h1>
+            👤 My Career Profile
+        </h1>
+
+        <p>
+            Build your SkillBridge AI career profile.
+            Your information will power career recommendations,
+            skill-gap analysis and your Career Digital Twin.
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         FLASH MESSAGES
+    ========================================= -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% for category, message in messages %}
+
+            <div class="flash">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+    <!-- =========================================
+         PROFILE FORM
+    ========================================= -->
+
+    <form method="POST">
+
+
+        <!-- =====================================
+             EDUCATION
+        ====================================== -->
+
+        <div class="card">
+
+            <h2>
+                🎓 Education
+            </h2>
+
+            <div class="grid">
+
+
+                <!-- EDUCATION -->
+
+                <div class="field">
+
+                    <label for="education">
+                        Education
+                    </label>
+
+                    <input
+                        type="text"
+                        id="education"
+                        name="education"
+                        value="{{ student.education or '' }}"
+                        placeholder="Example: Bachelor's Degree"
+                    >
+
+                </div>
+
+
+                <!-- DEGREE -->
+
+                <div class="field">
+
+                    <label for="degree">
+                        Degree
+                    </label>
+
+                    <input
+                        type="text"
+                        id="degree"
+                        name="degree"
+                        value="{{ student.degree or '' }}"
+                        placeholder="Example: B.Tech"
+                    >
+
+                </div>
+
+
+                <!-- BRANCH -->
+
+                <div class="field">
+
+                    <label for="branch">
+                        Branch
+                    </label>
+
+                    <input
+                        type="text"
+                        id="branch"
+                        name="branch"
+                        value="{{ student.branch or '' }}"
+                        placeholder="Example: Computer Science"
+                    >
+
+                </div>
+
+
+                <!-- COLLEGE -->
+
+                <div class="field">
+
+                    <label for="college">
+                        College
+                    </label>
+
+                    <input
+                        type="text"
+                        id="college"
+                        name="college"
+                        value="{{ student.college or '' }}"
+                        placeholder="College / University"
+                    >
+
+                </div>
+
+
+                <!-- GRADUATION YEAR -->
+
+                <div class="field">
+
+                    <label for="graduation_year">
+                        Graduation Year
+                    </label>
+
+                    <input
+                        type="number"
+                        id="graduation_year"
+                        name="graduation_year"
+                        value="{{ student.graduation_year or '' }}"
+                        placeholder="2027"
+                        min="1950"
+                        max="2100"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             EXPERIENCE
+        ====================================== -->
+
+        <div class="card">
+
+            <h2>
+                💼 Experience
+            </h2>
+
+            <div class="grid">
+
+
+                <!-- EXPERIENCE LEVEL -->
+
+                <div class="field">
+
+                    <label for="experience_level">
+                        Experience Level
+                    </label>
+
+                    <select
+                        name="experience_level"
+                        id="experience_level"
+                    >
+
+                        <option value="">
+                            Select experience level
+                        </option>
+
+
+                        <option
+                            value="Fresher"
+                            {% if student.experience_level == "Fresher" %}
+                                selected
+                            {% endif %}
+                        >
+                            Fresher
+                        </option>
+
+
+                        <option
+                            value="0-2 Years"
+                            {% if student.experience_level == "0-2 Years" %}
+                                selected
+                            {% endif %}
+                        >
+                            0–2 Years
+                        </option>
+
+
+                        <option
+                            value="2-5 Years"
+                            {% if student.experience_level == "2-5 Years" %}
+                                selected
+                            {% endif %}
+                        >
+                            2–5 Years
+                        </option>
+
+
+                        <option
+                            value="5+ Years"
+                            {% if student.experience_level == "5+ Years" %}
+                                selected
+                            {% endif %}
+                        >
+                            5+ Years
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- LOCATION -->
+
+                <div class="field">
+
+                    <label for="location">
+                        Location
+                    </label>
+
+                    <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        value="{{ student.location or '' }}"
+                        placeholder="Example: Bengaluru"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             LINKEDIN PROFILE
+        ====================================== -->
+
+        <div class="linkedin-card">
+
+
+            <div class="linkedin-title">
+
+                <span style="font-size: 25px;">
+                    🔗
+                </span>
+
+                <h2>
+                    LinkedIn Profile
+                </h2>
+
+            </div>
+
+
+            <p class="linkedin-description">
+
+                Add your LinkedIn profile to strengthen your
+                SkillBridge AI career profile. Your LinkedIn
+                profile can be accessed from your dashboard,
+                Career Digital Twin and job-matching areas.
+
+            </p>
+
+
+            <div class="linkedin-input">
+
+                <label for="linkedin_url">
+                    LinkedIn Profile URL
+                </label>
+
+                <input
+                    type="url"
+                    id="linkedin_url"
+                    name="linkedin_url"
+                    placeholder="https://www.linkedin.com/in/your-profile"
+                    value="{{ student.linkedin_url or '' }}"
+                >
+
+                <small>
+                    Example:
+                    https://www.linkedin.com/in/your-profile
+                </small>
+
+            </div>
+
+
+            <!-- =================================
+                 EXISTING LINKEDIN PREVIEW
+            ================================== -->
+
+            {% if student.linkedin_url %}
+
+                <div class="linkedin-preview">
+
+                    <div class="linkedin-preview-label">
+                        Your LinkedIn profile
+                    </div>
+
+                    <a
+                        href="{{ student.linkedin_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {{ student.linkedin_url }}
+                    </a>
+
+                </div>
+
+
+                <a
+                    href="{{ student.linkedin_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="linkedin-button"
+                >
+                    🔗 View LinkedIn Profile →
+                </a>
+
+            {% endif %}
+
+
+        </div>
+
+
+        <!-- =====================================
+             SAVE
+        ====================================== -->
+
+        <div class="actions">
+
+            <button
+                class="btn"
+                type="submit"
+            >
+                💾 Save Profile
+            </button>
+
+        </div>
+
+
+    </form>
+
+
+    <!-- =========================================
+         INFORMATION
+    ========================================= -->
+
+    <div class="profile-info">
+
+        <h3>
+            🤖 How SkillBridge AI Uses Your Profile
+        </h3>
+
+        <p>
+
+            Your profile information helps SkillBridge AI
+            generate personalized career recommendations,
+            identify skill gaps, build learning paths,
+            calculate career readiness and maintain your
+            AI Career Digital Twin.
+
+        </p>
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

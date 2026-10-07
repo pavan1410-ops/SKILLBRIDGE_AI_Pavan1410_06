@@ -1,0 +1,409 @@
+<html>
+<head>
+<title>sessions.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #5f826b; font-style: italic;}
+.s5 { color: #6aab73;}
+.s6 { color: #a5c261;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+sessions.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">from </span><span class="s1">__future__ </span><span class="s0">import </span><span class="s1">annotations</span>
+<a name="l2"><span class="ln">2    </span></a>
+<a name="l3"><span class="ln">3    </span></a><span class="s0">import </span><span class="s1">collections</span><span class="s2">.</span><span class="s1">abc </span><span class="s0">as </span><span class="s1">c</span>
+<a name="l4"><span class="ln">4    </span></a><span class="s0">import </span><span class="s1">hashlib</span>
+<a name="l5"><span class="ln">5    </span></a><span class="s0">import </span><span class="s1">typing </span><span class="s0">as </span><span class="s1">t</span>
+<a name="l6"><span class="ln">6    </span></a><span class="s0">from </span><span class="s1">collections</span><span class="s2">.</span><span class="s1">abc </span><span class="s0">import </span><span class="s1">MutableMapping</span>
+<a name="l7"><span class="ln">7    </span></a><span class="s0">from </span><span class="s1">datetime </span><span class="s0">import </span><span class="s1">datetime</span>
+<a name="l8"><span class="ln">8    </span></a><span class="s0">from </span><span class="s1">datetime </span><span class="s0">import </span><span class="s1">timezone</span>
+<a name="l9"><span class="ln">9    </span></a>
+<a name="l10"><span class="ln">10   </span></a><span class="s0">from </span><span class="s1">itsdangerous </span><span class="s0">import </span><span class="s1">BadSignature</span>
+<a name="l11"><span class="ln">11   </span></a><span class="s0">from </span><span class="s1">itsdangerous </span><span class="s0">import </span><span class="s1">URLSafeTimedSerializer</span>
+<a name="l12"><span class="ln">12   </span></a><span class="s0">from </span><span class="s1">werkzeug</span><span class="s2">.</span><span class="s1">datastructures </span><span class="s0">import </span><span class="s1">CallbackDict</span>
+<a name="l13"><span class="ln">13   </span></a>
+<a name="l14"><span class="ln">14   </span></a><span class="s0">from </span><span class="s2">.</span><span class="s1">json</span><span class="s2">.</span><span class="s1">tag </span><span class="s0">import </span><span class="s1">TaggedJSONSerializer</span>
+<a name="l15"><span class="ln">15   </span></a>
+<a name="l16"><span class="ln">16   </span></a><span class="s0">if </span><span class="s1">t</span><span class="s2">.</span><span class="s1">TYPE_CHECKING</span><span class="s2">:  </span><span class="s3"># pragma: no cover</span>
+<a name="l17"><span class="ln">17   </span></a>    <span class="s0">import </span><span class="s1">typing_extensions </span><span class="s0">as </span><span class="s1">te</span>
+<a name="l18"><span class="ln">18   </span></a>
+<a name="l19"><span class="ln">19   </span></a>    <span class="s0">from </span><span class="s2">.</span><span class="s1">app </span><span class="s0">import </span><span class="s1">Flask</span>
+<a name="l20"><span class="ln">20   </span></a>    <span class="s0">from </span><span class="s2">.</span><span class="s1">wrappers </span><span class="s0">import </span><span class="s1">Request</span>
+<a name="l21"><span class="ln">21   </span></a>    <span class="s0">from </span><span class="s2">.</span><span class="s1">wrappers </span><span class="s0">import </span><span class="s1">Response</span>
+<a name="l22"><span class="ln">22   </span></a>
+<a name="l23"><span class="ln">23   </span></a>
+<a name="l24"><span class="ln">24   </span></a><span class="s0">class </span><span class="s1">SessionMixin</span><span class="s2">(</span><span class="s1">MutableMapping</span><span class="s2">[</span><span class="s1">str</span><span class="s2">, </span><span class="s1">t</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">]):</span>
+<a name="l25"><span class="ln">25   </span></a>    <span class="s4">&quot;&quot;&quot;Expands a basic dictionary with session attributes.&quot;&quot;&quot;</span>
+<a name="l26"><span class="ln">26   </span></a>
+<a name="l27"><span class="ln">27   </span></a>    <span class="s2">@</span><span class="s1">property</span>
+<a name="l28"><span class="ln">28   </span></a>    <span class="s0">def </span><span class="s1">permanent</span><span class="s2">(</span><span class="s1">self</span><span class="s2">) </span><span class="s1">-&gt; bool</span><span class="s2">:</span>
+<a name="l29"><span class="ln">29   </span></a>        <span class="s4">&quot;&quot;&quot;This reflects the ``'_permanent'`` key in the dict.&quot;&quot;&quot;</span>
+<a name="l30"><span class="ln">30   </span></a>        <span class="s0">return </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s5">&quot;_permanent&quot;</span><span class="s2">, </span><span class="s0">False</span><span class="s2">)  </span><span class="s3"># type: ignore[no-any-return]</span>
+<a name="l31"><span class="ln">31   </span></a>
+<a name="l32"><span class="ln">32   </span></a>    <span class="s2">@</span><span class="s1">permanent</span><span class="s2">.</span><span class="s1">setter</span>
+<a name="l33"><span class="ln">33   </span></a>    <span class="s0">def </span><span class="s1">permanent</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">value</span><span class="s2">: </span><span class="s1">bool</span><span class="s2">) </span><span class="s1">-&gt; </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l34"><span class="ln">34   </span></a>        <span class="s1">self</span><span class="s2">[</span><span class="s5">&quot;_permanent&quot;</span><span class="s2">] = </span><span class="s1">bool</span><span class="s2">(</span><span class="s1">value</span><span class="s2">)</span>
+<a name="l35"><span class="ln">35   </span></a>
+<a name="l36"><span class="ln">36   </span></a>    <span class="s3">#: Some implementations can detect whether a session is newly</span>
+<a name="l37"><span class="ln">37   </span></a>    <span class="s3">#: created, but that is not guaranteed. Use with caution. The mixin</span>
+<a name="l38"><span class="ln">38   </span></a>    <span class="s3"># default is hard-coded ``False``.</span>
+<a name="l39"><span class="ln">39   </span></a>    <span class="s1">new </span><span class="s2">= </span><span class="s0">False</span>
+<a name="l40"><span class="ln">40   </span></a>
+<a name="l41"><span class="ln">41   </span></a>    <span class="s3">#: Some implementations can detect changes to the session and set</span>
+<a name="l42"><span class="ln">42   </span></a>    <span class="s3">#: this when that happens. The mixin default is hard coded to</span>
+<a name="l43"><span class="ln">43   </span></a>    <span class="s3">#: ``True``.</span>
+<a name="l44"><span class="ln">44   </span></a>    <span class="s1">modified </span><span class="s2">= </span><span class="s0">True</span>
+<a name="l45"><span class="ln">45   </span></a>
+<a name="l46"><span class="ln">46   </span></a>    <span class="s1">accessed </span><span class="s2">= </span><span class="s0">False</span>
+<a name="l47"><span class="ln">47   </span></a>    <span class="s5">&quot;&quot;&quot;Indicates if the session was accessed, even if it was not modified. This 
+<a name="l48"><span class="ln">48   </span></a>    is set when the session object is accessed through the request context, 
+<a name="l49"><span class="ln">49   </span></a>    including the global :data:`.session` proxy. A ``Vary: cookie`` header will 
+<a name="l50"><span class="ln">50   </span></a>    be added if this is ``True``. 
+<a name="l51"><span class="ln">51   </span></a> 
+<a name="l52"><span class="ln">52   </span></a>    .. versionchanged:: 3.1.3 
+<a name="l53"><span class="ln">53   </span></a>        This is tracked by the request context. 
+<a name="l54"><span class="ln">54   </span></a>    &quot;&quot;&quot;</span>
+<a name="l55"><span class="ln">55   </span></a>
+<a name="l56"><span class="ln">56   </span></a>
+<a name="l57"><span class="ln">57   </span></a><span class="s0">class </span><span class="s1">SecureCookieSession</span><span class="s2">(</span><span class="s1">CallbackDict</span><span class="s2">[</span><span class="s1">str</span><span class="s2">, </span><span class="s1">t</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">], </span><span class="s1">SessionMixin</span><span class="s2">):</span>
+<a name="l58"><span class="ln">58   </span></a>    <span class="s4">&quot;&quot;&quot;Base class for sessions based on signed cookies. 
+<a name="l59"><span class="ln">59   </span></a> 
+<a name="l60"><span class="ln">60   </span></a>    This session backend will set the :attr:`modified` and 
+<a name="l61"><span class="ln">61   </span></a>    :attr:`accessed` attributes. It cannot reliably track whether a 
+<a name="l62"><span class="ln">62   </span></a>    session is new (vs. empty), so :attr:`new` remains hard coded to 
+<a name="l63"><span class="ln">63   </span></a>    ``False``. 
+<a name="l64"><span class="ln">64   </span></a>    &quot;&quot;&quot;</span>
+<a name="l65"><span class="ln">65   </span></a>
+<a name="l66"><span class="ln">66   </span></a>    <span class="s3">#: When data is changed, this is set to ``True``. Only the session</span>
+<a name="l67"><span class="ln">67   </span></a>    <span class="s3">#: dictionary itself is tracked; if the session contains mutable</span>
+<a name="l68"><span class="ln">68   </span></a>    <span class="s3">#: data (for example a nested dict) then this must be set to</span>
+<a name="l69"><span class="ln">69   </span></a>    <span class="s3">#: ``True`` manually when modifying that data. The session cookie</span>
+<a name="l70"><span class="ln">70   </span></a>    <span class="s3">#: will only be written to the response if this is ``True``.</span>
+<a name="l71"><span class="ln">71   </span></a>    <span class="s1">modified </span><span class="s2">= </span><span class="s0">False</span>
+<a name="l72"><span class="ln">72   </span></a>
+<a name="l73"><span class="ln">73   </span></a>    <span class="s0">def </span><span class="s1">__init__</span><span class="s2">(</span>
+<a name="l74"><span class="ln">74   </span></a>        <span class="s1">self</span><span class="s2">,</span>
+<a name="l75"><span class="ln">75   </span></a>        <span class="s1">initial</span><span class="s2">: </span><span class="s1">c</span><span class="s2">.</span><span class="s1">Mapping</span><span class="s2">[</span><span class="s1">str</span><span class="s2">, </span><span class="s1">t</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">] | </span><span class="s0">None </span><span class="s2">= </span><span class="s0">None</span><span class="s2">,</span>
+<a name="l76"><span class="ln">76   </span></a>    <span class="s2">) </span><span class="s1">-&gt; </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l77"><span class="ln">77   </span></a>        <span class="s0">def </span><span class="s1">on_update</span><span class="s2">(</span><span class="s1">self</span><span class="s2">: </span><span class="s1">te</span><span class="s2">.</span><span class="s1">Self</span><span class="s2">) </span><span class="s1">-&gt; </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l78"><span class="ln">78   </span></a>            <span class="s1">self</span><span class="s2">.</span><span class="s1">modified </span><span class="s2">= </span><span class="s0">True</span>
+<a name="l79"><span class="ln">79   </span></a>
+<a name="l80"><span class="ln">80   </span></a>        <span class="s1">super</span><span class="s2">().</span><span class="s1">__init__</span><span class="s2">(</span><span class="s1">initial</span><span class="s2">, </span><span class="s1">on_update</span><span class="s2">)</span>
+<a name="l81"><span class="ln">81   </span></a>
+<a name="l82"><span class="ln">82   </span></a>
+<a name="l83"><span class="ln">83   </span></a><span class="s0">class </span><span class="s1">NullSession</span><span class="s2">(</span><span class="s1">SecureCookieSession</span><span class="s2">):</span>
+<a name="l84"><span class="ln">84   </span></a>    <span class="s4">&quot;&quot;&quot;Class used to generate nicer error messages if sessions are not 
+<a name="l85"><span class="ln">85   </span></a>    available.  Will still allow read-only access to the empty session 
+<a name="l86"><span class="ln">86   </span></a>    but fail on setting. 
+<a name="l87"><span class="ln">87   </span></a>    &quot;&quot;&quot;</span>
+<a name="l88"><span class="ln">88   </span></a>
+<a name="l89"><span class="ln">89   </span></a>    <span class="s0">def </span><span class="s1">_fail</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, *</span><span class="s1">args</span><span class="s2">: </span><span class="s1">t</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">, **</span><span class="s1">kwargs</span><span class="s2">: </span><span class="s1">t</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">) </span><span class="s1">-&gt; t</span><span class="s2">.</span><span class="s1">NoReturn</span><span class="s2">:</span>
+<a name="l90"><span class="ln">90   </span></a>        <span class="s0">raise </span><span class="s1">RuntimeError</span><span class="s2">(</span>
+<a name="l91"><span class="ln">91   </span></a>            <span class="s5">&quot;The session is unavailable because no secret &quot;</span>
+<a name="l92"><span class="ln">92   </span></a>            <span class="s5">&quot;key was set.  Set the secret_key on the &quot;</span>
+<a name="l93"><span class="ln">93   </span></a>            <span class="s5">&quot;application to something unique and secret.&quot;</span>
+<a name="l94"><span class="ln">94   </span></a>        <span class="s2">)</span>
+<a name="l95"><span class="ln">95   </span></a>
+<a name="l96"><span class="ln">96   </span></a>    <span class="s1">__setitem__ </span><span class="s2">= </span><span class="s1">__delitem__ </span><span class="s2">= </span><span class="s1">clear </span><span class="s2">= </span><span class="s1">pop </span><span class="s2">= </span><span class="s1">popitem </span><span class="s2">= </span><span class="s1">update </span><span class="s2">= </span><span class="s1">setdefault </span><span class="s2">= </span><span class="s1">_fail</span>
+<a name="l97"><span class="ln">97   </span></a>    <span class="s0">del </span><span class="s1">_fail</span>
+<a name="l98"><span class="ln">98   </span></a>
+<a name="l99"><span class="ln">99   </span></a>
+<a name="l100"><span class="ln">100  </span></a><span class="s0">class </span><span class="s1">SessionInterface</span><span class="s2">:</span>
+<a name="l101"><span class="ln">101  </span></a>    <span class="s4">&quot;&quot;&quot;The basic interface you have to implement in order to replace the 
+<a name="l102"><span class="ln">102  </span></a>    default session interface which uses werkzeug's securecookie 
+<a name="l103"><span class="ln">103  </span></a>    implementation.  The only methods you have to implement are 
+<a name="l104"><span class="ln">104  </span></a>    :meth:`open_session` and :meth:`save_session`, the others have 
+<a name="l105"><span class="ln">105  </span></a>    useful defaults which you don't need to change. 
+<a name="l106"><span class="ln">106  </span></a> 
+<a name="l107"><span class="ln">107  </span></a>    The session object returned by the :meth:`open_session` method has to 
+<a name="l108"><span class="ln">108  </span></a>    provide a dictionary like interface plus the properties and methods 
+<a name="l109"><span class="ln">109  </span></a>    from the :class:`SessionMixin`.  We recommend just subclassing a dict 
+<a name="l110"><span class="ln">110  </span></a>    and adding that mixin:: 
+<a name="l111"><span class="ln">111  </span></a> 
+<a name="l112"><span class="ln">112  </span></a>        class Session(dict, SessionMixin): 
+<a name="l113"><span class="ln">113  </span></a>            pass 
+<a name="l114"><span class="ln">114  </span></a> 
+<a name="l115"><span class="ln">115  </span></a>    If :meth:`open_session` returns ``None`` Flask will call into 
+<a name="l116"><span class="ln">116  </span></a>    :meth:`make_null_session` to create a session that acts as replacement 
+<a name="l117"><span class="ln">117  </span></a>    if the session support cannot work because some requirement is not 
+<a name="l118"><span class="ln">118  </span></a>    fulfilled.  The default :class:`NullSession` class that is created 
+<a name="l119"><span class="ln">119  </span></a>    will complain that the secret key was not set. 
+<a name="l120"><span class="ln">120  </span></a> 
+<a name="l121"><span class="ln">121  </span></a>    To replace the session interface on an application all you have to do 
+<a name="l122"><span class="ln">122  </span></a>    is to assign :attr:`flask.Flask.session_interface`:: 
+<a name="l123"><span class="ln">123  </span></a> 
+<a name="l124"><span class="ln">124  </span></a>        app = Flask(__name__) 
+<a name="l125"><span class="ln">125  </span></a>        app.session_interface = MySessionInterface() 
+<a name="l126"><span class="ln">126  </span></a> 
+<a name="l127"><span class="ln">127  </span></a>    Multiple requests with the same session may be sent and handled 
+<a name="l128"><span class="ln">128  </span></a>    concurrently. When implementing a new session interface, consider 
+<a name="l129"><span class="ln">129  </span></a>    whether reads or writes to the backing store must be synchronized. 
+<a name="l130"><span class="ln">130  </span></a>    There is no guarantee on the order in which the session for each 
+<a name="l131"><span class="ln">131  </span></a>    request is opened or saved, it will occur in the order that requests 
+<a name="l132"><span class="ln">132  </span></a>    begin and end processing. 
+<a name="l133"><span class="ln">133  </span></a> 
+<a name="l134"><span class="ln">134  </span></a>    .. versionadded:: 0.8 
+<a name="l135"><span class="ln">135  </span></a>    &quot;&quot;&quot;</span>
+<a name="l136"><span class="ln">136  </span></a>
+<a name="l137"><span class="ln">137  </span></a>    <span class="s3">#: :meth:`make_null_session` will look here for the class that should</span>
+<a name="l138"><span class="ln">138  </span></a>    <span class="s3">#: be created when a null session is requested.  Likewise the</span>
+<a name="l139"><span class="ln">139  </span></a>    <span class="s3">#: :meth:`is_null_session` method will perform a typecheck against</span>
+<a name="l140"><span class="ln">140  </span></a>    <span class="s3">#: this type.</span>
+<a name="l141"><span class="ln">141  </span></a>    <span class="s1">null_session_class </span><span class="s2">= </span><span class="s1">NullSession</span>
+<a name="l142"><span class="ln">142  </span></a>
+<a name="l143"><span class="ln">143  </span></a>    <span class="s3">#: A flag that indicates if the session interface is pickle based.</span>
+<a name="l144"><span class="ln">144  </span></a>    <span class="s3">#: This can be used by Flask extensions to make a decision in regards</span>
+<a name="l145"><span class="ln">145  </span></a>    <span class="s3">#: to how to deal with the session object.</span>
+<a name="l146"><span class="ln">146  </span></a>    <span class="s3">#:</span>
+<a name="l147"><span class="ln">147  </span></a>    <span class="s3">#: .. versionadded:: 0.10</span>
+<a name="l148"><span class="ln">148  </span></a>    <span class="s1">pickle_based </span><span class="s2">= </span><span class="s0">False</span>
+<a name="l149"><span class="ln">149  </span></a>
+<a name="l150"><span class="ln">150  </span></a>    <span class="s0">def </span><span class="s1">make_null_session</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">) </span><span class="s1">-&gt; NullSession</span><span class="s2">:</span>
+<a name="l151"><span class="ln">151  </span></a>        <span class="s4">&quot;&quot;&quot;Creates a null session which acts as a replacement object if the 
+<a name="l152"><span class="ln">152  </span></a>        real session support could not be loaded due to a configuration 
+<a name="l153"><span class="ln">153  </span></a>        error.  This mainly aids the user experience because the job of the 
+<a name="l154"><span class="ln">154  </span></a>        null session is to still support lookup without complaining but 
+<a name="l155"><span class="ln">155  </span></a>        modifications are answered with a helpful error message of what 
+<a name="l156"><span class="ln">156  </span></a>        failed. 
+<a name="l157"><span class="ln">157  </span></a> 
+<a name="l158"><span class="ln">158  </span></a>        This creates an instance of :attr:`null_session_class` by default. 
+<a name="l159"><span class="ln">159  </span></a>        &quot;&quot;&quot;</span>
+<a name="l160"><span class="ln">160  </span></a>        <span class="s0">return </span><span class="s1">self</span><span class="s2">.</span><span class="s1">null_session_class</span><span class="s2">()</span>
+<a name="l161"><span class="ln">161  </span></a>
+<a name="l162"><span class="ln">162  </span></a>    <span class="s0">def </span><span class="s1">is_null_session</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">obj</span><span class="s2">: </span><span class="s1">object</span><span class="s2">) </span><span class="s1">-&gt; bool</span><span class="s2">:</span>
+<a name="l163"><span class="ln">163  </span></a>        <span class="s4">&quot;&quot;&quot;Checks if a given object is a null session.  Null sessions are 
+<a name="l164"><span class="ln">164  </span></a>        not asked to be saved. 
+<a name="l165"><span class="ln">165  </span></a> 
+<a name="l166"><span class="ln">166  </span></a>        This checks if the object is an instance of :attr:`null_session_class` 
+<a name="l167"><span class="ln">167  </span></a>        by default. 
+<a name="l168"><span class="ln">168  </span></a>        &quot;&quot;&quot;</span>
+<a name="l169"><span class="ln">169  </span></a>        <span class="s0">return </span><span class="s1">isinstance</span><span class="s2">(</span><span class="s1">obj</span><span class="s2">, </span><span class="s1">self</span><span class="s2">.</span><span class="s1">null_session_class</span><span class="s2">)</span>
+<a name="l170"><span class="ln">170  </span></a>
+<a name="l171"><span class="ln">171  </span></a>    <span class="s0">def </span><span class="s1">get_cookie_name</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">) </span><span class="s1">-&gt; str</span><span class="s2">:</span>
+<a name="l172"><span class="ln">172  </span></a>        <span class="s4">&quot;&quot;&quot;The name of the session cookie. Uses``app.config[&quot;SESSION_COOKIE_NAME&quot;]``.&quot;&quot;&quot;</span>
+<a name="l173"><span class="ln">173  </span></a>        <span class="s0">return </span><span class="s1">app</span><span class="s2">.</span><span class="s1">config</span><span class="s2">[</span><span class="s5">&quot;SESSION_COOKIE_NAME&quot;</span><span class="s2">]  </span><span class="s3"># type: ignore[no-any-return]</span>
+<a name="l174"><span class="ln">174  </span></a>
+<a name="l175"><span class="ln">175  </span></a>    <span class="s0">def </span><span class="s1">get_cookie_domain</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">) </span><span class="s1">-&gt; str </span><span class="s2">| </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l176"><span class="ln">176  </span></a>        <span class="s4">&quot;&quot;&quot;The value of the ``Domain`` parameter on the session cookie. If not set, 
+<a name="l177"><span class="ln">177  </span></a>        browsers will only send the cookie to the exact domain it was set from. 
+<a name="l178"><span class="ln">178  </span></a>        Otherwise, they will send it to any subdomain of the given value as well. 
+<a name="l179"><span class="ln">179  </span></a> 
+<a name="l180"><span class="ln">180  </span></a>        Uses the :data:`SESSION_COOKIE_DOMAIN` config. 
+<a name="l181"><span class="ln">181  </span></a> 
+<a name="l182"><span class="ln">182  </span></a>        .. versionchanged:: 2.3 
+<a name="l183"><span class="ln">183  </span></a>            Not set by default, does not fall back to ``SERVER_NAME``. 
+<a name="l184"><span class="ln">184  </span></a>        &quot;&quot;&quot;</span>
+<a name="l185"><span class="ln">185  </span></a>        <span class="s0">return </span><span class="s1">app</span><span class="s2">.</span><span class="s1">config</span><span class="s2">[</span><span class="s5">&quot;SESSION_COOKIE_DOMAIN&quot;</span><span class="s2">]  </span><span class="s3"># type: ignore[no-any-return]</span>
+<a name="l186"><span class="ln">186  </span></a>
+<a name="l187"><span class="ln">187  </span></a>    <span class="s0">def </span><span class="s1">get_cookie_path</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">) </span><span class="s1">-&gt; str</span><span class="s2">:</span>
+<a name="l188"><span class="ln">188  </span></a>        <span class="s4">&quot;&quot;&quot;Returns the path for which the cookie should be valid.  The 
+<a name="l189"><span class="ln">189  </span></a>        default implementation uses the value from the ``SESSION_COOKIE_PATH`` 
+<a name="l190"><span class="ln">190  </span></a>        config var if it's set, and falls back to ``APPLICATION_ROOT`` or 
+<a name="l191"><span class="ln">191  </span></a>        uses ``/`` if it's ``None``. 
+<a name="l192"><span class="ln">192  </span></a>        &quot;&quot;&quot;</span>
+<a name="l193"><span class="ln">193  </span></a>        <span class="s0">return </span><span class="s1">app</span><span class="s2">.</span><span class="s1">config</span><span class="s2">[</span><span class="s5">&quot;SESSION_COOKIE_PATH&quot;</span><span class="s2">] </span><span class="s0">or </span><span class="s1">app</span><span class="s2">.</span><span class="s1">config</span><span class="s2">[</span><span class="s5">&quot;APPLICATION_ROOT&quot;</span><span class="s2">]  </span><span class="s3"># type: ignore[no-any-return]</span>
+<a name="l194"><span class="ln">194  </span></a>
+<a name="l195"><span class="ln">195  </span></a>    <span class="s0">def </span><span class="s1">get_cookie_httponly</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">) </span><span class="s1">-&gt; bool</span><span class="s2">:</span>
+<a name="l196"><span class="ln">196  </span></a>        <span class="s4">&quot;&quot;&quot;Returns True if the session cookie should be httponly.  This 
+<a name="l197"><span class="ln">197  </span></a>        currently just returns the value of the ``SESSION_COOKIE_HTTPONLY`` 
+<a name="l198"><span class="ln">198  </span></a>        config var. 
+<a name="l199"><span class="ln">199  </span></a>        &quot;&quot;&quot;</span>
+<a name="l200"><span class="ln">200  </span></a>        <span class="s0">return </span><span class="s1">app</span><span class="s2">.</span><span class="s1">config</span><span class="s2">[</span><span class="s5">&quot;SESSION_COOKIE_HTTPONLY&quot;</span><span class="s2">]  </span><span class="s3"># type: ignore[no-any-return]</span>
+<a name="l201"><span class="ln">201  </span></a>
+<a name="l202"><span class="ln">202  </span></a>    <span class="s0">def </span><span class="s1">get_cookie_secure</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">) </span><span class="s1">-&gt; bool</span><span class="s2">:</span>
+<a name="l203"><span class="ln">203  </span></a>        <span class="s4">&quot;&quot;&quot;Returns True if the cookie should be secure.  This currently 
+<a name="l204"><span class="ln">204  </span></a>        just returns the value of the ``SESSION_COOKIE_SECURE`` setting. 
+<a name="l205"><span class="ln">205  </span></a>        &quot;&quot;&quot;</span>
+<a name="l206"><span class="ln">206  </span></a>        <span class="s0">return </span><span class="s1">app</span><span class="s2">.</span><span class="s1">config</span><span class="s2">[</span><span class="s5">&quot;SESSION_COOKIE_SECURE&quot;</span><span class="s2">]  </span><span class="s3"># type: ignore[no-any-return]</span>
+<a name="l207"><span class="ln">207  </span></a>
+<a name="l208"><span class="ln">208  </span></a>    <span class="s0">def </span><span class="s1">get_cookie_samesite</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">) </span><span class="s1">-&gt; str </span><span class="s2">| </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l209"><span class="ln">209  </span></a>        <span class="s4">&quot;&quot;&quot;Return ``'Strict'`` or ``'Lax'`` if the cookie should use the 
+<a name="l210"><span class="ln">210  </span></a>        ``SameSite`` attribute. This currently just returns the value of 
+<a name="l211"><span class="ln">211  </span></a>        the :data:`SESSION_COOKIE_SAMESITE` setting. 
+<a name="l212"><span class="ln">212  </span></a>        &quot;&quot;&quot;</span>
+<a name="l213"><span class="ln">213  </span></a>        <span class="s0">return </span><span class="s1">app</span><span class="s2">.</span><span class="s1">config</span><span class="s2">[</span><span class="s5">&quot;SESSION_COOKIE_SAMESITE&quot;</span><span class="s2">]  </span><span class="s3"># type: ignore[no-any-return]</span>
+<a name="l214"><span class="ln">214  </span></a>
+<a name="l215"><span class="ln">215  </span></a>    <span class="s0">def </span><span class="s1">get_cookie_partitioned</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">) </span><span class="s1">-&gt; bool</span><span class="s2">:</span>
+<a name="l216"><span class="ln">216  </span></a>        <span class="s4">&quot;&quot;&quot;Returns True if the cookie should be partitioned. By default, uses 
+<a name="l217"><span class="ln">217  </span></a>        the value of :data:`SESSION_COOKIE_PARTITIONED`. 
+<a name="l218"><span class="ln">218  </span></a> 
+<a name="l219"><span class="ln">219  </span></a>        .. versionadded:: 3.1 
+<a name="l220"><span class="ln">220  </span></a>        &quot;&quot;&quot;</span>
+<a name="l221"><span class="ln">221  </span></a>        <span class="s0">return </span><span class="s1">app</span><span class="s2">.</span><span class="s1">config</span><span class="s2">[</span><span class="s5">&quot;SESSION_COOKIE_PARTITIONED&quot;</span><span class="s2">]  </span><span class="s3"># type: ignore[no-any-return]</span>
+<a name="l222"><span class="ln">222  </span></a>
+<a name="l223"><span class="ln">223  </span></a>    <span class="s0">def </span><span class="s1">get_expiration_time</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">, </span><span class="s1">session</span><span class="s2">: </span><span class="s1">SessionMixin</span><span class="s2">) </span><span class="s1">-&gt; datetime </span><span class="s2">| </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l224"><span class="ln">224  </span></a>        <span class="s4">&quot;&quot;&quot;A helper method that returns an expiration date for the session 
+<a name="l225"><span class="ln">225  </span></a>        or ``None`` if the session is linked to the browser session.  The 
+<a name="l226"><span class="ln">226  </span></a>        default implementation returns now + the permanent session 
+<a name="l227"><span class="ln">227  </span></a>        lifetime configured on the application. 
+<a name="l228"><span class="ln">228  </span></a>        &quot;&quot;&quot;</span>
+<a name="l229"><span class="ln">229  </span></a>        <span class="s0">if </span><span class="s1">session</span><span class="s2">.</span><span class="s1">permanent</span><span class="s2">:</span>
+<a name="l230"><span class="ln">230  </span></a>            <span class="s0">return </span><span class="s1">datetime</span><span class="s2">.</span><span class="s1">now</span><span class="s2">(</span><span class="s1">timezone</span><span class="s2">.</span><span class="s1">utc</span><span class="s2">) + </span><span class="s1">app</span><span class="s2">.</span><span class="s1">permanent_session_lifetime</span>
+<a name="l231"><span class="ln">231  </span></a>        <span class="s0">return None</span>
+<a name="l232"><span class="ln">232  </span></a>
+<a name="l233"><span class="ln">233  </span></a>    <span class="s0">def </span><span class="s1">should_set_cookie</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">, </span><span class="s1">session</span><span class="s2">: </span><span class="s1">SessionMixin</span><span class="s2">) </span><span class="s1">-&gt; bool</span><span class="s2">:</span>
+<a name="l234"><span class="ln">234  </span></a>        <span class="s4">&quot;&quot;&quot;Used by session backends to determine if a ``Set-Cookie`` header 
+<a name="l235"><span class="ln">235  </span></a>        should be set for this session cookie for this response. If the session 
+<a name="l236"><span class="ln">236  </span></a>        has been modified, the cookie is set. If the session is permanent and 
+<a name="l237"><span class="ln">237  </span></a>        the ``SESSION_REFRESH_EACH_REQUEST`` config is true, the cookie is 
+<a name="l238"><span class="ln">238  </span></a>        always set. 
+<a name="l239"><span class="ln">239  </span></a> 
+<a name="l240"><span class="ln">240  </span></a>        This check is usually skipped if the session was deleted. 
+<a name="l241"><span class="ln">241  </span></a> 
+<a name="l242"><span class="ln">242  </span></a>        .. versionadded:: 0.11 
+<a name="l243"><span class="ln">243  </span></a>        &quot;&quot;&quot;</span>
+<a name="l244"><span class="ln">244  </span></a>
+<a name="l245"><span class="ln">245  </span></a>        <span class="s0">return </span><span class="s1">session</span><span class="s2">.</span><span class="s1">modified </span><span class="s0">or </span><span class="s2">(</span>
+<a name="l246"><span class="ln">246  </span></a>            <span class="s1">session</span><span class="s2">.</span><span class="s1">permanent </span><span class="s0">and </span><span class="s1">app</span><span class="s2">.</span><span class="s1">config</span><span class="s2">[</span><span class="s5">&quot;SESSION_REFRESH_EACH_REQUEST&quot;</span><span class="s2">]</span>
+<a name="l247"><span class="ln">247  </span></a>        <span class="s2">)</span>
+<a name="l248"><span class="ln">248  </span></a>
+<a name="l249"><span class="ln">249  </span></a>    <span class="s0">def </span><span class="s1">open_session</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">, </span><span class="s1">request</span><span class="s2">: </span><span class="s1">Request</span><span class="s2">) </span><span class="s1">-&gt; SessionMixin </span><span class="s2">| </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l250"><span class="ln">250  </span></a>        <span class="s4">&quot;&quot;&quot;This is called at the beginning of each request, after 
+<a name="l251"><span class="ln">251  </span></a>        pushing the request context, before matching the URL. 
+<a name="l252"><span class="ln">252  </span></a> 
+<a name="l253"><span class="ln">253  </span></a>        This must return an object which implements a dictionary-like 
+<a name="l254"><span class="ln">254  </span></a>        interface as well as the :class:`SessionMixin` interface. 
+<a name="l255"><span class="ln">255  </span></a> 
+<a name="l256"><span class="ln">256  </span></a>        This will return ``None`` to indicate that loading failed in 
+<a name="l257"><span class="ln">257  </span></a>        some way that is not immediately an error. The request 
+<a name="l258"><span class="ln">258  </span></a>        context will fall back to using :meth:`make_null_session` 
+<a name="l259"><span class="ln">259  </span></a>        in this case. 
+<a name="l260"><span class="ln">260  </span></a>        &quot;&quot;&quot;</span>
+<a name="l261"><span class="ln">261  </span></a>        <span class="s0">raise </span><span class="s1">NotImplementedError</span><span class="s2">()</span>
+<a name="l262"><span class="ln">262  </span></a>
+<a name="l263"><span class="ln">263  </span></a>    <span class="s0">def </span><span class="s1">save_session</span><span class="s2">(</span>
+<a name="l264"><span class="ln">264  </span></a>        <span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">, </span><span class="s1">session</span><span class="s2">: </span><span class="s1">SessionMixin</span><span class="s2">, </span><span class="s1">response</span><span class="s2">: </span><span class="s1">Response</span>
+<a name="l265"><span class="ln">265  </span></a>    <span class="s2">) </span><span class="s1">-&gt; </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l266"><span class="ln">266  </span></a>        <span class="s4">&quot;&quot;&quot;This is called at the end of each request, after generating 
+<a name="l267"><span class="ln">267  </span></a>        a response, before removing the request context. It is skipped 
+<a name="l268"><span class="ln">268  </span></a>        if :meth:`is_null_session` returns ``True``. 
+<a name="l269"><span class="ln">269  </span></a>        &quot;&quot;&quot;</span>
+<a name="l270"><span class="ln">270  </span></a>        <span class="s0">raise </span><span class="s1">NotImplementedError</span><span class="s2">()</span>
+<a name="l271"><span class="ln">271  </span></a>
+<a name="l272"><span class="ln">272  </span></a>
+<a name="l273"><span class="ln">273  </span></a><span class="s1">session_json_serializer </span><span class="s2">= </span><span class="s1">TaggedJSONSerializer</span><span class="s2">()</span>
+<a name="l274"><span class="ln">274  </span></a>
+<a name="l275"><span class="ln">275  </span></a>
+<a name="l276"><span class="ln">276  </span></a><span class="s0">def </span><span class="s1">_lazy_sha1</span><span class="s2">(</span><span class="s1">string</span><span class="s2">: </span><span class="s1">bytes </span><span class="s2">= </span><span class="s6">b&quot;&quot;</span><span class="s2">) </span><span class="s1">-&gt; t</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">:</span>
+<a name="l277"><span class="ln">277  </span></a>    <span class="s4">&quot;&quot;&quot;Don't access ``hashlib.sha1`` until runtime. FIPS builds may not include 
+<a name="l278"><span class="ln">278  </span></a>    SHA-1, in which case the import and use as a default would fail before the 
+<a name="l279"><span class="ln">279  </span></a>    developer can configure something else. 
+<a name="l280"><span class="ln">280  </span></a>    &quot;&quot;&quot;</span>
+<a name="l281"><span class="ln">281  </span></a>    <span class="s0">return </span><span class="s1">hashlib</span><span class="s2">.</span><span class="s1">sha1</span><span class="s2">(</span><span class="s1">string</span><span class="s2">)</span>
+<a name="l282"><span class="ln">282  </span></a>
+<a name="l283"><span class="ln">283  </span></a>
+<a name="l284"><span class="ln">284  </span></a><span class="s0">class </span><span class="s1">SecureCookieSessionInterface</span><span class="s2">(</span><span class="s1">SessionInterface</span><span class="s2">):</span>
+<a name="l285"><span class="ln">285  </span></a>    <span class="s4">&quot;&quot;&quot;The default session interface that stores sessions in signed cookies 
+<a name="l286"><span class="ln">286  </span></a>    through the :mod:`itsdangerous` module. 
+<a name="l287"><span class="ln">287  </span></a>    &quot;&quot;&quot;</span>
+<a name="l288"><span class="ln">288  </span></a>
+<a name="l289"><span class="ln">289  </span></a>    <span class="s3">#: the salt that should be applied on top of the secret key for the</span>
+<a name="l290"><span class="ln">290  </span></a>    <span class="s3">#: signing of cookie based sessions.</span>
+<a name="l291"><span class="ln">291  </span></a>    <span class="s1">salt </span><span class="s2">= </span><span class="s5">&quot;cookie-session&quot;</span>
+<a name="l292"><span class="ln">292  </span></a>    <span class="s3">#: the hash function to use for the signature.  The default is sha1</span>
+<a name="l293"><span class="ln">293  </span></a>    <span class="s1">digest_method </span><span class="s2">= </span><span class="s1">staticmethod</span><span class="s2">(</span><span class="s1">_lazy_sha1</span><span class="s2">)</span>
+<a name="l294"><span class="ln">294  </span></a>    <span class="s3">#: the name of the itsdangerous supported key derivation.  The default</span>
+<a name="l295"><span class="ln">295  </span></a>    <span class="s3">#: is hmac.</span>
+<a name="l296"><span class="ln">296  </span></a>    <span class="s1">key_derivation </span><span class="s2">= </span><span class="s5">&quot;hmac&quot;</span>
+<a name="l297"><span class="ln">297  </span></a>    <span class="s3">#: A python serializer for the payload.  The default is a compact</span>
+<a name="l298"><span class="ln">298  </span></a>    <span class="s3">#: JSON derived serializer with support for some extra Python types</span>
+<a name="l299"><span class="ln">299  </span></a>    <span class="s3">#: such as datetime objects or tuples.</span>
+<a name="l300"><span class="ln">300  </span></a>    <span class="s1">serializer </span><span class="s2">= </span><span class="s1">session_json_serializer</span>
+<a name="l301"><span class="ln">301  </span></a>    <span class="s1">session_class </span><span class="s2">= </span><span class="s1">SecureCookieSession</span>
+<a name="l302"><span class="ln">302  </span></a>
+<a name="l303"><span class="ln">303  </span></a>    <span class="s0">def </span><span class="s1">get_signing_serializer</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">) </span><span class="s1">-&gt; URLSafeTimedSerializer </span><span class="s2">| </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l304"><span class="ln">304  </span></a>        <span class="s0">if not </span><span class="s1">app</span><span class="s2">.</span><span class="s1">secret_key</span><span class="s2">:</span>
+<a name="l305"><span class="ln">305  </span></a>            <span class="s0">return None</span>
+<a name="l306"><span class="ln">306  </span></a>
+<a name="l307"><span class="ln">307  </span></a>        <span class="s1">keys</span><span class="s2">: </span><span class="s1">list</span><span class="s2">[</span><span class="s1">str </span><span class="s2">| </span><span class="s1">bytes</span><span class="s2">] = []</span>
+<a name="l308"><span class="ln">308  </span></a>
+<a name="l309"><span class="ln">309  </span></a>        <span class="s0">if </span><span class="s1">fallbacks </span><span class="s2">:= </span><span class="s1">app</span><span class="s2">.</span><span class="s1">config</span><span class="s2">[</span><span class="s5">&quot;SECRET_KEY_FALLBACKS&quot;</span><span class="s2">]:</span>
+<a name="l310"><span class="ln">310  </span></a>            <span class="s1">keys</span><span class="s2">.</span><span class="s1">extend</span><span class="s2">(</span><span class="s1">fallbacks</span><span class="s2">)</span>
+<a name="l311"><span class="ln">311  </span></a>
+<a name="l312"><span class="ln">312  </span></a>        <span class="s1">keys</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s1">app</span><span class="s2">.</span><span class="s1">secret_key</span><span class="s2">)  </span><span class="s3"># itsdangerous expects current key at top</span>
+<a name="l313"><span class="ln">313  </span></a>        <span class="s0">return </span><span class="s1">URLSafeTimedSerializer</span><span class="s2">(</span>
+<a name="l314"><span class="ln">314  </span></a>            <span class="s1">keys</span><span class="s2">,  </span><span class="s3"># type: ignore[arg-type]</span>
+<a name="l315"><span class="ln">315  </span></a>            <span class="s1">salt</span><span class="s2">=</span><span class="s1">self</span><span class="s2">.</span><span class="s1">salt</span><span class="s2">,</span>
+<a name="l316"><span class="ln">316  </span></a>            <span class="s1">serializer</span><span class="s2">=</span><span class="s1">self</span><span class="s2">.</span><span class="s1">serializer</span><span class="s2">,</span>
+<a name="l317"><span class="ln">317  </span></a>            <span class="s1">signer_kwargs</span><span class="s2">={</span>
+<a name="l318"><span class="ln">318  </span></a>                <span class="s5">&quot;key_derivation&quot;</span><span class="s2">: </span><span class="s1">self</span><span class="s2">.</span><span class="s1">key_derivation</span><span class="s2">,</span>
+<a name="l319"><span class="ln">319  </span></a>                <span class="s5">&quot;digest_method&quot;</span><span class="s2">: </span><span class="s1">self</span><span class="s2">.</span><span class="s1">digest_method</span><span class="s2">,</span>
+<a name="l320"><span class="ln">320  </span></a>            <span class="s2">},</span>
+<a name="l321"><span class="ln">321  </span></a>        <span class="s2">)</span>
+<a name="l322"><span class="ln">322  </span></a>
+<a name="l323"><span class="ln">323  </span></a>    <span class="s0">def </span><span class="s1">open_session</span><span class="s2">(</span><span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">, </span><span class="s1">request</span><span class="s2">: </span><span class="s1">Request</span><span class="s2">) </span><span class="s1">-&gt; SecureCookieSession </span><span class="s2">| </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l324"><span class="ln">324  </span></a>        <span class="s1">s </span><span class="s2">= </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_signing_serializer</span><span class="s2">(</span><span class="s1">app</span><span class="s2">)</span>
+<a name="l325"><span class="ln">325  </span></a>        <span class="s0">if </span><span class="s1">s </span><span class="s0">is None</span><span class="s2">:</span>
+<a name="l326"><span class="ln">326  </span></a>            <span class="s0">return None</span>
+<a name="l327"><span class="ln">327  </span></a>        <span class="s1">val </span><span class="s2">= </span><span class="s1">request</span><span class="s2">.</span><span class="s1">cookies</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_cookie_name</span><span class="s2">(</span><span class="s1">app</span><span class="s2">))</span>
+<a name="l328"><span class="ln">328  </span></a>        <span class="s0">if not </span><span class="s1">val</span><span class="s2">:</span>
+<a name="l329"><span class="ln">329  </span></a>            <span class="s0">return </span><span class="s1">self</span><span class="s2">.</span><span class="s1">session_class</span><span class="s2">()</span>
+<a name="l330"><span class="ln">330  </span></a>        <span class="s1">max_age </span><span class="s2">= </span><span class="s1">int</span><span class="s2">(</span><span class="s1">app</span><span class="s2">.</span><span class="s1">permanent_session_lifetime</span><span class="s2">.</span><span class="s1">total_seconds</span><span class="s2">())</span>
+<a name="l331"><span class="ln">331  </span></a>        <span class="s0">try</span><span class="s2">:</span>
+<a name="l332"><span class="ln">332  </span></a>            <span class="s1">data </span><span class="s2">= </span><span class="s1">s</span><span class="s2">.</span><span class="s1">loads</span><span class="s2">(</span><span class="s1">val</span><span class="s2">, </span><span class="s1">max_age</span><span class="s2">=</span><span class="s1">max_age</span><span class="s2">)</span>
+<a name="l333"><span class="ln">333  </span></a>            <span class="s0">return </span><span class="s1">self</span><span class="s2">.</span><span class="s1">session_class</span><span class="s2">(</span><span class="s1">data</span><span class="s2">)</span>
+<a name="l334"><span class="ln">334  </span></a>        <span class="s0">except </span><span class="s1">BadSignature</span><span class="s2">:</span>
+<a name="l335"><span class="ln">335  </span></a>            <span class="s0">return </span><span class="s1">self</span><span class="s2">.</span><span class="s1">session_class</span><span class="s2">()</span>
+<a name="l336"><span class="ln">336  </span></a>
+<a name="l337"><span class="ln">337  </span></a>    <span class="s0">def </span><span class="s1">save_session</span><span class="s2">(</span>
+<a name="l338"><span class="ln">338  </span></a>        <span class="s1">self</span><span class="s2">, </span><span class="s1">app</span><span class="s2">: </span><span class="s1">Flask</span><span class="s2">, </span><span class="s1">session</span><span class="s2">: </span><span class="s1">SessionMixin</span><span class="s2">, </span><span class="s1">response</span><span class="s2">: </span><span class="s1">Response</span>
+<a name="l339"><span class="ln">339  </span></a>    <span class="s2">) </span><span class="s1">-&gt; </span><span class="s0">None</span><span class="s2">:</span>
+<a name="l340"><span class="ln">340  </span></a>        <span class="s1">name </span><span class="s2">= </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_cookie_name</span><span class="s2">(</span><span class="s1">app</span><span class="s2">)</span>
+<a name="l341"><span class="ln">341  </span></a>        <span class="s1">domain </span><span class="s2">= </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_cookie_domain</span><span class="s2">(</span><span class="s1">app</span><span class="s2">)</span>
+<a name="l342"><span class="ln">342  </span></a>        <span class="s1">path </span><span class="s2">= </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_cookie_path</span><span class="s2">(</span><span class="s1">app</span><span class="s2">)</span>
+<a name="l343"><span class="ln">343  </span></a>        <span class="s1">secure </span><span class="s2">= </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_cookie_secure</span><span class="s2">(</span><span class="s1">app</span><span class="s2">)</span>
+<a name="l344"><span class="ln">344  </span></a>        <span class="s1">partitioned </span><span class="s2">= </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_cookie_partitioned</span><span class="s2">(</span><span class="s1">app</span><span class="s2">)</span>
+<a name="l345"><span class="ln">345  </span></a>        <span class="s1">samesite </span><span class="s2">= </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_cookie_samesite</span><span class="s2">(</span><span class="s1">app</span><span class="s2">)</span>
+<a name="l346"><span class="ln">346  </span></a>        <span class="s1">httponly </span><span class="s2">= </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_cookie_httponly</span><span class="s2">(</span><span class="s1">app</span><span class="s2">)</span>
+<a name="l347"><span class="ln">347  </span></a>
+<a name="l348"><span class="ln">348  </span></a>        <span class="s3"># Add a &quot;Vary: Cookie&quot; header if the session was accessed at all.</span>
+<a name="l349"><span class="ln">349  </span></a>        <span class="s0">if </span><span class="s1">session</span><span class="s2">.</span><span class="s1">accessed</span><span class="s2">:</span>
+<a name="l350"><span class="ln">350  </span></a>            <span class="s1">response</span><span class="s2">.</span><span class="s1">vary</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s5">&quot;Cookie&quot;</span><span class="s2">)</span>
+<a name="l351"><span class="ln">351  </span></a>
+<a name="l352"><span class="ln">352  </span></a>        <span class="s3"># If the session is modified to be empty, remove the cookie.</span>
+<a name="l353"><span class="ln">353  </span></a>        <span class="s3"># If the session is empty, return without setting the cookie.</span>
+<a name="l354"><span class="ln">354  </span></a>        <span class="s0">if not </span><span class="s1">session</span><span class="s2">:</span>
+<a name="l355"><span class="ln">355  </span></a>            <span class="s0">if </span><span class="s1">session</span><span class="s2">.</span><span class="s1">modified</span><span class="s2">:</span>
+<a name="l356"><span class="ln">356  </span></a>                <span class="s1">response</span><span class="s2">.</span><span class="s1">delete_cookie</span><span class="s2">(</span>
+<a name="l357"><span class="ln">357  </span></a>                    <span class="s1">name</span><span class="s2">,</span>
+<a name="l358"><span class="ln">358  </span></a>                    <span class="s1">domain</span><span class="s2">=</span><span class="s1">domain</span><span class="s2">,</span>
+<a name="l359"><span class="ln">359  </span></a>                    <span class="s1">path</span><span class="s2">=</span><span class="s1">path</span><span class="s2">,</span>
+<a name="l360"><span class="ln">360  </span></a>                    <span class="s1">secure</span><span class="s2">=</span><span class="s1">secure</span><span class="s2">,</span>
+<a name="l361"><span class="ln">361  </span></a>                    <span class="s1">partitioned</span><span class="s2">=</span><span class="s1">partitioned</span><span class="s2">,</span>
+<a name="l362"><span class="ln">362  </span></a>                    <span class="s1">samesite</span><span class="s2">=</span><span class="s1">samesite</span><span class="s2">,</span>
+<a name="l363"><span class="ln">363  </span></a>                    <span class="s1">httponly</span><span class="s2">=</span><span class="s1">httponly</span><span class="s2">,</span>
+<a name="l364"><span class="ln">364  </span></a>                <span class="s2">)</span>
+<a name="l365"><span class="ln">365  </span></a>                <span class="s1">response</span><span class="s2">.</span><span class="s1">vary</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s5">&quot;Cookie&quot;</span><span class="s2">)</span>
+<a name="l366"><span class="ln">366  </span></a>
+<a name="l367"><span class="ln">367  </span></a>            <span class="s0">return</span>
+<a name="l368"><span class="ln">368  </span></a>
+<a name="l369"><span class="ln">369  </span></a>        <span class="s0">if not </span><span class="s1">self</span><span class="s2">.</span><span class="s1">should_set_cookie</span><span class="s2">(</span><span class="s1">app</span><span class="s2">, </span><span class="s1">session</span><span class="s2">):</span>
+<a name="l370"><span class="ln">370  </span></a>            <span class="s0">return</span>
+<a name="l371"><span class="ln">371  </span></a>
+<a name="l372"><span class="ln">372  </span></a>        <span class="s1">expires </span><span class="s2">= </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_expiration_time</span><span class="s2">(</span><span class="s1">app</span><span class="s2">, </span><span class="s1">session</span><span class="s2">)</span>
+<a name="l373"><span class="ln">373  </span></a>        <span class="s1">val </span><span class="s2">= </span><span class="s1">self</span><span class="s2">.</span><span class="s1">get_signing_serializer</span><span class="s2">(</span><span class="s1">app</span><span class="s2">).</span><span class="s1">dumps</span><span class="s2">(</span><span class="s1">dict</span><span class="s2">(</span><span class="s1">session</span><span class="s2">))  </span><span class="s3"># type: ignore[union-attr]</span>
+<a name="l374"><span class="ln">374  </span></a>        <span class="s1">response</span><span class="s2">.</span><span class="s1">set_cookie</span><span class="s2">(</span>
+<a name="l375"><span class="ln">375  </span></a>            <span class="s1">name</span><span class="s2">,</span>
+<a name="l376"><span class="ln">376  </span></a>            <span class="s1">val</span><span class="s2">,</span>
+<a name="l377"><span class="ln">377  </span></a>            <span class="s1">expires</span><span class="s2">=</span><span class="s1">expires</span><span class="s2">,</span>
+<a name="l378"><span class="ln">378  </span></a>            <span class="s1">httponly</span><span class="s2">=</span><span class="s1">httponly</span><span class="s2">,</span>
+<a name="l379"><span class="ln">379  </span></a>            <span class="s1">domain</span><span class="s2">=</span><span class="s1">domain</span><span class="s2">,</span>
+<a name="l380"><span class="ln">380  </span></a>            <span class="s1">path</span><span class="s2">=</span><span class="s1">path</span><span class="s2">,</span>
+<a name="l381"><span class="ln">381  </span></a>            <span class="s1">secure</span><span class="s2">=</span><span class="s1">secure</span><span class="s2">,</span>
+<a name="l382"><span class="ln">382  </span></a>            <span class="s1">partitioned</span><span class="s2">=</span><span class="s1">partitioned</span><span class="s2">,</span>
+<a name="l383"><span class="ln">383  </span></a>            <span class="s1">samesite</span><span class="s2">=</span><span class="s1">samesite</span><span class="s2">,</span>
+<a name="l384"><span class="ln">384  </span></a>        <span class="s2">)</span>
+<a name="l385"><span class="ln">385  </span></a>        <span class="s1">response</span><span class="s2">.</span><span class="s1">vary</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s5">&quot;Cookie&quot;</span><span class="s2">)</span>
+<a name="l386"><span class="ln">386  </span></a></pre>
+</body>
+</html>

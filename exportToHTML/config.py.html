@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>config.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #7a7e85;}
+.s3 { color: #bcbec4;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+config.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">from </span><span class="s1">datetime </span><span class="s0">import </span><span class="s1">timedelta</span>
+<a name="l2"><span class="ln">2    </span></a>
+<a name="l3"><span class="ln">3    </span></a><span class="s2">#: The default name of the &quot;remember me&quot; cookie (``remember_token``)</span>
+<a name="l4"><span class="ln">4    </span></a><span class="s1">COOKIE_NAME </span><span class="s3">= </span><span class="s4">&quot;remember_token&quot;</span>
+<a name="l5"><span class="ln">5    </span></a>
+<a name="l6"><span class="ln">6    </span></a><span class="s2">#: The default time before the &quot;remember me&quot; cookie expires (365 days).</span>
+<a name="l7"><span class="ln">7    </span></a><span class="s1">COOKIE_DURATION </span><span class="s3">= </span><span class="s1">timedelta</span><span class="s3">(</span><span class="s1">days</span><span class="s3">=</span><span class="s5">365</span><span class="s3">)</span>
+<a name="l8"><span class="ln">8    </span></a>
+<a name="l9"><span class="ln">9    </span></a><span class="s2">#: Whether the &quot;remember me&quot; cookie requires Secure; defaults to ``False``</span>
+<a name="l10"><span class="ln">10   </span></a><span class="s1">COOKIE_SECURE </span><span class="s3">= </span><span class="s0">False</span>
+<a name="l11"><span class="ln">11   </span></a>
+<a name="l12"><span class="ln">12   </span></a><span class="s2">#: Whether the &quot;remember me&quot; cookie uses HttpOnly or not; defaults to ``True``</span>
+<a name="l13"><span class="ln">13   </span></a><span class="s1">COOKIE_HTTPONLY </span><span class="s3">= </span><span class="s0">True</span>
+<a name="l14"><span class="ln">14   </span></a>
+<a name="l15"><span class="ln">15   </span></a><span class="s2">#: Whether the &quot;remember me&quot; cookie requires same origin; defaults to ``None``</span>
+<a name="l16"><span class="ln">16   </span></a><span class="s1">COOKIE_SAMESITE </span><span class="s3">= </span><span class="s0">None</span>
+<a name="l17"><span class="ln">17   </span></a>
+<a name="l18"><span class="ln">18   </span></a><span class="s2">#: The default flash message to display when users need to log in.</span>
+<a name="l19"><span class="ln">19   </span></a><span class="s1">LOGIN_MESSAGE </span><span class="s3">= </span><span class="s4">&quot;Please log in to access this page.&quot;</span>
+<a name="l20"><span class="ln">20   </span></a>
+<a name="l21"><span class="ln">21   </span></a><span class="s2">#: The default flash message category to display when users need to log in.</span>
+<a name="l22"><span class="ln">22   </span></a><span class="s1">LOGIN_MESSAGE_CATEGORY </span><span class="s3">= </span><span class="s4">&quot;message&quot;</span>
+<a name="l23"><span class="ln">23   </span></a>
+<a name="l24"><span class="ln">24   </span></a><span class="s2">#: The default flash message to display when users need to reauthenticate.</span>
+<a name="l25"><span class="ln">25   </span></a><span class="s1">REFRESH_MESSAGE </span><span class="s3">= </span><span class="s4">&quot;Please reauthenticate to access this page.&quot;</span>
+<a name="l26"><span class="ln">26   </span></a>
+<a name="l27"><span class="ln">27   </span></a><span class="s2">#: The default flash message category to display when users need to</span>
+<a name="l28"><span class="ln">28   </span></a><span class="s2">#: reauthenticate.</span>
+<a name="l29"><span class="ln">29   </span></a><span class="s1">REFRESH_MESSAGE_CATEGORY </span><span class="s3">= </span><span class="s4">&quot;message&quot;</span>
+<a name="l30"><span class="ln">30   </span></a>
+<a name="l31"><span class="ln">31   </span></a><span class="s2">#: The default attribute to retreive the str id of the user</span>
+<a name="l32"><span class="ln">32   </span></a><span class="s1">ID_ATTRIBUTE </span><span class="s3">= </span><span class="s4">&quot;get_id&quot;</span>
+<a name="l33"><span class="ln">33   </span></a>
+<a name="l34"><span class="ln">34   </span></a><span class="s2">#: Default name of the auth header (``Authorization``)</span>
+<a name="l35"><span class="ln">35   </span></a><span class="s1">AUTH_HEADER_NAME </span><span class="s3">= </span><span class="s4">&quot;Authorization&quot;</span>
+<a name="l36"><span class="ln">36   </span></a>
+<a name="l37"><span class="ln">37   </span></a><span class="s2">#: A set of session keys that are populated by Flask-Login. Use this set to</span>
+<a name="l38"><span class="ln">38   </span></a><span class="s2">#: purge keys safely and accurately.</span>
+<a name="l39"><span class="ln">39   </span></a><span class="s1">SESSION_KEYS </span><span class="s3">= {</span>
+<a name="l40"><span class="ln">40   </span></a>    <span class="s4">&quot;_user_id&quot;</span><span class="s3">,</span>
+<a name="l41"><span class="ln">41   </span></a>    <span class="s4">&quot;_remember&quot;</span><span class="s3">,</span>
+<a name="l42"><span class="ln">42   </span></a>    <span class="s4">&quot;_remember_seconds&quot;</span><span class="s3">,</span>
+<a name="l43"><span class="ln">43   </span></a>    <span class="s4">&quot;_id&quot;</span><span class="s3">,</span>
+<a name="l44"><span class="ln">44   </span></a>    <span class="s4">&quot;_fresh&quot;</span><span class="s3">,</span>
+<a name="l45"><span class="ln">45   </span></a>    <span class="s4">&quot;next&quot;</span><span class="s3">,</span>
+<a name="l46"><span class="ln">46   </span></a><span class="s3">}</span>
+<a name="l47"><span class="ln">47   </span></a>
+<a name="l48"><span class="ln">48   </span></a><span class="s2">#: A set of HTTP methods which are exempt from `login_required` and</span>
+<a name="l49"><span class="ln">49   </span></a><span class="s2">#: `fresh_login_required`. By default, this is just ``OPTIONS``.</span>
+<a name="l50"><span class="ln">50   </span></a><span class="s1">EXEMPT_METHODS </span><span class="s3">= {</span><span class="s4">&quot;OPTIONS&quot;</span><span class="s3">}</span>
+<a name="l51"><span class="ln">51   </span></a>
+<a name="l52"><span class="ln">52   </span></a><span class="s2">#: If true, the page the user is attempting to access is stored in the session</span>
+<a name="l53"><span class="ln">53   </span></a><span class="s2">#: rather than a url parameter when redirecting to the login view; defaults to</span>
+<a name="l54"><span class="ln">54   </span></a><span class="s2">#: ``False``.</span>
+<a name="l55"><span class="ln">55   </span></a><span class="s1">USE_SESSION_FOR_NEXT </span><span class="s3">= </span><span class="s0">False</span>
+<a name="l56"><span class="ln">56   </span></a></pre>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<html>
+<head>
+<title>logging.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #5f826b; font-style: italic;}
+.s5 { color: #6aab73;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+logging.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">from </span><span class="s1">__future__ </span><span class="s0">import </span><span class="s1">annotations</span>
+<a name="l2"><span class="ln">2    </span></a>
+<a name="l3"><span class="ln">3    </span></a><span class="s0">import </span><span class="s1">logging</span>
+<a name="l4"><span class="ln">4    </span></a><span class="s0">import </span><span class="s1">sys</span>
+<a name="l5"><span class="ln">5    </span></a><span class="s0">import </span><span class="s1">typing </span><span class="s0">as </span><span class="s1">t</span>
+<a name="l6"><span class="ln">6    </span></a>
+<a name="l7"><span class="ln">7    </span></a><span class="s0">from </span><span class="s1">werkzeug</span><span class="s2">.</span><span class="s1">local </span><span class="s0">import </span><span class="s1">LocalProxy</span>
+<a name="l8"><span class="ln">8    </span></a>
+<a name="l9"><span class="ln">9    </span></a><span class="s0">from </span><span class="s2">.</span><span class="s1">globals </span><span class="s0">import </span><span class="s1">request</span>
+<a name="l10"><span class="ln">10   </span></a>
+<a name="l11"><span class="ln">11   </span></a><span class="s0">if </span><span class="s1">t</span><span class="s2">.</span><span class="s1">TYPE_CHECKING</span><span class="s2">:  </span><span class="s3"># pragma: no cover</span>
+<a name="l12"><span class="ln">12   </span></a>    <span class="s0">from </span><span class="s2">.</span><span class="s1">sansio</span><span class="s2">.</span><span class="s1">app </span><span class="s0">import </span><span class="s1">App</span>
+<a name="l13"><span class="ln">13   </span></a>
+<a name="l14"><span class="ln">14   </span></a>
+<a name="l15"><span class="ln">15   </span></a><span class="s2">@</span><span class="s1">LocalProxy</span>
+<a name="l16"><span class="ln">16   </span></a><span class="s0">def </span><span class="s1">wsgi_errors_stream</span><span class="s2">() </span><span class="s1">-&gt; t</span><span class="s2">.</span><span class="s1">TextIO</span><span class="s2">:</span>
+<a name="l17"><span class="ln">17   </span></a>    <span class="s4">&quot;&quot;&quot;Find the most appropriate error stream for the application. If a request 
+<a name="l18"><span class="ln">18   </span></a>    is active, log to ``wsgi.errors``, otherwise use ``sys.stderr``. 
+<a name="l19"><span class="ln">19   </span></a> 
+<a name="l20"><span class="ln">20   </span></a>    If you configure your own :class:`logging.StreamHandler`, you may want to 
+<a name="l21"><span class="ln">21   </span></a>    use this for the stream. If you are using file or dict configuration and 
+<a name="l22"><span class="ln">22   </span></a>    can't import this directly, you can refer to it as 
+<a name="l23"><span class="ln">23   </span></a>    ``ext://flask.logging.wsgi_errors_stream``. 
+<a name="l24"><span class="ln">24   </span></a>    &quot;&quot;&quot;</span>
+<a name="l25"><span class="ln">25   </span></a>    <span class="s0">if </span><span class="s1">request</span><span class="s2">:</span>
+<a name="l26"><span class="ln">26   </span></a>        <span class="s0">return </span><span class="s1">request</span><span class="s2">.</span><span class="s1">environ</span><span class="s2">[</span><span class="s5">&quot;wsgi.errors&quot;</span><span class="s2">]  </span><span class="s3"># type: ignore[no-any-return]</span>
+<a name="l27"><span class="ln">27   </span></a>
+<a name="l28"><span class="ln">28   </span></a>    <span class="s0">return </span><span class="s1">sys</span><span class="s2">.</span><span class="s1">stderr</span>
+<a name="l29"><span class="ln">29   </span></a>
+<a name="l30"><span class="ln">30   </span></a>
+<a name="l31"><span class="ln">31   </span></a><span class="s0">def </span><span class="s1">has_level_handler</span><span class="s2">(</span><span class="s1">logger</span><span class="s2">: </span><span class="s1">logging</span><span class="s2">.</span><span class="s1">Logger</span><span class="s2">) </span><span class="s1">-&gt; bool</span><span class="s2">:</span>
+<a name="l32"><span class="ln">32   </span></a>    <span class="s4">&quot;&quot;&quot;Check if there is a handler in the logging chain that will handle the 
+<a name="l33"><span class="ln">33   </span></a>    given logger's :meth:`effective level &lt;~logging.Logger.getEffectiveLevel&gt;`. 
+<a name="l34"><span class="ln">34   </span></a>    &quot;&quot;&quot;</span>
+<a name="l35"><span class="ln">35   </span></a>    <span class="s1">level </span><span class="s2">= </span><span class="s1">logger</span><span class="s2">.</span><span class="s1">getEffectiveLevel</span><span class="s2">()</span>
+<a name="l36"><span class="ln">36   </span></a>    <span class="s1">current </span><span class="s2">= </span><span class="s1">logger</span>
+<a name="l37"><span class="ln">37   </span></a>
+<a name="l38"><span class="ln">38   </span></a>    <span class="s0">while </span><span class="s1">current</span><span class="s2">:</span>
+<a name="l39"><span class="ln">39   </span></a>        <span class="s0">if </span><span class="s1">any</span><span class="s2">(</span><span class="s1">handler</span><span class="s2">.</span><span class="s1">level </span><span class="s2">&lt;= </span><span class="s1">level </span><span class="s0">for </span><span class="s1">handler </span><span class="s0">in </span><span class="s1">current</span><span class="s2">.</span><span class="s1">handlers</span><span class="s2">):</span>
+<a name="l40"><span class="ln">40   </span></a>            <span class="s0">return True</span>
+<a name="l41"><span class="ln">41   </span></a>
+<a name="l42"><span class="ln">42   </span></a>        <span class="s0">if not </span><span class="s1">current</span><span class="s2">.</span><span class="s1">propagate</span><span class="s2">:</span>
+<a name="l43"><span class="ln">43   </span></a>            <span class="s0">break</span>
+<a name="l44"><span class="ln">44   </span></a>
+<a name="l45"><span class="ln">45   </span></a>        <span class="s1">current </span><span class="s2">= </span><span class="s1">current</span><span class="s2">.</span><span class="s1">parent  </span><span class="s3"># type: ignore</span>
+<a name="l46"><span class="ln">46   </span></a>
+<a name="l47"><span class="ln">47   </span></a>    <span class="s0">return False</span>
+<a name="l48"><span class="ln">48   </span></a>
+<a name="l49"><span class="ln">49   </span></a>
+<a name="l50"><span class="ln">50   </span></a><span class="s3">#: Log messages to :func:`~flask.logging.wsgi_errors_stream` with the format</span>
+<a name="l51"><span class="ln">51   </span></a><span class="s3">#: ``[%(asctime)s] %(levelname)s in %(module)s: %(message)s``.</span>
+<a name="l52"><span class="ln">52   </span></a><span class="s1">default_handler </span><span class="s2">= </span><span class="s1">logging</span><span class="s2">.</span><span class="s1">StreamHandler</span><span class="s2">(</span><span class="s1">wsgi_errors_stream</span><span class="s2">)  </span><span class="s3"># type: ignore</span>
+<a name="l53"><span class="ln">53   </span></a><span class="s1">default_handler</span><span class="s2">.</span><span class="s1">setFormatter</span><span class="s2">(</span>
+<a name="l54"><span class="ln">54   </span></a>    <span class="s1">logging</span><span class="s2">.</span><span class="s1">Formatter</span><span class="s2">(</span><span class="s5">&quot;[%(asctime)s] %(levelname)s in %(module)s: %(message)s&quot;</span><span class="s2">)</span>
+<a name="l55"><span class="ln">55   </span></a><span class="s2">)</span>
+<a name="l56"><span class="ln">56   </span></a>
+<a name="l57"><span class="ln">57   </span></a>
+<a name="l58"><span class="ln">58   </span></a><span class="s0">def </span><span class="s1">create_logger</span><span class="s2">(</span><span class="s1">app</span><span class="s2">: </span><span class="s1">App</span><span class="s2">) </span><span class="s1">-&gt; logging</span><span class="s2">.</span><span class="s1">Logger</span><span class="s2">:</span>
+<a name="l59"><span class="ln">59   </span></a>    <span class="s4">&quot;&quot;&quot;Get the Flask app's logger and configure it if needed. 
+<a name="l60"><span class="ln">60   </span></a> 
+<a name="l61"><span class="ln">61   </span></a>    The logger name will be the same as 
+<a name="l62"><span class="ln">62   </span></a>    :attr:`app.import_name &lt;flask.Flask.name&gt;`. 
+<a name="l63"><span class="ln">63   </span></a> 
+<a name="l64"><span class="ln">64   </span></a>    When :attr:`~flask.Flask.debug` is enabled, set the logger level to 
+<a name="l65"><span class="ln">65   </span></a>    :data:`logging.DEBUG` if it is not set. 
+<a name="l66"><span class="ln">66   </span></a> 
+<a name="l67"><span class="ln">67   </span></a>    If there is no handler for the logger's effective level, add a 
+<a name="l68"><span class="ln">68   </span></a>    :class:`~logging.StreamHandler` for 
+<a name="l69"><span class="ln">69   </span></a>    :func:`~flask.logging.wsgi_errors_stream` with a basic format. 
+<a name="l70"><span class="ln">70   </span></a>    &quot;&quot;&quot;</span>
+<a name="l71"><span class="ln">71   </span></a>    <span class="s1">logger </span><span class="s2">= </span><span class="s1">logging</span><span class="s2">.</span><span class="s1">getLogger</span><span class="s2">(</span><span class="s1">app</span><span class="s2">.</span><span class="s1">name</span><span class="s2">)</span>
+<a name="l72"><span class="ln">72   </span></a>
+<a name="l73"><span class="ln">73   </span></a>    <span class="s0">if </span><span class="s1">app</span><span class="s2">.</span><span class="s1">debug </span><span class="s0">and not </span><span class="s1">logger</span><span class="s2">.</span><span class="s1">level</span><span class="s2">:</span>
+<a name="l74"><span class="ln">74   </span></a>        <span class="s1">logger</span><span class="s2">.</span><span class="s1">setLevel</span><span class="s2">(</span><span class="s1">logging</span><span class="s2">.</span><span class="s1">DEBUG</span><span class="s2">)</span>
+<a name="l75"><span class="ln">75   </span></a>
+<a name="l76"><span class="ln">76   </span></a>    <span class="s0">if not </span><span class="s1">has_level_handler</span><span class="s2">(</span><span class="s1">logger</span><span class="s2">):</span>
+<a name="l77"><span class="ln">77   </span></a>        <span class="s1">logger</span><span class="s2">.</span><span class="s1">addHandler</span><span class="s2">(</span><span class="s1">default_handler</span><span class="s2">)</span>
+<a name="l78"><span class="ln">78   </span></a>
+<a name="l79"><span class="ln">79   </span></a>    <span class="s0">return </span><span class="s1">logger</span>
+<a name="l80"><span class="ln">80   </span></a></pre>
+</body>
+</html>

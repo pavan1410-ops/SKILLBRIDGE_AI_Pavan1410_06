@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SkillBridge AI - What-If Career Simulator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #eef4f8, #f7f9fb);
+            color: #17202a;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        .navbar {
+            background: linear-gradient(135deg, #0f172a, #1e3a5f);
+            color: white;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .brand span {
+            color: #38bdf8;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .container {
+            width: min(1200px, calc(100% - 30px));
+            margin: 35px auto 60px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #ffffff, #edf6ff);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid #d9e5ef;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .hero h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+            color: #0f172a;
+        }
+
+        .hero p {
+            margin: 0;
+            color: #52606d;
+            line-height: 1.7;
+            max-width: 850px;
+        }
+
+        .info-box {
+            margin-top: 20px;
+            padding: 15px 18px;
+            border-left: 4px solid #2563eb;
+            background: #eff6ff;
+            color: #334155;
+            border-radius: 8px;
+        }
+
+        /* =========================
+           PANELS
+        ========================= */
+
+        .panel {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+        }
+
+        .panel-title {
+            margin-top: 0;
+            margin-bottom: 18px;
+            color: #0f172a;
+            font-size: 21px;
+        }
+
+        /* =========================
+           CAREERS
+        ========================= */
+
+        .career-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 15px;
+        }
+
+        .career-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px;
+            cursor: pointer;
+            background: #ffffff;
+            transition: 0.2s;
+        }
+
+        .career-option:hover {
+            transform: translateY(-2px);
+            border-color: #60a5fa;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+        }
+
+        .career-option.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .career-name {
+            font-weight: 700;
+            font-size: 17px;
+            color: #172554;
+            margin-bottom: 8px;
+        }
+
+        .match {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .match strong {
+            color: #16a34a;
+            font-size: 18px;
+        }
+
+        /* =========================
+           SKILLS TABLE
+        ========================= */
+
+        .skill-table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #334155;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .skill-name {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .level-value {
+            font-weight: 700;
+            min-width: 50px;
+            display: inline-block;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: #2563eb;
+            cursor: pointer;
+        }
+
+        .slider-cell {
+            min-width: 250px;
+        }
+
+        .range-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .range-row input {
+            flex: 1;
+        }
+
+        /* =========================
+           BADGES
+        ========================= */
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge-current {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        .badge-required {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        /* =========================
+           BUTTON
+        ========================= */
+
+        .simulate-area {
+            text-align: center;
+            padding: 20px 0 0;
+        }
+
+        .simulate-btn {
+            border: none;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 7px 18px rgba(37, 99, 235, 0.25);
+            transition: 0.2s;
+        }
+
+        .simulate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.3);
+        }
+
+        .simulate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* =========================
+           RESULTS
+        ========================= */
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric {
+            padding: 20px;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .metric-label {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .metric-value.green {
+            color: #16a34a;
+        }
+
+        .metric-value.blue {
+            color: #2563eb;
+        }
+
+        .metric-value.orange {
+            color: #ea580c;
+        }
+
+        /* =========================
+           READINESS
+        ========================= */
+
+        .comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .comparison-card {
+            padding: 22px;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        .comparison-card h3 {
+            margin-top: 0;
+            color: #334155;
+        }
+
+        .big-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #2563eb;
+        }
+
+        .readiness-improvement {
+            margin-top: 10px;
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        /* =========================
+           RESULT MESSAGE
+        ========================= */
+
+        .improvement {
+            padding: 18px;
+            margin-top: 20px;
+            border-radius: 12px;
+            background: #ecfdf5;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .warning {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            color: #9a3412;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        /* =========================
+           GAP LIST
+        ========================= */
+
+        .gap-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .gap-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 13px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .priority {
+            padding: 5px 9px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .priority-critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .priority-high {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .priority-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .priority-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* =========================
+           NEXT LEARNING
+        ========================= */
+
+        .next-learning {
+            margin-top: 28px;
+            border-radius: 16px;
+            padding: 22px;
+            background: linear-gradient(135deg, #eff6ff, #f8fafc);
+            border: 1px solid #bfdbfe;
+        }
+
+        .next-learning-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .next-learning h3 {
+            margin: 0;
+            color: #0f172a;
+        }
+
+        .ai-badge {
+            background: #2563eb;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .learning-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .learning-item {
+            background: white;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .learning-label {
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .learning-value {
+            color: #172554;
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .learning-message {
+            margin: 0;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .learning-not-available {
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            color: #64748b;
+        }
+
+        /* =========================
+           EMPTY
+        ========================= */
+
+        .empty {
+            padding: 30px;
+            text-align: center;
+            color: #64748b;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        /* =========================
+           FOOTER ACTIONS
+        ========================= */
+
+        .footer-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .action-link {
+            text-decoration: none;
+            padding: 11px 17px;
+            border-radius: 9px;
+            background: #e2e8f0;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .action-link.primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* =========================
+           LOADING
+        ========================= */
+
+        .loading {
+            opacity: 0.65;
+            pointer-events: none;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            .navbar {
+                padding: 16px 18px;
+                align-items: flex-start;
+                gap: 12px;
+                flex-direction: column;
+            }
+
+            .container {
+                width: min(100% - 20px, 1200px);
+                margin-top: 20px;
+            }
+
+            .hero h1 {
+                font-size: 26px;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+            .gap-list li {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .next-learning-header {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+
+    <nav class="navbar">
+
+        <div class="brand">
+            Skill<span>Bridge</span> AI
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('dashboard.dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('student.careers') }}">
+                Careers
+            </a>
+
+            <a href="{{ url_for('student.digital_twin') }}">
+                Digital Twin
+            </a>
+
+            <a href="{{ url_for('student.readiness') }}">
+                Readiness
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="container">
+
+        <!-- =========================
+             HERO
+        ========================= -->
+
+        <section class="hero">
+
+            <h1>
+                🔮 What-If Career Simulator
+            </h1>
+
+            <p>
+                Explore how improving your skills could
+                change your career match. Adjust your
+                skill levels below and simulate your
+                future career profile without changing
+                your actual student profile.
+            </p>
+
+            <div class="info-box">
+
+                💡 <strong>How it works:</strong>
+
+                Select a career, improve one or more
+                skills using the sliders, and see the
+                estimated impact on your career match,
+                readiness, and remaining skill gaps.
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             CAREER SELECTION
+        ========================= -->
+
+        <section class="panel">
+
+            <h2 class="panel-title">
+                🎯 1. Select Target Career
+            </h2>
+
+            <div class="career-grid" id="careerGrid">
+
+                {% if careers %}
+
+                    {% for career in careers %}
+
+                        <div
+                            class="career-option"
+                            data-career="{{ career.career }}"
+                            onclick="selectCareer(this)"
+                        >
+
+                            <div class="career-name">
+                                {{ career.career }}
+                            </div>
+
+                            <div class="match">
+
+                                Current Match:
+
+                                <strong>
+                                    {{ career.current_match }}%
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="empty">
+
+                        No career recommendations are
+                        available yet.
+
+                        <br><br>
+
+                        Complete your profile and add
+                        skills first.
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             SKILL SIMULATOR
+        ========================= -->
+
+        <section
+            class="panel"
+            id="skillPanel"
+            style="display:none;"
+        >
+
+            <h2 class="panel-title">
+                🧠 2. Improve Your Skills
+            </h2>
+
+            <p style="color:#64748b;">
+
+                Move the sliders to simulate your future
+                skill proficiency. Your real profile will
+                <strong>not</strong> be changed.
+
+            </p>
+
+            <div class="skill-table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Skill</th>
+
+                            <th>Current</th>
+
+                            <th>Required</th>
+
+                            <th>What-If Level</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="skillTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="simulate-area">
+
+                <button
+                    type="button"
+                    class="simulate-btn"
+                    id="simulateButton"
+                    onclick="runSimulation()"
+                >
+
+                    🚀 Simulate My Career
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             RESULTS
+        ========================= -->
+
+        <section
+            class="panel results"
+            id="resultsPanel"
+        >
+
+            <h2 class="panel-title">
+                📊 Simulation Results
+            </h2>
+
+
+            <!-- METRICS -->
+
+            <div class="metric-grid">
+
+                <div class="metric">
+
+                    <div class="metric-label">
+                        Current Career Match
+                    </div>
+
+                    <div
+                        class="metric-value blue"
+                        id="currentMatch"
+                    >
+                        0%
+                    </div>
+
+                </div>
+
+
+                <div class="metric">
+
+                    <div class="metric-label">
+                        Simulated Career Match
+                    </div>
+
+                    <div
+                        class="metric-value green"
+                        id="simulatedMatch"
+                    >
+                        0%
+                    </div>
+
+                </div>
+
+
+                <div class="metric">
+
+                    <div class="metric-label">
+                        Match Improvement
+                    </div>
+
+                    <div
+                        class="metric-value green"
+                        id="matchImprovement"
+                    >
+                        +0%
+                    </div>
+
+                </div>
+
+
+                <div class="metric">
+
+                    <div class="metric-label">
+                        Remaining Skill Gaps
+                    </div>
+
+                    <div
+                        class="metric-value orange"
+                        id="gapCount"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 READINESS
+            ========================= -->
+
+            <div class="comparison">
+
+                <div class="comparison-card">
+
+                    <h3>
+                        Current Career Readiness
+                    </h3>
+
+                    <div
+                        class="big-number"
+                        id="currentReadiness"
+                    >
+                        0%
+                    </div>
+
+                </div>
+
+
+                <div class="comparison-card">
+
+                    <h3>
+                        Simulated Readiness
+                    </h3>
+
+                    <div
+                        class="big-number"
+                        id="simulatedReadiness"
+                    >
+                        0%
+                    </div>
+
+                    <div
+                        class="readiness-improvement"
+                        id="readinessImprovement"
+                    >
+                        +0%
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- MESSAGE -->
+
+            <div
+                class="improvement"
+                id="resultMessage"
+            >
+                Simulation results will appear here.
+            </div>
+
+
+            <!-- =========================
+                 NEXT LEARNING
+            ========================= -->
+
+            <div
+                class="next-learning"
+                id="nextLearningPanel"
+                style="display:none;"
+            >
+
+                <div class="next-learning-header">
+
+                    <div>
+
+                        <h3>
+                            🤖 AI Next Learning Recommendation
+                        </h3>
+
+                    </div>
+
+                    <span class="ai-badge">
+                        AI RECOMMENDATION
+                    </span>
+
+                </div>
+
+
+                <div id="nextLearningContent"></div>
+
+            </div>
+
+
+            <!-- =========================
+                 REMAINING GAPS
+            ========================= -->
+
+            <div style="margin-top:30px;">
+
+                <h3>
+                    🧩 Remaining Skill Gaps
+                </h3>
+
+                <ul
+                    class="gap-list"
+                    id="gapList"
+                ></ul>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             ACTIONS
+        ========================= -->
+
+        <div class="footer-actions">
+
+            <a
+                class="action-link primary"
+                href="{{ url_for('student.digital_twin') }}"
+            >
+                🔮 View Digital Twin
+            </a>
+
+            <a
+                class="action-link"
+                href="{{ url_for('student.careers') }}"
+            >
+                🎯 Career Recommendations
+            </a>
+
+            <a
+                class="action-link"
+                href="{{ url_for('dashboard.dashboard') }}"
+            >
+                🏠 Dashboard
+            </a>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        /* =====================================================
+           CAREER DATA
+        ===================================================== */
+
+        const careers = {{ careers | tojson }};
+
+        let selectedCareer = null;
+
+
+        /* =====================================================
+           SELECT CAREER
+        ===================================================== */
+
+        function selectCareer(element) {
+
+            document
+                .querySelectorAll(".career-option")
+                .forEach(function(card) {
+
+                    card.classList.remove("selected");
+
+                });
+
+
+            element.classList.add("selected");
+
+
+            const careerName =
+                element.dataset.career;
+
+
+            selectedCareer =
+                careers.find(function(career) {
+
+                    return career.career === careerName;
+
+                });
+
+
+            if (!selectedCareer) {
+                return;
+            }
+
+
+            renderSkills();
+
+
+            document
+                .getElementById("skillPanel")
+                .style.display = "block";
+
+
+            document
+                .getElementById("resultsPanel")
+                .classList.remove("show");
+
+
+            document
+                .getElementById("skillPanel")
+                .scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+        }
+
+
+        /* =====================================================
+           RENDER SKILLS
+        ===================================================== */
+
+        function renderSkills() {
+
+            const tbody =
+                document.getElementById(
+                    "skillTableBody"
+                );
+
+
+            tbody.innerHTML = "";
+
+
+            if (
+                !selectedCareer ||
+                !selectedCareer.required_skills ||
+                !selectedCareer.required_skills.length
+            ) {
+
+                tbody.innerHTML =
+                    `
+                    <tr>
+                        <td colspan="4">
+
+                            <div class="empty">
+                                No required skills found
+                                for this career.
+                            </div>
+
+                        </td>
+                    </tr>
+                    `;
+
+                return;
+
+            }
+
+
+            selectedCareer.required_skills
+                .forEach(function(skill, index) {
+
+                    const current =
+                        parseFloat(
+                            skill.current || 0
+                        );
+
+
+                    const required =
+                        parseFloat(
+                            skill.required || 100
+                        );
+
+
+                    const row =
+                        document.createElement("tr");
+
+
+                    row.innerHTML =
+                        `
+                        <td>
+
+                            <span class="skill-name">
+                                ${escapeHtml(skill.skill)}
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge badge-current">
+                                ${formatNumber(current)}%
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge badge-required">
+                                ${formatNumber(required)}%
+                            </span>
+
+                        </td>
+
+                        <td class="slider-cell">
+
+                            <div class="range-row">
+
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value="${current}"
+                                    data-skill="${escapeHtml(skill.skill)}"
+                                    data-required="${required}"
+                                    id="slider-${index}"
+                                    oninput="updateSliderValue(${index}, this.value)"
+                                >
+
+                                <span
+                                    class="level-value"
+                                    id="value-${index}"
+                                >
+                                    ${formatNumber(current)}%
+                                </span>
+
+                            </div>
+
+                        </td>
+                        `;
+
+
+                    tbody.appendChild(row);
+
+                });
+
+        }
+
+
+        /* =====================================================
+           SLIDER VALUE
+        ===================================================== */
+
+        function updateSliderValue(index, value) {
+
+            const output =
+                document.getElementById(
+                    "value-" + index
+                );
+
+
+            if (output) {
+
+                output.textContent =
+                    value + "%";
+
+            }
+
+        }
+
+
+        /* =====================================================
+           RUN SIMULATION
+        ===================================================== */
+
+        async function runSimulation() {
+
+            if (!selectedCareer) {
+
+                alert(
+                    "Please select a career first."
+                );
+
+                return;
+
+            }
+
+
+            const button =
+                document.getElementById(
+                    "simulateButton"
+                );
+
+
+            button.disabled = true;
+
+            button.textContent =
+                "⏳ Simulating Career...";
+
+
+            const sliders =
+                document.querySelectorAll(
+                    "#skillTableBody input[type='range']"
+                );
+
+
+            const hypotheticalSkills = {};
+
+
+            sliders.forEach(function(slider) {
+
+                hypotheticalSkills[
+                    slider.dataset.skill
+                ] = parseInt(
+                    slider.value,
+                    10
+                );
+
+            });
+
+
+            /*
+             * Local fallback simulation.
+             */
+
+            const localResult =
+                clientSideSimulation(
+                    hypotheticalSkills
+                );
+
+
+            displayResults(localResult);
+
+
+            /*
+             * Backend simulation.
+             */
+
+            try {
+
+                const response =
+                    await fetch(
+                        "{{ url_for('student.what_if') }}",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                "Accept":
+                                    "application/json",
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+                            },
+
+                            body: JSON.stringify({
+
+                                career:
+                                    selectedCareer.career,
+
+                                hypothetical_skills:
+                                    hypotheticalSkills
+
+                            })
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    console.log(
+                        "Backend returned status:",
+                        response.status
+                    );
+
+                    return;
+
+                }
+
+
+                const contentType =
+                    response.headers.get(
+                        "content-type"
+                    ) || "";
+
+
+                if (
+                    contentType.includes(
+                        "application/json"
+                    )
+                ) {
+
+                    const data =
+                        await response.json();
+
+
+                    displayResults(data);
+
+                }
+
+            }
+            catch (error) {
+
+                console.log(
+                    "Backend simulation unavailable. Local simulation remains active.",
+                    error
+                );
+
+            }
+            finally {
+
+                button.disabled = false;
+
+                button.textContent =
+                    "🚀 Simulate My Career";
+
+            }
+
+        }
+
+
+        /* =====================================================
+           CLIENT SIDE SIMULATION
+        ===================================================== */
+
+        function clientSideSimulation(
+            hypotheticalSkills
+        ) {
+
+            let currentTotal = 0;
+
+            let simulatedTotal = 0;
+
+            let count = 0;
+
+            let gaps = [];
+
+
+            selectedCareer.required_skills
+                .forEach(function(skill) {
+
+                    const current =
+                        parseFloat(
+                            skill.current || 0
+                        );
+
+
+                    const required =
+                        parseFloat(
+                            skill.required || 100
+                        );
+
+
+                    const simulated =
+                        parseFloat(
+                            hypotheticalSkills[
+                                skill.skill
+                            ] ?? current
+                        );
+
+
+                    if (required > 0) {
+
+                        currentTotal +=
+                            (
+                                Math.min(
+                                    current,
+                                    required
+                                ) / required
+                            ) * 100;
+
+
+                        simulatedTotal +=
+                            (
+                                Math.min(
+                                    simulated,
+                                    required
+                                ) / required
+                            ) * 100;
+
+
+                        count++;
+
+                    }
+
+
+                    const gap =
+                        Math.max(
+                            required - simulated,
+                            0
+                        );
+
+
+                    if (gap > 0) {
+
+                        let priority =
+                            "Low";
+
+
+                        if (gap >= 50) {
+
+                            priority =
+                                "Critical";
+
+                        }
+                        else if (gap >= 30) {
+
+                            priority =
+                                "High";
+
+                        }
+                        else if (gap >= 15) {
+
+                            priority =
+                                "Medium";
+
+                        }
+
+
+                        gaps.push({
+
+                            skill:
+                                skill.skill,
+
+                            current:
+                                simulated,
+
+                            required:
+                                required,
+
+                            gap:
+                                gap,
+
+                            priority:
+                                priority
+
+                        });
+
+                    }
+
+                });
+
+
+            const currentMatch =
+                count > 0
+                    ? currentTotal / count
+                    : 0;
+
+
+            const simulatedMatch =
+                count > 0
+                    ? simulatedTotal / count
+                    : 0;
+
+
+            const improvement =
+                simulatedMatch -
+                currentMatch;
+
+
+            return {
+
+                current_match:
+                    roundNumber(currentMatch),
+
+                simulated_match:
+                    roundNumber(simulatedMatch),
+
+                improvement:
+                    roundNumber(improvement),
+
+                current_readiness:
+                    0,
+
+                simulated_readiness:
+                    0,
+
+                readiness_improvement:
+                    0,
+
+                gap_count:
+                    gaps.length,
+
+                remaining_gaps:
+                    gaps,
+
+                next_learning:
+                    null
+
+            };
+
+        }
+
+
+        /* =====================================================
+           DISPLAY RESULTS
+        ===================================================== */
+
+        function displayResults(data) {
+
+            const resultsPanel =
+                document.getElementById(
+                    "resultsPanel"
+                );
+
+
+            resultsPanel.classList.add(
+                "show"
+            );
+
+
+            const currentMatch =
+                parseFloat(
+                    data.current_match ??
+                    data.currentMatch ??
+                    0
+                );
+
+
+            const simulatedMatch =
+                parseFloat(
+                    data.simulated_match ??
+                    data.simulatedMatch ??
+                    0
+                );
+
+
+            const improvement =
+                parseFloat(
+                    data.improvement ??
+                    (
+                        simulatedMatch -
+                        currentMatch
+                    )
+                );
+
+
+            document.getElementById(
+                "currentMatch"
+            ).textContent =
+                formatPercent(
+                    currentMatch
+                );
+
+
+            document.getElementById(
+                "simulatedMatch"
+            ).textContent =
+                formatPercent(
+                    simulatedMatch
+                );
+
+
+            document.getElementById(
+                "matchImprovement"
+            ).textContent =
+                (
+                    improvement >= 0
+                        ? "+"
+                        : ""
+                ) +
+                formatNumber(
+                    improvement
+                ) +
+                "%";
+
+
+            const remainingGaps =
+                Array.isArray(
+                    data.remaining_gaps
+                )
+                    ? data.remaining_gaps
+                    : (
+                        Array.isArray(data.gaps)
+                            ? data.gaps
+                            : []
+                    );
+
+
+            const gapCount =
+                data.gap_count !== undefined
+                    ? data.gap_count
+                    : remainingGaps.length;
+
+
+            document.getElementById(
+                "gapCount"
+            ).textContent =
+                gapCount;
+
+
+            const currentReadiness =
+                parseFloat(
+                    data.current_readiness ??
+                    data.currentReadiness ??
+                    0
+                );
+
+
+            const simulatedReadiness =
+                parseFloat(
+                    data.simulated_readiness ??
+                    data.simulatedReadiness ??
+                    0
+                );
+
+
+            const readinessImprovement =
+                parseFloat(
+                    data.readiness_improvement ??
+                    data.readinessImprovement ??
+                    (
+                        simulatedReadiness -
+                        currentReadiness
+                    )
+                );
+
+
+            document.getElementById(
+                "currentReadiness"
+            ).textContent =
+                formatPercent(
+                    currentReadiness
+                );
+
+
+            document.getElementById(
+                "simulatedReadiness"
+            ).textContent =
+                formatPercent(
+                    simulatedReadiness
+                );
+
+
+            document.getElementById(
+                "readinessImprovement"
+            ).textContent =
+                (
+                    readinessImprovement >= 0
+                        ? "+"
+                        : ""
+                ) +
+                formatNumber(
+                    readinessImprovement
+                ) +
+                "% readiness";
+
+
+            /* =========================
+               RESULT MESSAGE
+            ========================= */
+
+            let message;
+
+
+            if (improvement > 0) {
+
+                message =
+                    "🚀 Great! Your simulated skill improvements could increase your " +
+                    selectedCareer.career +
+                    " match by " +
+                    formatNumber(improvement) +
+                    "%.";
+
+            }
+            else if (improvement === 0) {
+
+                message =
+                    "💡 Your current skill levels already produce the same simulated match.";
+
+            }
+            else {
+
+                message =
+                    "⚠️ Your simulated values reduced the career match. Try increasing skills with larger gaps.";
+
+            }
+
+
+            document.getElementById(
+                "resultMessage"
+            ).textContent =
+                message;
+
+
+            /* =========================
+               GAPS
+            ========================= */
+
+            renderGaps(
+                remainingGaps
+            );
+
+
+            /* =========================
+               NEXT LEARNING
+            ========================= */
+
+            renderNextLearning(
+                data.next_learning
+            );
+
+
+            resultsPanel.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }
+
+
+        /* =====================================================
+           RENDER GAPS
+        ===================================================== */
+
+        function renderGaps(gaps) {
+
+            const list =
+                document.getElementById(
+                    "gapList"
+                );
+
+
+            list.innerHTML = "";
+
+
+            if (!gaps.length) {
+
+                list.innerHTML =
+                    `
+                    <li>
+
+                        <strong>
+                            🎉 Excellent!
+                        </strong>
+
+                        <span>
+                            No skill gaps remain
+                            for this simulation.
+                        </span>
+
+                    </li>
+                    `;
+
+                return;
+
+            }
+
+
+            gaps.forEach(function(gap) {
+
+                const li =
+                    document.createElement(
+                        "li"
+                    );
+
+
+                const priority =
+                    String(
+                        gap.priority || "Low"
+                    ).toLowerCase();
+
+
+                const current =
+                    parseFloat(
+                        gap.current || 0
+                    );
+
+
+                const required =
+                    parseFloat(
+                        gap.required || 0
+                    );
+
+
+                const gapValue =
+                    parseFloat(
+                        gap.gap || 0
+                    );
+
+
+                li.innerHTML =
+                    `
+                    <div>
+
+                        <strong>
+                            ${escapeHtml(gap.skill)}
+                        </strong>
+
+                        <br>
+
+                        <small style="color:#64748b;">
+
+                            Current:
+                            ${formatNumber(current)}%
+
+                            /
+
+                            Required:
+                            ${formatNumber(required)}%
+
+                            /
+
+                            Gap:
+                            ${formatNumber(gapValue)}%
+
+                        </small>
+
+                    </div>
+
+
+                    <span
+                        class="priority priority-${priority}"
+                    >
+
+                        ${escapeHtml(
+                            gap.priority || "Low"
+                        )}
+
+                    </span>
+                    `;
+
+
+                list.appendChild(li);
+
+            });
+
+        }
+
+
+        /* =====================================================
+           NEXT LEARNING RECOMMENDATION
+        ===================================================== */
+
+        function renderNextLearning(
+            recommendation
+        ) {
+
+            const panel =
+                document.getElementById(
+                    "nextLearningPanel"
+                );
+
+
+            const content =
+                document.getElementById(
+                    "nextLearningContent"
+                );
+
+
+            if (!recommendation) {
+
+                panel.style.display = "none";
+
+                content.innerHTML = "";
+
+                return;
+
+            }
+
+
+            panel.style.display = "block";
+
+
+            if (
+                recommendation.available === false
+            ) {
+
+                content.innerHTML =
+                    `
+                    <div class="learning-not-available">
+
+                        💡
+                        ${escapeHtml(
+                            recommendation.message ||
+                            "No additional learning recommendation is available."
+                        )}
+
+                    </div>
+                    `;
+
+                return;
+
+            }
+
+
+            const skill =
+                recommendation.skill ||
+                "Unknown Skill";
+
+
+            const current =
+                parseFloat(
+                    recommendation.current || 0
+                );
+
+
+            const required =
+                parseFloat(
+                    recommendation.required || 0
+                );
+
+
+            const gap =
+                parseFloat(
+                    recommendation.gap || 0
+                );
+
+
+            const priority =
+                recommendation.priority ||
+                "Medium";
+
+
+            const course =
+                recommendation.course ||
+                "Recommended Skill Course";
+
+
+            const duration =
+                recommendation.duration ||
+                "1-2 weeks";
+
+
+            const message =
+                recommendation.message ||
+                (
+                    "Focus on " +
+                    skill +
+                    " next to improve your career readiness."
+                );
+
+
+            content.innerHTML =
+                `
+                <div class="learning-grid">
+
+                    <div class="learning-item">
+
+                        <div class="learning-label">
+                            Skill to Improve
+                        </div>
+
+                        <div class="learning-value">
+                            ${escapeHtml(skill)}
+                        </div>
+
+                    </div>
+
+
+                    <div class="learning-item">
+
+                        <div class="learning-label">
+                            Current Level
+                        </div>
+
+                        <div class="learning-value">
+                            ${formatNumber(current)}%
+                        </div>
+
+                    </div>
+
+
+                    <div class="learning-item">
+
+                        <div class="learning-label">
+                            Required Level
+                        </div>
+
+                        <div class="learning-value">
+                            ${formatNumber(required)}%
+                        </div>
+
+                    </div>
+
+
+                    <div class="learning-item">
+
+                        <div class="learning-label">
+                            Skill Gap
+                        </div>
+
+                        <div class="learning-value">
+                            ${formatNumber(gap)}%
+                        </div>
+
+                    </div>
+
+
+                    <div class="learning-item">
+
+                        <div class="learning-label">
+                            Priority
+                        </div>
+
+                        <div class="learning-value">
+                            ${escapeHtml(priority)}
+                        </div>
+
+                    </div>
+
+
+                    <div class="learning-item">
+
+                        <div class="learning-label">
+                            Estimated Duration
+                        </div>
+
+                        <div class="learning-value">
+                            ${escapeHtml(duration)}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="learning-item">
+
+                    <div class="learning-label">
+                        Recommended Course
+                    </div>
+
+                    <div class="learning-value">
+                        📚 ${escapeHtml(course)}
+                    </div>
+
+                </div>
+
+
+                <p class="learning-message">
+
+                    ${escapeHtml(message)}
+
+                </p>
+                `;
+
+        }
+
+
+        /* =====================================================
+           HELPERS
+        ===================================================== */
+
+        function formatPercent(value) {
+
+            const number =
+                parseFloat(value || 0);
+
+
+            return (
+                Number.isInteger(number)
+                    ? number
+                    : number.toFixed(2)
+            ) + "%";
+
+        }
+
+
+        function formatNumber(value) {
+
+            const number =
+                parseFloat(value || 0);
+
+
+            if (!Number.isFinite(number)) {
+                return "0";
+            }
+
+
+            return Number.isInteger(number)
+                ? number.toString()
+                : number.toFixed(2);
+
+        }
+
+
+        function roundNumber(value) {
+
+            return Math.round(
+                value * 100
+            ) / 100;
+
+        }
+
+
+        function escapeHtml(value) {
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        /* =====================================================
+           AUTO SELECT FIRST CAREER
+        ===================================================== */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
+
+                const firstCareer =
+                    document.querySelector(
+                        ".career-option"
+                    );
+
+
+                if (firstCareer) {
+
+                    selectCareer(
+                        firstCareer
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>

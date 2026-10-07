@@ -1,0 +1,388 @@
+<html>
+<head>
+<title>indexable.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #7a7e85;}
+.s1 { color: #bcbec4;}
+.s2 { color: #6aab73;}
+.s3 { color: #cf8e6d;}
+.s4 { color: #bcbec4;}
+.s5 { color: #5f826b; font-style: italic;}
+.s6 { color: #2aacb8;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+indexable.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0"># ext/indexable.py</span>
+<a name="l2"><span class="ln">2    </span></a><span class="s0"># Copyright (C) 2005-2026 the SQLAlchemy authors and contributors</span>
+<a name="l3"><span class="ln">3    </span></a><span class="s0"># &lt;see AUTHORS file&gt;</span>
+<a name="l4"><span class="ln">4    </span></a><span class="s0">#</span>
+<a name="l5"><span class="ln">5    </span></a><span class="s0"># This module is part of SQLAlchemy and is released under</span>
+<a name="l6"><span class="ln">6    </span></a><span class="s0"># the MIT License: https://www.opensource.org/licenses/mit-license.php</span>
+<a name="l7"><span class="ln">7    </span></a>
+<a name="l8"><span class="ln">8    </span></a><span class="s2">&quot;&quot;&quot;Define attributes on ORM-mapped classes that have &quot;index&quot; attributes for 
+<a name="l9"><span class="ln">9    </span></a>columns with :class:`_types.Indexable` types. 
+<a name="l10"><span class="ln">10   </span></a> 
+<a name="l11"><span class="ln">11   </span></a>&quot;index&quot; means the attribute is associated with an element of an 
+<a name="l12"><span class="ln">12   </span></a>:class:`_types.Indexable` column with the predefined index to access it. 
+<a name="l13"><span class="ln">13   </span></a>The :class:`_types.Indexable` types include types such as 
+<a name="l14"><span class="ln">14   </span></a>:class:`_types.ARRAY`, :class:`_types.JSON` and 
+<a name="l15"><span class="ln">15   </span></a>:class:`_postgresql.HSTORE`. 
+<a name="l16"><span class="ln">16   </span></a> 
+<a name="l17"><span class="ln">17   </span></a> 
+<a name="l18"><span class="ln">18   </span></a> 
+<a name="l19"><span class="ln">19   </span></a>The :mod:`~sqlalchemy.ext.indexable` extension provides 
+<a name="l20"><span class="ln">20   </span></a>:class:`_schema.Column`-like interface for any element of an 
+<a name="l21"><span class="ln">21   </span></a>:class:`_types.Indexable` typed column. In simple cases, it can be 
+<a name="l22"><span class="ln">22   </span></a>treated as a :class:`_schema.Column` - mapped attribute. 
+<a name="l23"><span class="ln">23   </span></a> 
+<a name="l24"><span class="ln">24   </span></a>Synopsis 
+<a name="l25"><span class="ln">25   </span></a>======== 
+<a name="l26"><span class="ln">26   </span></a> 
+<a name="l27"><span class="ln">27   </span></a>Given ``Person`` as a model with a primary key and JSON data field. 
+<a name="l28"><span class="ln">28   </span></a>While this field may have any number of elements encoded within it, 
+<a name="l29"><span class="ln">29   </span></a>we would like to refer to the element called ``name`` individually 
+<a name="l30"><span class="ln">30   </span></a>as a dedicated attribute which behaves like a standalone column:: 
+<a name="l31"><span class="ln">31   </span></a> 
+<a name="l32"><span class="ln">32   </span></a>    from sqlalchemy import Column, JSON, Integer 
+<a name="l33"><span class="ln">33   </span></a>    from sqlalchemy.ext.declarative import declarative_base 
+<a name="l34"><span class="ln">34   </span></a>    from sqlalchemy.ext.indexable import index_property 
+<a name="l35"><span class="ln">35   </span></a> 
+<a name="l36"><span class="ln">36   </span></a>    Base = declarative_base() 
+<a name="l37"><span class="ln">37   </span></a> 
+<a name="l38"><span class="ln">38   </span></a> 
+<a name="l39"><span class="ln">39   </span></a>    class Person(Base): 
+<a name="l40"><span class="ln">40   </span></a>        __tablename__ = &quot;person&quot; 
+<a name="l41"><span class="ln">41   </span></a> 
+<a name="l42"><span class="ln">42   </span></a>        id = Column(Integer, primary_key=True) 
+<a name="l43"><span class="ln">43   </span></a>        data = Column(JSON) 
+<a name="l44"><span class="ln">44   </span></a> 
+<a name="l45"><span class="ln">45   </span></a>        name = index_property(&quot;data&quot;, &quot;name&quot;) 
+<a name="l46"><span class="ln">46   </span></a> 
+<a name="l47"><span class="ln">47   </span></a>Above, the ``name`` attribute now behaves like a mapped column.   We 
+<a name="l48"><span class="ln">48   </span></a>can compose a new ``Person`` and set the value of ``name``:: 
+<a name="l49"><span class="ln">49   </span></a> 
+<a name="l50"><span class="ln">50   </span></a>    &gt;&gt;&gt; person = Person(name=&quot;Alchemist&quot;) 
+<a name="l51"><span class="ln">51   </span></a> 
+<a name="l52"><span class="ln">52   </span></a>The value is now accessible:: 
+<a name="l53"><span class="ln">53   </span></a> 
+<a name="l54"><span class="ln">54   </span></a>    &gt;&gt;&gt; person.name 
+<a name="l55"><span class="ln">55   </span></a>    'Alchemist' 
+<a name="l56"><span class="ln">56   </span></a> 
+<a name="l57"><span class="ln">57   </span></a>Behind the scenes, the JSON field was initialized to a new blank dictionary 
+<a name="l58"><span class="ln">58   </span></a>and the field was set:: 
+<a name="l59"><span class="ln">59   </span></a> 
+<a name="l60"><span class="ln">60   </span></a>    &gt;&gt;&gt; person.data 
+<a name="l61"><span class="ln">61   </span></a>    {'name': 'Alchemist'} 
+<a name="l62"><span class="ln">62   </span></a> 
+<a name="l63"><span class="ln">63   </span></a>The field is mutable in place:: 
+<a name="l64"><span class="ln">64   </span></a> 
+<a name="l65"><span class="ln">65   </span></a>    &gt;&gt;&gt; person.name = &quot;Renamed&quot; 
+<a name="l66"><span class="ln">66   </span></a>    &gt;&gt;&gt; person.name 
+<a name="l67"><span class="ln">67   </span></a>    'Renamed' 
+<a name="l68"><span class="ln">68   </span></a>    &gt;&gt;&gt; person.data 
+<a name="l69"><span class="ln">69   </span></a>    {'name': 'Renamed'} 
+<a name="l70"><span class="ln">70   </span></a> 
+<a name="l71"><span class="ln">71   </span></a>When using :class:`.index_property`, the change that we make to the indexable 
+<a name="l72"><span class="ln">72   </span></a>structure is also automatically tracked as history; we no longer need 
+<a name="l73"><span class="ln">73   </span></a>to use :class:`~.mutable.MutableDict` in order to track this change 
+<a name="l74"><span class="ln">74   </span></a>for the unit of work. 
+<a name="l75"><span class="ln">75   </span></a> 
+<a name="l76"><span class="ln">76   </span></a>Deletions work normally as well:: 
+<a name="l77"><span class="ln">77   </span></a> 
+<a name="l78"><span class="ln">78   </span></a>    &gt;&gt;&gt; del person.name 
+<a name="l79"><span class="ln">79   </span></a>    &gt;&gt;&gt; person.data 
+<a name="l80"><span class="ln">80   </span></a>    {} 
+<a name="l81"><span class="ln">81   </span></a> 
+<a name="l82"><span class="ln">82   </span></a>Above, deletion of ``person.name`` deletes the value from the dictionary, 
+<a name="l83"><span class="ln">83   </span></a>but not the dictionary itself. 
+<a name="l84"><span class="ln">84   </span></a> 
+<a name="l85"><span class="ln">85   </span></a>A missing key will produce ``AttributeError``:: 
+<a name="l86"><span class="ln">86   </span></a> 
+<a name="l87"><span class="ln">87   </span></a>    &gt;&gt;&gt; person = Person() 
+<a name="l88"><span class="ln">88   </span></a>    &gt;&gt;&gt; person.name 
+<a name="l89"><span class="ln">89   </span></a>    AttributeError: 'name' 
+<a name="l90"><span class="ln">90   </span></a> 
+<a name="l91"><span class="ln">91   </span></a>Unless you set a default value:: 
+<a name="l92"><span class="ln">92   </span></a> 
+<a name="l93"><span class="ln">93   </span></a>    &gt;&gt;&gt; class Person(Base): 
+<a name="l94"><span class="ln">94   </span></a>    ...     __tablename__ = &quot;person&quot; 
+<a name="l95"><span class="ln">95   </span></a>    ... 
+<a name="l96"><span class="ln">96   </span></a>    ...     id = Column(Integer, primary_key=True) 
+<a name="l97"><span class="ln">97   </span></a>    ...     data = Column(JSON) 
+<a name="l98"><span class="ln">98   </span></a>    ... 
+<a name="l99"><span class="ln">99   </span></a>    ...     name = index_property(&quot;data&quot;, &quot;name&quot;, default=None)  # See default 
+<a name="l100"><span class="ln">100  </span></a> 
+<a name="l101"><span class="ln">101  </span></a>    &gt;&gt;&gt; person = Person() 
+<a name="l102"><span class="ln">102  </span></a>    &gt;&gt;&gt; print(person.name) 
+<a name="l103"><span class="ln">103  </span></a>    None 
+<a name="l104"><span class="ln">104  </span></a> 
+<a name="l105"><span class="ln">105  </span></a> 
+<a name="l106"><span class="ln">106  </span></a>The attributes are also accessible at the class level. 
+<a name="l107"><span class="ln">107  </span></a>Below, we illustrate ``Person.name`` used to generate 
+<a name="l108"><span class="ln">108  </span></a>an indexed SQL criteria:: 
+<a name="l109"><span class="ln">109  </span></a> 
+<a name="l110"><span class="ln">110  </span></a>    &gt;&gt;&gt; from sqlalchemy.orm import Session 
+<a name="l111"><span class="ln">111  </span></a>    &gt;&gt;&gt; session = Session() 
+<a name="l112"><span class="ln">112  </span></a>    &gt;&gt;&gt; query = session.query(Person).filter(Person.name == &quot;Alchemist&quot;) 
+<a name="l113"><span class="ln">113  </span></a> 
+<a name="l114"><span class="ln">114  </span></a>The above query is equivalent to:: 
+<a name="l115"><span class="ln">115  </span></a> 
+<a name="l116"><span class="ln">116  </span></a>    &gt;&gt;&gt; query = session.query(Person).filter(Person.data[&quot;name&quot;] == &quot;Alchemist&quot;) 
+<a name="l117"><span class="ln">117  </span></a> 
+<a name="l118"><span class="ln">118  </span></a>Multiple :class:`.index_property` objects can be chained to produce 
+<a name="l119"><span class="ln">119  </span></a>multiple levels of indexing:: 
+<a name="l120"><span class="ln">120  </span></a> 
+<a name="l121"><span class="ln">121  </span></a>    from sqlalchemy import Column, JSON, Integer 
+<a name="l122"><span class="ln">122  </span></a>    from sqlalchemy.ext.declarative import declarative_base 
+<a name="l123"><span class="ln">123  </span></a>    from sqlalchemy.ext.indexable import index_property 
+<a name="l124"><span class="ln">124  </span></a> 
+<a name="l125"><span class="ln">125  </span></a>    Base = declarative_base() 
+<a name="l126"><span class="ln">126  </span></a> 
+<a name="l127"><span class="ln">127  </span></a> 
+<a name="l128"><span class="ln">128  </span></a>    class Person(Base): 
+<a name="l129"><span class="ln">129  </span></a>        __tablename__ = &quot;person&quot; 
+<a name="l130"><span class="ln">130  </span></a> 
+<a name="l131"><span class="ln">131  </span></a>        id = Column(Integer, primary_key=True) 
+<a name="l132"><span class="ln">132  </span></a>        data = Column(JSON) 
+<a name="l133"><span class="ln">133  </span></a> 
+<a name="l134"><span class="ln">134  </span></a>        birthday = index_property(&quot;data&quot;, &quot;birthday&quot;) 
+<a name="l135"><span class="ln">135  </span></a>        year = index_property(&quot;birthday&quot;, &quot;year&quot;) 
+<a name="l136"><span class="ln">136  </span></a>        month = index_property(&quot;birthday&quot;, &quot;month&quot;) 
+<a name="l137"><span class="ln">137  </span></a>        day = index_property(&quot;birthday&quot;, &quot;day&quot;) 
+<a name="l138"><span class="ln">138  </span></a> 
+<a name="l139"><span class="ln">139  </span></a>Above, a query such as:: 
+<a name="l140"><span class="ln">140  </span></a> 
+<a name="l141"><span class="ln">141  </span></a>    q = session.query(Person).filter(Person.year == &quot;1980&quot;) 
+<a name="l142"><span class="ln">142  </span></a> 
+<a name="l143"><span class="ln">143  </span></a>On a PostgreSQL backend, the above query will render as: 
+<a name="l144"><span class="ln">144  </span></a> 
+<a name="l145"><span class="ln">145  </span></a>.. sourcecode:: sql 
+<a name="l146"><span class="ln">146  </span></a> 
+<a name="l147"><span class="ln">147  </span></a>    SELECT person.id, person.data 
+<a name="l148"><span class="ln">148  </span></a>    FROM person 
+<a name="l149"><span class="ln">149  </span></a>    WHERE person.data -&gt; %(data_1)s -&gt; %(param_1)s = %(param_2)s 
+<a name="l150"><span class="ln">150  </span></a> 
+<a name="l151"><span class="ln">151  </span></a>Default Values 
+<a name="l152"><span class="ln">152  </span></a>============== 
+<a name="l153"><span class="ln">153  </span></a> 
+<a name="l154"><span class="ln">154  </span></a>:class:`.index_property` includes special behaviors for when the indexed 
+<a name="l155"><span class="ln">155  </span></a>data structure does not exist, and a set operation is called: 
+<a name="l156"><span class="ln">156  </span></a> 
+<a name="l157"><span class="ln">157  </span></a>* For an :class:`.index_property` that is given an integer index value, 
+<a name="l158"><span class="ln">158  </span></a>  the default data structure will be a Python list of ``None`` values, 
+<a name="l159"><span class="ln">159  </span></a>  at least as long as the index value; the value is then set at its 
+<a name="l160"><span class="ln">160  </span></a>  place in the list.  This means for an index value of zero, the list 
+<a name="l161"><span class="ln">161  </span></a>  will be initialized to ``[None]`` before setting the given value, 
+<a name="l162"><span class="ln">162  </span></a>  and for an index value of five, the list will be initialized to 
+<a name="l163"><span class="ln">163  </span></a>  ``[None, None, None, None, None]`` before setting the fifth element 
+<a name="l164"><span class="ln">164  </span></a>  to the given value.   Note that an existing list is **not** extended 
+<a name="l165"><span class="ln">165  </span></a>  in place to receive a value. 
+<a name="l166"><span class="ln">166  </span></a> 
+<a name="l167"><span class="ln">167  </span></a>* for an :class:`.index_property` that is given any other kind of index 
+<a name="l168"><span class="ln">168  </span></a>  value (e.g. strings usually), a Python dictionary is used as the 
+<a name="l169"><span class="ln">169  </span></a>  default data structure. 
+<a name="l170"><span class="ln">170  </span></a> 
+<a name="l171"><span class="ln">171  </span></a>* The default data structure can be set to any Python callable using the 
+<a name="l172"><span class="ln">172  </span></a>  :paramref:`.index_property.datatype` parameter, overriding the previous 
+<a name="l173"><span class="ln">173  </span></a>  rules. 
+<a name="l174"><span class="ln">174  </span></a> 
+<a name="l175"><span class="ln">175  </span></a> 
+<a name="l176"><span class="ln">176  </span></a>Subclassing 
+<a name="l177"><span class="ln">177  </span></a>=========== 
+<a name="l178"><span class="ln">178  </span></a> 
+<a name="l179"><span class="ln">179  </span></a>:class:`.index_property` can be subclassed, in particular for the common 
+<a name="l180"><span class="ln">180  </span></a>use case of providing coercion of values or SQL expressions as they are 
+<a name="l181"><span class="ln">181  </span></a>accessed.  Below is a common recipe for use with a PostgreSQL JSON type, 
+<a name="l182"><span class="ln">182  </span></a>where we want to also include automatic casting plus ``astext()``:: 
+<a name="l183"><span class="ln">183  </span></a> 
+<a name="l184"><span class="ln">184  </span></a>    class pg_json_property(index_property): 
+<a name="l185"><span class="ln">185  </span></a>        def __init__(self, attr_name, index, cast_type): 
+<a name="l186"><span class="ln">186  </span></a>            super(pg_json_property, self).__init__(attr_name, index) 
+<a name="l187"><span class="ln">187  </span></a>            self.cast_type = cast_type 
+<a name="l188"><span class="ln">188  </span></a> 
+<a name="l189"><span class="ln">189  </span></a>        def expr(self, model): 
+<a name="l190"><span class="ln">190  </span></a>            expr = super(pg_json_property, self).expr(model) 
+<a name="l191"><span class="ln">191  </span></a>            return expr.astext.cast(self.cast_type) 
+<a name="l192"><span class="ln">192  </span></a> 
+<a name="l193"><span class="ln">193  </span></a>The above subclass can be used with the PostgreSQL-specific 
+<a name="l194"><span class="ln">194  </span></a>version of :class:`_postgresql.JSON`:: 
+<a name="l195"><span class="ln">195  </span></a> 
+<a name="l196"><span class="ln">196  </span></a>    from sqlalchemy import Column, Integer 
+<a name="l197"><span class="ln">197  </span></a>    from sqlalchemy.ext.declarative import declarative_base 
+<a name="l198"><span class="ln">198  </span></a>    from sqlalchemy.dialects.postgresql import JSON 
+<a name="l199"><span class="ln">199  </span></a> 
+<a name="l200"><span class="ln">200  </span></a>    Base = declarative_base() 
+<a name="l201"><span class="ln">201  </span></a> 
+<a name="l202"><span class="ln">202  </span></a> 
+<a name="l203"><span class="ln">203  </span></a>    class Person(Base): 
+<a name="l204"><span class="ln">204  </span></a>        __tablename__ = &quot;person&quot; 
+<a name="l205"><span class="ln">205  </span></a> 
+<a name="l206"><span class="ln">206  </span></a>        id = Column(Integer, primary_key=True) 
+<a name="l207"><span class="ln">207  </span></a>        data = Column(JSON) 
+<a name="l208"><span class="ln">208  </span></a> 
+<a name="l209"><span class="ln">209  </span></a>        age = pg_json_property(&quot;data&quot;, &quot;age&quot;, Integer) 
+<a name="l210"><span class="ln">210  </span></a> 
+<a name="l211"><span class="ln">211  </span></a>The ``age`` attribute at the instance level works as before; however 
+<a name="l212"><span class="ln">212  </span></a>when rendering SQL, PostgreSQL's ``-&gt;&gt;`` operator will be used 
+<a name="l213"><span class="ln">213  </span></a>for indexed access, instead of the usual index operator of ``-&gt;``:: 
+<a name="l214"><span class="ln">214  </span></a> 
+<a name="l215"><span class="ln">215  </span></a>    &gt;&gt;&gt; query = session.query(Person).filter(Person.age &lt; 20) 
+<a name="l216"><span class="ln">216  </span></a> 
+<a name="l217"><span class="ln">217  </span></a>The above query will render: 
+<a name="l218"><span class="ln">218  </span></a> 
+<a name="l219"><span class="ln">219  </span></a>.. sourcecode:: sql 
+<a name="l220"><span class="ln">220  </span></a> 
+<a name="l221"><span class="ln">221  </span></a>    SELECT person.id, person.data 
+<a name="l222"><span class="ln">222  </span></a>    FROM person 
+<a name="l223"><span class="ln">223  </span></a>    WHERE CAST(person.data -&gt;&gt; %(data_1)s AS INTEGER) &lt; %(param_1)s 
+<a name="l224"><span class="ln">224  </span></a> 
+<a name="l225"><span class="ln">225  </span></a>&quot;&quot;&quot;  </span><span class="s0"># noqa</span>
+<a name="l226"><span class="ln">226  </span></a>
+<a name="l227"><span class="ln">227  </span></a><span class="s3">from </span><span class="s1">__future__ </span><span class="s3">import </span><span class="s1">annotations</span>
+<a name="l228"><span class="ln">228  </span></a>
+<a name="l229"><span class="ln">229  </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">Any</span>
+<a name="l230"><span class="ln">230  </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">Callable</span>
+<a name="l231"><span class="ln">231  </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">cast</span>
+<a name="l232"><span class="ln">232  </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">Optional</span>
+<a name="l233"><span class="ln">233  </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">TYPE_CHECKING</span>
+<a name="l234"><span class="ln">234  </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">TypeVar</span>
+<a name="l235"><span class="ln">235  </span></a><span class="s3">from </span><span class="s1">typing </span><span class="s3">import </span><span class="s1">Union</span>
+<a name="l236"><span class="ln">236  </span></a>
+<a name="l237"><span class="ln">237  </span></a><span class="s3">from </span><span class="s4">.. </span><span class="s3">import </span><span class="s1">inspect</span>
+<a name="l238"><span class="ln">238  </span></a><span class="s3">from </span><span class="s4">..</span><span class="s1">ext</span><span class="s4">.</span><span class="s1">hybrid </span><span class="s3">import </span><span class="s1">hybrid_property</span>
+<a name="l239"><span class="ln">239  </span></a><span class="s3">from </span><span class="s4">..</span><span class="s1">orm</span><span class="s4">.</span><span class="s1">attributes </span><span class="s3">import </span><span class="s1">flag_modified</span>
+<a name="l240"><span class="ln">240  </span></a>
+<a name="l241"><span class="ln">241  </span></a><span class="s3">if </span><span class="s1">TYPE_CHECKING</span><span class="s4">:</span>
+<a name="l242"><span class="ln">242  </span></a>    <span class="s3">from </span><span class="s4">..</span><span class="s1">sql </span><span class="s3">import </span><span class="s1">SQLColumnExpression</span>
+<a name="l243"><span class="ln">243  </span></a>    <span class="s3">from </span><span class="s4">..</span><span class="s1">sql</span><span class="s4">.</span><span class="s1">_typing </span><span class="s3">import </span><span class="s1">_HasClauseElement</span>
+<a name="l244"><span class="ln">244  </span></a>
+<a name="l245"><span class="ln">245  </span></a>
+<a name="l246"><span class="ln">246  </span></a><span class="s1">__all__ </span><span class="s4">= [</span><span class="s2">&quot;index_property&quot;</span><span class="s4">]</span>
+<a name="l247"><span class="ln">247  </span></a>
+<a name="l248"><span class="ln">248  </span></a><span class="s1">_T </span><span class="s4">= </span><span class="s1">TypeVar</span><span class="s4">(</span><span class="s2">&quot;_T&quot;</span><span class="s4">)</span>
+<a name="l249"><span class="ln">249  </span></a>
+<a name="l250"><span class="ln">250  </span></a>
+<a name="l251"><span class="ln">251  </span></a><span class="s3">class </span><span class="s1">index_property</span><span class="s4">(</span><span class="s1">hybrid_property</span><span class="s4">[</span><span class="s1">_T</span><span class="s4">]):</span>
+<a name="l252"><span class="ln">252  </span></a>    <span class="s5">&quot;&quot;&quot;A property generator. The generated property describes an object 
+<a name="l253"><span class="ln">253  </span></a>    attribute that corresponds to an :class:`_types.Indexable` 
+<a name="l254"><span class="ln">254  </span></a>    column. 
+<a name="l255"><span class="ln">255  </span></a> 
+<a name="l256"><span class="ln">256  </span></a>    .. seealso:: 
+<a name="l257"><span class="ln">257  </span></a> 
+<a name="l258"><span class="ln">258  </span></a>        :mod:`sqlalchemy.ext.indexable` 
+<a name="l259"><span class="ln">259  </span></a> 
+<a name="l260"><span class="ln">260  </span></a>    &quot;&quot;&quot;</span>
+<a name="l261"><span class="ln">261  </span></a>
+<a name="l262"><span class="ln">262  </span></a>    <span class="s1">_NO_DEFAULT_ARGUMENT </span><span class="s4">= </span><span class="s1">cast</span><span class="s4">(</span><span class="s1">_T</span><span class="s4">, </span><span class="s1">object</span><span class="s4">())</span>
+<a name="l263"><span class="ln">263  </span></a>
+<a name="l264"><span class="ln">264  </span></a>    <span class="s3">def </span><span class="s1">__init__</span><span class="s4">(</span>
+<a name="l265"><span class="ln">265  </span></a>        <span class="s1">self</span><span class="s4">,</span>
+<a name="l266"><span class="ln">266  </span></a>        <span class="s1">attr_name</span><span class="s4">: </span><span class="s1">str</span><span class="s4">,</span>
+<a name="l267"><span class="ln">267  </span></a>        <span class="s1">index</span><span class="s4">: </span><span class="s1">Union</span><span class="s4">[</span><span class="s1">int</span><span class="s4">, </span><span class="s1">str</span><span class="s4">],</span>
+<a name="l268"><span class="ln">268  </span></a>        <span class="s1">default</span><span class="s4">: </span><span class="s1">_T </span><span class="s4">= </span><span class="s1">_NO_DEFAULT_ARGUMENT</span><span class="s4">,</span>
+<a name="l269"><span class="ln">269  </span></a>        <span class="s1">datatype</span><span class="s4">: </span><span class="s1">Optional</span><span class="s4">[</span><span class="s1">Callable</span><span class="s4">[[], </span><span class="s1">Any</span><span class="s4">]] = </span><span class="s3">None</span><span class="s4">,</span>
+<a name="l270"><span class="ln">270  </span></a>        <span class="s1">mutable</span><span class="s4">: </span><span class="s1">bool </span><span class="s4">= </span><span class="s3">True</span><span class="s4">,</span>
+<a name="l271"><span class="ln">271  </span></a>        <span class="s1">onebased</span><span class="s4">: </span><span class="s1">bool </span><span class="s4">= </span><span class="s3">True</span><span class="s4">,</span>
+<a name="l272"><span class="ln">272  </span></a>    <span class="s4">):</span>
+<a name="l273"><span class="ln">273  </span></a>        <span class="s5">&quot;&quot;&quot;Create a new :class:`.index_property`. 
+<a name="l274"><span class="ln">274  </span></a> 
+<a name="l275"><span class="ln">275  </span></a>        :param attr_name: 
+<a name="l276"><span class="ln">276  </span></a>            An attribute name of an `Indexable` typed column, or other 
+<a name="l277"><span class="ln">277  </span></a>            attribute that returns an indexable structure. 
+<a name="l278"><span class="ln">278  </span></a>        :param index: 
+<a name="l279"><span class="ln">279  </span></a>            The index to be used for getting and setting this value.  This 
+<a name="l280"><span class="ln">280  </span></a>            should be the Python-side index value for integers. 
+<a name="l281"><span class="ln">281  </span></a>        :param default: 
+<a name="l282"><span class="ln">282  </span></a>            A value which will be returned instead of `AttributeError` 
+<a name="l283"><span class="ln">283  </span></a>            when there is not a value at given index. 
+<a name="l284"><span class="ln">284  </span></a>        :param datatype: default datatype to use when the field is empty. 
+<a name="l285"><span class="ln">285  </span></a>            By default, this is derived from the type of index used; a 
+<a name="l286"><span class="ln">286  </span></a>            Python list for an integer index, or a Python dictionary for 
+<a name="l287"><span class="ln">287  </span></a>            any other style of index.   For a list, the list will be 
+<a name="l288"><span class="ln">288  </span></a>            initialized to a list of None values that is at least 
+<a name="l289"><span class="ln">289  </span></a>            ``index`` elements long. 
+<a name="l290"><span class="ln">290  </span></a>        :param mutable: if False, writes and deletes to the attribute will 
+<a name="l291"><span class="ln">291  </span></a>            be disallowed. 
+<a name="l292"><span class="ln">292  </span></a>        :param onebased: assume the SQL representation of this value is 
+<a name="l293"><span class="ln">293  </span></a>            one-based; that is, the first index in SQL is 1, not zero. 
+<a name="l294"><span class="ln">294  </span></a>        &quot;&quot;&quot;</span>
+<a name="l295"><span class="ln">295  </span></a>
+<a name="l296"><span class="ln">296  </span></a>        <span class="s3">if </span><span class="s1">mutable</span><span class="s4">:</span>
+<a name="l297"><span class="ln">297  </span></a>            <span class="s1">super</span><span class="s4">().</span><span class="s1">__init__</span><span class="s4">(</span><span class="s1">self</span><span class="s4">.</span><span class="s1">fget</span><span class="s4">, </span><span class="s1">self</span><span class="s4">.</span><span class="s1">fset</span><span class="s4">, </span><span class="s1">self</span><span class="s4">.</span><span class="s1">fdel</span><span class="s4">, </span><span class="s1">self</span><span class="s4">.</span><span class="s1">expr</span><span class="s4">)</span>
+<a name="l298"><span class="ln">298  </span></a>        <span class="s3">else</span><span class="s4">:</span>
+<a name="l299"><span class="ln">299  </span></a>            <span class="s1">super</span><span class="s4">().</span><span class="s1">__init__</span><span class="s4">(</span><span class="s1">self</span><span class="s4">.</span><span class="s1">fget</span><span class="s4">, </span><span class="s3">None</span><span class="s4">, </span><span class="s3">None</span><span class="s4">, </span><span class="s1">self</span><span class="s4">.</span><span class="s1">expr</span><span class="s4">)</span>
+<a name="l300"><span class="ln">300  </span></a>        <span class="s1">self</span><span class="s4">.</span><span class="s1">attr_name </span><span class="s4">= </span><span class="s1">attr_name</span>
+<a name="l301"><span class="ln">301  </span></a>        <span class="s1">self</span><span class="s4">.</span><span class="s1">index </span><span class="s4">= </span><span class="s1">index</span>
+<a name="l302"><span class="ln">302  </span></a>        <span class="s1">self</span><span class="s4">.</span><span class="s1">default </span><span class="s4">= </span><span class="s1">default</span>
+<a name="l303"><span class="ln">303  </span></a>        <span class="s1">is_numeric </span><span class="s4">= </span><span class="s1">isinstance</span><span class="s4">(</span><span class="s1">index</span><span class="s4">, </span><span class="s1">int</span><span class="s4">)</span>
+<a name="l304"><span class="ln">304  </span></a>        <span class="s1">onebased </span><span class="s4">= </span><span class="s1">is_numeric </span><span class="s3">and </span><span class="s1">onebased</span>
+<a name="l305"><span class="ln">305  </span></a>
+<a name="l306"><span class="ln">306  </span></a>        <span class="s3">if </span><span class="s1">datatype </span><span class="s3">is not None</span><span class="s4">:</span>
+<a name="l307"><span class="ln">307  </span></a>            <span class="s1">self</span><span class="s4">.</span><span class="s1">datatype </span><span class="s4">= </span><span class="s1">datatype</span>
+<a name="l308"><span class="ln">308  </span></a>        <span class="s3">else</span><span class="s4">:</span>
+<a name="l309"><span class="ln">309  </span></a>            <span class="s3">if </span><span class="s1">is_numeric</span><span class="s4">:</span>
+<a name="l310"><span class="ln">310  </span></a>                <span class="s1">self</span><span class="s4">.</span><span class="s1">datatype </span><span class="s4">= </span><span class="s3">lambda</span><span class="s4">: [</span><span class="s3">None for </span><span class="s1">x </span><span class="s3">in </span><span class="s1">range</span><span class="s4">(</span><span class="s1">index </span><span class="s4">+ </span><span class="s6">1</span><span class="s4">)]  </span><span class="s0"># type: ignore[operator]  # noqa: E501</span>
+<a name="l311"><span class="ln">311  </span></a>            <span class="s3">else</span><span class="s4">:</span>
+<a name="l312"><span class="ln">312  </span></a>                <span class="s1">self</span><span class="s4">.</span><span class="s1">datatype </span><span class="s4">= </span><span class="s1">dict</span>
+<a name="l313"><span class="ln">313  </span></a>        <span class="s1">self</span><span class="s4">.</span><span class="s1">onebased </span><span class="s4">= </span><span class="s1">onebased</span>
+<a name="l314"><span class="ln">314  </span></a>
+<a name="l315"><span class="ln">315  </span></a>    <span class="s3">def </span><span class="s1">_fget_default</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">err</span><span class="s4">: </span><span class="s1">Optional</span><span class="s4">[</span><span class="s1">BaseException</span><span class="s4">] = </span><span class="s3">None</span><span class="s4">) </span><span class="s1">-&gt; _T</span><span class="s4">:</span>
+<a name="l316"><span class="ln">316  </span></a>        <span class="s3">if </span><span class="s1">self</span><span class="s4">.</span><span class="s1">default </span><span class="s4">== </span><span class="s1">self</span><span class="s4">.</span><span class="s1">_NO_DEFAULT_ARGUMENT</span><span class="s4">:</span>
+<a name="l317"><span class="ln">317  </span></a>            <span class="s3">raise </span><span class="s1">AttributeError</span><span class="s4">(</span><span class="s1">self</span><span class="s4">.</span><span class="s1">attr_name</span><span class="s4">) </span><span class="s3">from </span><span class="s1">err</span>
+<a name="l318"><span class="ln">318  </span></a>        <span class="s3">else</span><span class="s4">:</span>
+<a name="l319"><span class="ln">319  </span></a>            <span class="s3">return </span><span class="s1">self</span><span class="s4">.</span><span class="s1">default</span>
+<a name="l320"><span class="ln">320  </span></a>
+<a name="l321"><span class="ln">321  </span></a>    <span class="s3">def </span><span class="s1">fget</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">__instance</span><span class="s4">: </span><span class="s1">Any</span><span class="s4">) </span><span class="s1">-&gt; _T</span><span class="s4">:</span>
+<a name="l322"><span class="ln">322  </span></a>        <span class="s1">attr_name </span><span class="s4">= </span><span class="s1">self</span><span class="s4">.</span><span class="s1">attr_name</span>
+<a name="l323"><span class="ln">323  </span></a>        <span class="s1">column_value </span><span class="s4">= </span><span class="s1">getattr</span><span class="s4">(</span><span class="s1">__instance</span><span class="s4">, </span><span class="s1">attr_name</span><span class="s4">)</span>
+<a name="l324"><span class="ln">324  </span></a>        <span class="s3">if </span><span class="s1">column_value </span><span class="s3">is None</span><span class="s4">:</span>
+<a name="l325"><span class="ln">325  </span></a>            <span class="s3">return </span><span class="s1">self</span><span class="s4">.</span><span class="s1">_fget_default</span><span class="s4">()</span>
+<a name="l326"><span class="ln">326  </span></a>        <span class="s3">try</span><span class="s4">:</span>
+<a name="l327"><span class="ln">327  </span></a>            <span class="s1">value </span><span class="s4">= </span><span class="s1">column_value</span><span class="s4">[</span><span class="s1">self</span><span class="s4">.</span><span class="s1">index</span><span class="s4">]</span>
+<a name="l328"><span class="ln">328  </span></a>        <span class="s3">except </span><span class="s4">(</span><span class="s1">KeyError</span><span class="s4">, </span><span class="s1">IndexError</span><span class="s4">) </span><span class="s3">as </span><span class="s1">err</span><span class="s4">:</span>
+<a name="l329"><span class="ln">329  </span></a>            <span class="s3">return </span><span class="s1">self</span><span class="s4">.</span><span class="s1">_fget_default</span><span class="s4">(</span><span class="s1">err</span><span class="s4">)</span>
+<a name="l330"><span class="ln">330  </span></a>        <span class="s3">else</span><span class="s4">:</span>
+<a name="l331"><span class="ln">331  </span></a>            <span class="s3">return </span><span class="s1">value  </span><span class="s0"># type: ignore[no-any-return]</span>
+<a name="l332"><span class="ln">332  </span></a>
+<a name="l333"><span class="ln">333  </span></a>    <span class="s3">def </span><span class="s1">fset</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">instance</span><span class="s4">: </span><span class="s1">Any</span><span class="s4">, </span><span class="s1">value</span><span class="s4">: </span><span class="s1">_T</span><span class="s4">) </span><span class="s1">-&gt; </span><span class="s3">None</span><span class="s4">:</span>
+<a name="l334"><span class="ln">334  </span></a>        <span class="s1">attr_name </span><span class="s4">= </span><span class="s1">self</span><span class="s4">.</span><span class="s1">attr_name</span>
+<a name="l335"><span class="ln">335  </span></a>        <span class="s1">column_value </span><span class="s4">= </span><span class="s1">getattr</span><span class="s4">(</span><span class="s1">instance</span><span class="s4">, </span><span class="s1">attr_name</span><span class="s4">, </span><span class="s3">None</span><span class="s4">)</span>
+<a name="l336"><span class="ln">336  </span></a>        <span class="s3">if </span><span class="s1">column_value </span><span class="s3">is None</span><span class="s4">:</span>
+<a name="l337"><span class="ln">337  </span></a>            <span class="s1">column_value </span><span class="s4">= </span><span class="s1">self</span><span class="s4">.</span><span class="s1">datatype</span><span class="s4">()</span>
+<a name="l338"><span class="ln">338  </span></a>            <span class="s1">setattr</span><span class="s4">(</span><span class="s1">instance</span><span class="s4">, </span><span class="s1">attr_name</span><span class="s4">, </span><span class="s1">column_value</span><span class="s4">)</span>
+<a name="l339"><span class="ln">339  </span></a>        <span class="s1">column_value</span><span class="s4">[</span><span class="s1">self</span><span class="s4">.</span><span class="s1">index</span><span class="s4">] = </span><span class="s1">value</span>
+<a name="l340"><span class="ln">340  </span></a>        <span class="s1">setattr</span><span class="s4">(</span><span class="s1">instance</span><span class="s4">, </span><span class="s1">attr_name</span><span class="s4">, </span><span class="s1">column_value</span><span class="s4">)</span>
+<a name="l341"><span class="ln">341  </span></a>        <span class="s3">if </span><span class="s1">attr_name </span><span class="s3">in </span><span class="s1">inspect</span><span class="s4">(</span><span class="s1">instance</span><span class="s4">).</span><span class="s1">mapper</span><span class="s4">.</span><span class="s1">attrs</span><span class="s4">:</span>
+<a name="l342"><span class="ln">342  </span></a>            <span class="s1">flag_modified</span><span class="s4">(</span><span class="s1">instance</span><span class="s4">, </span><span class="s1">attr_name</span><span class="s4">)</span>
+<a name="l343"><span class="ln">343  </span></a>
+<a name="l344"><span class="ln">344  </span></a>    <span class="s3">def </span><span class="s1">fdel</span><span class="s4">(</span><span class="s1">self</span><span class="s4">, </span><span class="s1">instance</span><span class="s4">: </span><span class="s1">Any</span><span class="s4">) </span><span class="s1">-&gt; </span><span class="s3">None</span><span class="s4">:</span>
+<a name="l345"><span class="ln">345  </span></a>        <span class="s1">attr_name </span><span class="s4">= </span><span class="s1">self</span><span class="s4">.</span><span class="s1">attr_name</span>
+<a name="l346"><span class="ln">346  </span></a>        <span class="s1">column_value </span><span class="s4">= </span><span class="s1">getattr</span><span class="s4">(</span><span class="s1">instance</span><span class="s4">, </span><span class="s1">attr_name</span><span class="s4">)</span>
+<a name="l347"><span class="ln">347  </span></a>        <span class="s3">if </span><span class="s1">column_value </span><span class="s3">is None</span><span class="s4">:</span>
+<a name="l348"><span class="ln">348  </span></a>            <span class="s3">raise </span><span class="s1">AttributeError</span><span class="s4">(</span><span class="s1">self</span><span class="s4">.</span><span class="s1">attr_name</span><span class="s4">)</span>
+<a name="l349"><span class="ln">349  </span></a>        <span class="s3">try</span><span class="s4">:</span>
+<a name="l350"><span class="ln">350  </span></a>            <span class="s3">del </span><span class="s1">column_value</span><span class="s4">[</span><span class="s1">self</span><span class="s4">.</span><span class="s1">index</span><span class="s4">]</span>
+<a name="l351"><span class="ln">351  </span></a>        <span class="s3">except </span><span class="s1">KeyError </span><span class="s3">as </span><span class="s1">err</span><span class="s4">:</span>
+<a name="l352"><span class="ln">352  </span></a>            <span class="s3">raise </span><span class="s1">AttributeError</span><span class="s4">(</span><span class="s1">self</span><span class="s4">.</span><span class="s1">attr_name</span><span class="s4">) </span><span class="s3">from </span><span class="s1">err</span>
+<a name="l353"><span class="ln">353  </span></a>        <span class="s3">else</span><span class="s4">:</span>
+<a name="l354"><span class="ln">354  </span></a>            <span class="s1">setattr</span><span class="s4">(</span><span class="s1">instance</span><span class="s4">, </span><span class="s1">attr_name</span><span class="s4">, </span><span class="s1">column_value</span><span class="s4">)</span>
+<a name="l355"><span class="ln">355  </span></a>            <span class="s1">flag_modified</span><span class="s4">(</span><span class="s1">instance</span><span class="s4">, </span><span class="s1">attr_name</span><span class="s4">)</span>
+<a name="l356"><span class="ln">356  </span></a>
+<a name="l357"><span class="ln">357  </span></a>    <span class="s3">def </span><span class="s1">expr</span><span class="s4">(</span>
+<a name="l358"><span class="ln">358  </span></a>        <span class="s1">self</span><span class="s4">, </span><span class="s1">model</span><span class="s4">: </span><span class="s1">Any</span>
+<a name="l359"><span class="ln">359  </span></a>    <span class="s4">) </span><span class="s1">-&gt; Union</span><span class="s4">[</span><span class="s1">_HasClauseElement</span><span class="s4">[</span><span class="s1">_T</span><span class="s4">], </span><span class="s1">SQLColumnExpression</span><span class="s4">[</span><span class="s1">_T</span><span class="s4">]]:</span>
+<a name="l360"><span class="ln">360  </span></a>        <span class="s1">column </span><span class="s4">= </span><span class="s1">getattr</span><span class="s4">(</span><span class="s1">model</span><span class="s4">, </span><span class="s1">self</span><span class="s4">.</span><span class="s1">attr_name</span><span class="s4">)</span>
+<a name="l361"><span class="ln">361  </span></a>        <span class="s1">index </span><span class="s4">= </span><span class="s1">self</span><span class="s4">.</span><span class="s1">index</span>
+<a name="l362"><span class="ln">362  </span></a>        <span class="s3">if </span><span class="s1">self</span><span class="s4">.</span><span class="s1">onebased</span><span class="s4">:</span>
+<a name="l363"><span class="ln">363  </span></a>            <span class="s1">index </span><span class="s4">+= </span><span class="s6">1  </span><span class="s0"># type: ignore[operator]</span>
+<a name="l364"><span class="ln">364  </span></a>        <span class="s3">return </span><span class="s1">column</span><span class="s4">[</span><span class="s1">index</span><span class="s4">]  </span><span class="s0"># type: ignore[no-any-return]</span>
+<a name="l365"><span class="ln">365  </span></a></pre>
+</body>
+</html>

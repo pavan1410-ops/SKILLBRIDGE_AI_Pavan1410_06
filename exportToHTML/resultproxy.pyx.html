@@ -1,0 +1,120 @@
+<html>
+<head>
+<title>resultproxy.pyx</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #bcbec4;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+resultproxy.pyx</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0"># cyextension/resultproxy.pyx</span>
+<a name="l2"><span class="ln">2    </span></a><span class="s0"># Copyright (C) 2005-2024 the SQLAlchemy authors and contributors</span>
+<a name="l3"><span class="ln">3    </span></a><span class="s0"># &lt;see AUTHORS file&gt;</span>
+<a name="l4"><span class="ln">4    </span></a><span class="s0">#</span>
+<a name="l5"><span class="ln">5    </span></a><span class="s0"># This module is part of SQLAlchemy and is released under</span>
+<a name="l6"><span class="ln">6    </span></a><span class="s0"># the MIT License: https://www.opensource.org/licenses/mit-license.php</span>
+<a name="l7"><span class="ln">7    </span></a><span class="s0">import operator</span>
+<a name="l8"><span class="ln">8    </span></a>
+<a name="l9"><span class="ln">9    </span></a><span class="s0">cdef class BaseRow:</span>
+<a name="l10"><span class="ln">10   </span></a>    <span class="s0">cdef readonly object _parent</span>
+<a name="l11"><span class="ln">11   </span></a>    <span class="s0">cdef readonly dict _key_to_index</span>
+<a name="l12"><span class="ln">12   </span></a>    <span class="s0">cdef readonly tuple _data</span>
+<a name="l13"><span class="ln">13   </span></a>
+<a name="l14"><span class="ln">14   </span></a>    <span class="s0">def __init__(self, object parent, object processors, dict key_to_index, object data):</span>
+<a name="l15"><span class="ln">15   </span></a>        <span class="s0">&quot;&quot;&quot;Row objects are constructed by CursorResult objects.&quot;&quot;&quot;</span>
+<a name="l16"><span class="ln">16   </span></a>
+<a name="l17"><span class="ln">17   </span></a>        <span class="s0">self._parent = parent</span>
+<a name="l18"><span class="ln">18   </span></a>
+<a name="l19"><span class="ln">19   </span></a>        <span class="s0">self._key_to_index = key_to_index</span>
+<a name="l20"><span class="ln">20   </span></a>
+<a name="l21"><span class="ln">21   </span></a>        <span class="s0">if processors:</span>
+<a name="l22"><span class="ln">22   </span></a>            <span class="s0">self._data = _apply_processors(processors, data)</span>
+<a name="l23"><span class="ln">23   </span></a>        <span class="s0">else:</span>
+<a name="l24"><span class="ln">24   </span></a>            <span class="s0">self._data = tuple(data)</span>
+<a name="l25"><span class="ln">25   </span></a>
+<a name="l26"><span class="ln">26   </span></a>    <span class="s0">def __reduce__(self):</span>
+<a name="l27"><span class="ln">27   </span></a>        <span class="s0">return (</span>
+<a name="l28"><span class="ln">28   </span></a>            <span class="s0">rowproxy_reconstructor,</span>
+<a name="l29"><span class="ln">29   </span></a>            <span class="s0">(self.__class__, self.__getstate__()),</span>
+<a name="l30"><span class="ln">30   </span></a>        <span class="s0">)</span>
+<a name="l31"><span class="ln">31   </span></a>
+<a name="l32"><span class="ln">32   </span></a>    <span class="s0">def __getstate__(self):</span>
+<a name="l33"><span class="ln">33   </span></a>        <span class="s0">return {&quot;_parent&quot;: self._parent, &quot;_data&quot;: self._data}</span>
+<a name="l34"><span class="ln">34   </span></a>
+<a name="l35"><span class="ln">35   </span></a>    <span class="s0">def __setstate__(self, dict state):</span>
+<a name="l36"><span class="ln">36   </span></a>        <span class="s0">parent = state[&quot;_parent&quot;]</span>
+<a name="l37"><span class="ln">37   </span></a>        <span class="s0">self._parent = parent</span>
+<a name="l38"><span class="ln">38   </span></a>        <span class="s0">self._data = state[&quot;_data&quot;]</span>
+<a name="l39"><span class="ln">39   </span></a>        <span class="s0">self._key_to_index = parent._key_to_index</span>
+<a name="l40"><span class="ln">40   </span></a>
+<a name="l41"><span class="ln">41   </span></a>    <span class="s0">def _values_impl(self):</span>
+<a name="l42"><span class="ln">42   </span></a>        <span class="s0">return list(self)</span>
+<a name="l43"><span class="ln">43   </span></a>
+<a name="l44"><span class="ln">44   </span></a>    <span class="s0">def __iter__(self):</span>
+<a name="l45"><span class="ln">45   </span></a>        <span class="s0">return iter(self._data)</span>
+<a name="l46"><span class="ln">46   </span></a>
+<a name="l47"><span class="ln">47   </span></a>    <span class="s0">def __len__(self):</span>
+<a name="l48"><span class="ln">48   </span></a>        <span class="s0">return len(self._data)</span>
+<a name="l49"><span class="ln">49   </span></a>
+<a name="l50"><span class="ln">50   </span></a>    <span class="s0">def __hash__(self):</span>
+<a name="l51"><span class="ln">51   </span></a>        <span class="s0">return hash(self._data)</span>
+<a name="l52"><span class="ln">52   </span></a>
+<a name="l53"><span class="ln">53   </span></a>    <span class="s0">def __getitem__(self, index):</span>
+<a name="l54"><span class="ln">54   </span></a>        <span class="s0">return self._data[index]</span>
+<a name="l55"><span class="ln">55   </span></a>
+<a name="l56"><span class="ln">56   </span></a>    <span class="s0">def _get_by_key_impl_mapping(self, key):</span>
+<a name="l57"><span class="ln">57   </span></a>        <span class="s0">return self._get_by_key_impl(key, 0)</span>
+<a name="l58"><span class="ln">58   </span></a>
+<a name="l59"><span class="ln">59   </span></a>    <span class="s0">cdef _get_by_key_impl(self, object key, int attr_err):</span>
+<a name="l60"><span class="ln">60   </span></a>        <span class="s0">index = self._key_to_index.get(key)</span>
+<a name="l61"><span class="ln">61   </span></a>        <span class="s0">if index is not None:</span>
+<a name="l62"><span class="ln">62   </span></a>            <span class="s0">return self._data[&lt;int&gt;index]</span>
+<a name="l63"><span class="ln">63   </span></a>        <span class="s0">self._parent._key_not_found(key, attr_err != 0)</span>
+<a name="l64"><span class="ln">64   </span></a>
+<a name="l65"><span class="ln">65   </span></a>    <span class="s0">def __getattr__(self, name):</span>
+<a name="l66"><span class="ln">66   </span></a>        <span class="s0">return self._get_by_key_impl(name, 1)</span>
+<a name="l67"><span class="ln">67   </span></a>
+<a name="l68"><span class="ln">68   </span></a>    <span class="s0">def _to_tuple_instance(self):</span>
+<a name="l69"><span class="ln">69   </span></a>        <span class="s0">return self._data</span>
+<a name="l70"><span class="ln">70   </span></a>
+<a name="l71"><span class="ln">71   </span></a>
+<a name="l72"><span class="ln">72   </span></a><span class="s0">cdef tuple _apply_processors(proc, data):</span>
+<a name="l73"><span class="ln">73   </span></a>    <span class="s0">res = []</span>
+<a name="l74"><span class="ln">74   </span></a>    <span class="s0">for i in range(len(proc)):</span>
+<a name="l75"><span class="ln">75   </span></a>        <span class="s0">p = proc[i]</span>
+<a name="l76"><span class="ln">76   </span></a>        <span class="s0">if p is None:</span>
+<a name="l77"><span class="ln">77   </span></a>            <span class="s0">res.append(data[i])</span>
+<a name="l78"><span class="ln">78   </span></a>        <span class="s0">else:</span>
+<a name="l79"><span class="ln">79   </span></a>            <span class="s0">res.append(p(data[i]))</span>
+<a name="l80"><span class="ln">80   </span></a>    <span class="s0">return tuple(res)</span>
+<a name="l81"><span class="ln">81   </span></a>
+<a name="l82"><span class="ln">82   </span></a>
+<a name="l83"><span class="ln">83   </span></a><span class="s0">def rowproxy_reconstructor(cls, state):</span>
+<a name="l84"><span class="ln">84   </span></a>    <span class="s0">obj = cls.__new__(cls)</span>
+<a name="l85"><span class="ln">85   </span></a>    <span class="s0">obj.__setstate__(state)</span>
+<a name="l86"><span class="ln">86   </span></a>    <span class="s0">return obj</span>
+<a name="l87"><span class="ln">87   </span></a>
+<a name="l88"><span class="ln">88   </span></a>
+<a name="l89"><span class="ln">89   </span></a><span class="s0">cdef int is_contiguous(tuple indexes):</span>
+<a name="l90"><span class="ln">90   </span></a>    <span class="s0">cdef int i</span>
+<a name="l91"><span class="ln">91   </span></a>    <span class="s0">for i in range(1, len(indexes)):</span>
+<a name="l92"><span class="ln">92   </span></a>        <span class="s0">if indexes[i-1] != indexes[i] -1:</span>
+<a name="l93"><span class="ln">93   </span></a>            <span class="s0">return 0</span>
+<a name="l94"><span class="ln">94   </span></a>    <span class="s0">return 1</span>
+<a name="l95"><span class="ln">95   </span></a>
+<a name="l96"><span class="ln">96   </span></a>
+<a name="l97"><span class="ln">97   </span></a><span class="s0">def tuplegetter(*indexes):</span>
+<a name="l98"><span class="ln">98   </span></a>    <span class="s0">if len(indexes) == 1 or is_contiguous(indexes) != 0:</span>
+<a name="l99"><span class="ln">99   </span></a>        <span class="s0"># slice form is faster but returns a list if input is list</span>
+<a name="l100"><span class="ln">100  </span></a>        <span class="s0">return operator.itemgetter(slice(indexes[0], indexes[-1] + 1))</span>
+<a name="l101"><span class="ln">101  </span></a>    <span class="s0">else:</span>
+<a name="l102"><span class="ln">102  </span></a>        <span class="s0">return operator.itemgetter(*indexes)</span>
+<a name="l103"><span class="ln">103  </span></a></pre>
+</body>
+</html>

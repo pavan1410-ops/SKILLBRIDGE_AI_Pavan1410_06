@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Skill Gap Analysis | SkillBridge AI
+    </title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        /* ================= HEADER ================= */
+
+        .header {
+            background: linear-gradient(
+                135deg,
+                #0f172a,
+                #1e3a8a
+            );
+
+            color: white;
+            padding: 25px 40px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .brand {
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #93c5fd;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #dbeafe;
+            font-size: 15px;
+        }
+
+        /* ================= CONTAINER ================= */
+
+        .container {
+            max-width: 1200px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        /* ================= FLASH ================= */
+
+        .flash {
+            padding: 13px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: #dcfce7;
+            color: #166534;
+            font-weight: bold;
+        }
+
+        /* ================= CAREER ================= */
+
+        .career-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(
+                0,
+                0,
+                0,
+                0.07
+            );
+        }
+
+        .career-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .career-title h2 {
+            font-size: 24px;
+            color: #111827;
+        }
+
+        .badge {
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* ================= SUMMARY ================= */
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .summary-card .number {
+            font-size: 30px;
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+
+        .summary-card .label {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        /* ================= SECTION ================= */
+
+        .section-title {
+            font-size: 19px;
+            margin-bottom: 15px;
+            color: #111827;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #1e293b;
+            color: white;
+            padding: 14px;
+            text-align: left;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .skill-name {
+            font-weight: bold;
+            color: #111827;
+        }
+
+        /* ================= CURRENT LEVEL ================= */
+
+        .level-wrapper {
+            min-width: 160px;
+        }
+
+        .level-text {
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            width: 150px;
+            height: 9px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #2563eb;
+            border-radius: 10px;
+        }
+
+        /* ================= GAP ================= */
+
+        .gap {
+            font-weight: bold;
+        }
+
+        .gap-zero {
+            color: #16a34a;
+        }
+
+        .gap-positive {
+            color: #dc2626;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status-critical {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .status-high {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .status-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* ================= PRIORITY ================= */
+
+        .priority {
+            font-weight: bold;
+        }
+
+        .priority-critical {
+            color: #dc2626;
+        }
+
+        .priority-high {
+            color: #ea580c;
+        }
+
+        .priority-medium {
+            color: #d97706;
+        }
+
+        .priority-low {
+            color: #16a34a;
+        }
+
+        /* ================= ACTIONS ================= */
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            display: inline-block;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 9px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .primary-button {
+            background: #2563eb;
+            color: white;
+        }
+
+        .primary-button:hover {
+            background: #1d4ed8;
+        }
+
+        .secondary-button {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .secondary-button:hover {
+            background: #d1d5db;
+        }
+
+        .green-button {
+            background: #16a34a;
+            color: white;
+        }
+
+        .green-button:hover {
+            background: #15803d;
+        }
+
+        /* ================= EMPTY ================= */
+
+        .empty {
+            background: white;
+            padding: 45px;
+            text-align: center;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(
+                0,
+                0,
+                0,
+                0.06
+            );
+        }
+
+        .empty h2 {
+            margin-bottom: 10px;
+        }
+
+        .empty p {
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 768px) {
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 22px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .container {
+                margin-top: 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="header">
+
+    <div class="header-content">
+
+        <div class="brand">
+            SKILLBRIDGE AI
+        </div>
+
+        <h1>
+            🧩 Skill Gap Analysis
+        </h1>
+
+        <div class="subtitle">
+            Identify the skills you need to improve for your target career.
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+    <!-- =================================================
+         FLASH MESSAGES
+    ================================================== -->
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="flash">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- =================================================
+         CAREER CARD
+    ================================================== -->
+
+    <div class="career-card">
+
+        <div class="career-title">
+
+            <h2>
+                Target Career:
+                {{ career }}
+            </h2>
+
+            <div class="badge">
+                AI Skill Gap Analysis
+            </div>
+
+        </div>
+
+
+        {% if gaps %}
+
+
+        <!-- =================================================
+             SUMMARY
+        ================================================== -->
+
+        <div class="summary">
+
+            <div class="summary-card">
+
+                <div class="number">
+                    {{ gaps|length }}
+                </div>
+
+                <div class="label">
+                    Skills Analyzed
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="number">
+                    {{
+                        gaps
+                        |selectattr("gap", "gt", 0)
+                        |list
+                        |length
+                    }}
+                </div>
+
+                <div class="label">
+                    Skills to Improve
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="number">
+                    {{
+                        gaps
+                        |selectattr("gap", "equalto", 0)
+                        |list
+                        |length
+                    }}
+                </div>
+
+                <div class="label">
+                    Skills Ready
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             TABLE
+        ================================================== -->
+
+        <h3 class="section-title">
+            Skill Requirements & Gaps
+        </h3>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Skill
+                        </th>
+
+                        <th>
+                            Current Level
+                        </th>
+
+                        <th>
+                            Required Level
+                        </th>
+
+                        <th>
+                            Gap
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Priority
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                {% for item in gaps %}
+
+                    <tr>
+
+
+                        <!-- SKILL -->
+
+                        <td>
+
+                            <span class="skill-name">
+                                {{ item.skill }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- CURRENT -->
+
+                        <td>
+
+                            <div class="level-wrapper">
+
+                                <div class="level-text">
+                                    {{ item.current }}%
+                                </div>
+
+                                <div class="progress-container">
+
+                                    <div
+                                        class="progress-bar"
+                                        style="
+                                            width:
+                                            {{ item.current }}%;
+                                        "
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- REQUIRED -->
+
+                        <td>
+
+                            <strong>
+                                {{ item.required }}%
+                            </strong>
+
+                        </td>
+
+
+                        <!-- GAP -->
+
+                        <td>
+
+                            {% if item.gap > 0 %}
+
+                                <span class="gap gap-positive">
+                                    {{ item.gap }}%
+                                </span>
+
+                            {% else %}
+
+                                <span class="gap gap-zero">
+                                    ✓ 0%
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td>
+
+                            {% set status =
+                                item.status|lower
+                            %}
+
+                            <span class="
+                                status
+                                {% if 'critical' in status %}
+                                    status-critical
+                                {% elif 'high' in status %}
+                                    status-high
+                                {% elif 'medium' in status %}
+                                    status-medium
+                                {% else %}
+                                    status-low
+                                {% endif %}
+                            ">
+
+                                {{ item.status }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- PRIORITY -->
+
+                        <td>
+
+                            {% set priority =
+                                item.priority|lower
+                            %}
+
+                            <span class="
+                                priority
+                                {% if 'critical' in priority %}
+                                    priority-critical
+                                {% elif 'high' in priority %}
+                                    priority-high
+                                {% elif 'medium' in priority %}
+                                    priority-medium
+                                {% else %}
+                                    priority-low
+                                {% endif %}
+                            ">
+
+                                {{ item.priority }}
+
+                            </span>
+
+                        </td>
+
+
+                    </tr>
+
+                {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
+
+        <div class="actions">
+
+
+            <a
+                href="{{ url_for(
+                    'student.learning_path',
+                    career=career
+                ) }}"
+                class="button primary-button"
+            >
+                🗺️ Build Learning Path →
+            </a>
+
+
+            <a
+                href="{{ url_for(
+                    'student.careers'
+                ) }}"
+                class="button secondary-button"
+            >
+                ← Career Recommendations
+            </a>
+
+
+            <a
+                href="{{ url_for(
+                    'student.readiness'
+                ) }}"
+                class="button green-button"
+            >
+                📊 Career Readiness
+            </a>
+
+
+            <a
+                href="{{ url_for(
+                    'dashboard.dashboard'
+                ) }}"
+                class="button secondary-button"
+            >
+                🏠 Dashboard
+            </a>
+
+
+        </div>
+
+
+        {% else %}
+
+
+        <!-- =================================================
+             NO GAPS
+        ================================================== -->
+
+        <div class="empty">
+
+            <h2>
+                🎉 No Skill Gaps Found
+            </h2>
+
+            <p>
+                Your current skills match the requirements
+                for <strong>{{ career }}</strong>.
+            </p>
+
+
+            <div class="actions"
+                 style="justify-content:center;">
+
+
+                <a
+                    href="{{ url_for(
+                        'student.learning_path',
+                        career=career
+                    ) }}"
+                    class="button primary-button"
+                >
+                    🗺️ Build Learning Path →
+                </a>
+
+
+                <a
+                    href="{{ url_for(
+                        'student.careers'
+                    ) }}"
+                    class="button secondary-button"
+                >
+                    ← Career Recommendations
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+</main>
+
+
+</body>
+
+</html>

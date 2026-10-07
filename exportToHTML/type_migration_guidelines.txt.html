@@ -1,0 +1,163 @@
+<html>
+<head>
+<title>type_migration_guidelines.txt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #bcbec4;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+type_migration_guidelines.txt</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">Rules for Migrating TypeEngine classes to 0.6</span>
+<a name="l2"><span class="ln">2    </span></a><span class="s0">---------------------------------------------</span>
+<a name="l3"><span class="ln">3    </span></a>
+<a name="l4"><span class="ln">4    </span></a><span class="s0">1. the TypeEngine classes are used for:</span>
+<a name="l5"><span class="ln">5    </span></a>
+<a name="l6"><span class="ln">6    </span></a>    <span class="s0">a. Specifying behavior which needs to occur for bind parameters</span>
+<a name="l7"><span class="ln">7    </span></a>    <span class="s0">or result row columns.</span>
+<a name="l8"><span class="ln">8    </span></a>
+<a name="l9"><span class="ln">9    </span></a>    <span class="s0">b. Specifying types that are entirely specific to the database</span>
+<a name="l10"><span class="ln">10   </span></a>    <span class="s0">in use and have no analogue in the sqlalchemy.types package.</span>
+<a name="l11"><span class="ln">11   </span></a>
+<a name="l12"><span class="ln">12   </span></a>    <span class="s0">c. Specifying types where there is an analogue in sqlalchemy.types,</span>
+<a name="l13"><span class="ln">13   </span></a>    <span class="s0">but the database in use takes vendor-specific flags for those</span>
+<a name="l14"><span class="ln">14   </span></a>    <span class="s0">types.</span>
+<a name="l15"><span class="ln">15   </span></a>
+<a name="l16"><span class="ln">16   </span></a>    <span class="s0">d. If a TypeEngine class doesn't provide any of this, it should be</span>
+<a name="l17"><span class="ln">17   </span></a>    <span class="s0">*removed* from the dialect.</span>
+<a name="l18"><span class="ln">18   </span></a>
+<a name="l19"><span class="ln">19   </span></a><span class="s0">2. the TypeEngine classes are *no longer* used for generating DDL.  Dialects</span>
+<a name="l20"><span class="ln">20   </span></a><span class="s0">now have a TypeCompiler subclass which uses the same visit_XXX model as</span>
+<a name="l21"><span class="ln">21   </span></a><span class="s0">other compilers.</span>
+<a name="l22"><span class="ln">22   </span></a>
+<a name="l23"><span class="ln">23   </span></a><span class="s0">3. the &quot;ischema_names&quot; and &quot;colspecs&quot; dictionaries are now required members on</span>
+<a name="l24"><span class="ln">24   </span></a><span class="s0">the Dialect class.</span>
+<a name="l25"><span class="ln">25   </span></a>
+<a name="l26"><span class="ln">26   </span></a><span class="s0">4. The names of types within dialects are now important.   If a dialect-specific type</span>
+<a name="l27"><span class="ln">27   </span></a><span class="s0">is a subclass of an existing generic type and is only provided for bind/result behavior, </span>
+<a name="l28"><span class="ln">28   </span></a><span class="s0">the current mixed case naming can remain, i.e. _PGNumeric for Numeric - in this case, </span>
+<a name="l29"><span class="ln">29   </span></a><span class="s0">end users would never need to use _PGNumeric directly.   However, if a dialect-specific </span>
+<a name="l30"><span class="ln">30   </span></a><span class="s0">type is specifying a type *or* arguments that are not present generically, it should</span>
+<a name="l31"><span class="ln">31   </span></a><span class="s0">match the real name of the type on that backend, in uppercase.  E.g. postgresql.INET,</span>
+<a name="l32"><span class="ln">32   </span></a><span class="s0">mysql.ENUM, postgresql.ARRAY.</span>
+<a name="l33"><span class="ln">33   </span></a>
+<a name="l34"><span class="ln">34   </span></a><span class="s0">Or follow this handy flowchart:</span>
+<a name="l35"><span class="ln">35   </span></a>
+<a name="l36"><span class="ln">36   </span></a>    <span class="s0">is the type meant to provide bind/result                  is the type the same name as an</span>
+<a name="l37"><span class="ln">37   </span></a>    <span class="s0">behavior to a generic type (i.e. MixedCase)  ---- no ---&gt; UPPERCASE type in types.py ?</span>
+<a name="l38"><span class="ln">38   </span></a>    <span class="s0">type in types.py ?                                          |                     |</span>
+<a name="l39"><span class="ln">39   </span></a>                    <span class="s0">|                                           no                    yes</span>
+<a name="l40"><span class="ln">40   </span></a>                   <span class="s0">yes                                          |                     |</span>
+<a name="l41"><span class="ln">41   </span></a>                    <span class="s0">|                                           |             does your type need special</span>
+<a name="l42"><span class="ln">42   </span></a>                    <span class="s0">|                                           +&lt;--- yes --- behavior or arguments ?</span>
+<a name="l43"><span class="ln">43   </span></a>                    <span class="s0">|                                           |                               |</span>
+<a name="l44"><span class="ln">44   </span></a>                    <span class="s0">|                                           |                              no</span>
+<a name="l45"><span class="ln">45   </span></a>           <span class="s0">name the type using                                  |                               |</span>
+<a name="l46"><span class="ln">46   </span></a>           <span class="s0">_MixedCase, i.e.                                     v                               V</span>
+<a name="l47"><span class="ln">47   </span></a>           <span class="s0">_OracleBoolean. it                          name the type                        don't make a</span>
+<a name="l48"><span class="ln">48   </span></a>           <span class="s0">stays private to the dialect                identically as that                  type, make sure the dialect's</span>
+<a name="l49"><span class="ln">49   </span></a>           <span class="s0">and is invoked *only* via                   within the DB,                       base.py imports the types.py</span>
+<a name="l50"><span class="ln">50   </span></a>           <span class="s0">the colspecs dict.                          using UPPERCASE                      UPPERCASE name into its namespace</span>
+<a name="l51"><span class="ln">51   </span></a>                    <span class="s0">|                                  (i.e. BIT, NCHAR, INTERVAL).</span>
+<a name="l52"><span class="ln">52   </span></a>                    <span class="s0">|                                  Users can import it.</span>
+<a name="l53"><span class="ln">53   </span></a>                    <span class="s0">|                                       |</span>
+<a name="l54"><span class="ln">54   </span></a>                    <span class="s0">v                                       v</span>
+<a name="l55"><span class="ln">55   </span></a>           <span class="s0">subclass the closest                        is the name of this type</span>
+<a name="l56"><span class="ln">56   </span></a>           <span class="s0">MixedCase type types.py,                    identical to an UPPERCASE</span>
+<a name="l57"><span class="ln">57   </span></a>           <span class="s0">i.e.                        &lt;--- no ------- name in types.py ?</span>
+<a name="l58"><span class="ln">58   </span></a>           <span class="s0">class _DateTime(types.DateTime),</span>
+<a name="l59"><span class="ln">59   </span></a>           <span class="s0">class DATETIME2(types.DateTime),                   |</span>
+<a name="l60"><span class="ln">60   </span></a>           <span class="s0">class BIT(types.TypeEngine).                      yes</span>
+<a name="l61"><span class="ln">61   </span></a>                                                              <span class="s0">|</span>
+<a name="l62"><span class="ln">62   </span></a>                                                              <span class="s0">v</span>
+<a name="l63"><span class="ln">63   </span></a>                                                        <span class="s0">the type should</span>
+<a name="l64"><span class="ln">64   </span></a>                                                        <span class="s0">subclass the</span>
+<a name="l65"><span class="ln">65   </span></a>                                                        <span class="s0">UPPERCASE</span>
+<a name="l66"><span class="ln">66   </span></a>                                                        <span class="s0">type in types.py</span>
+<a name="l67"><span class="ln">67   </span></a>                                                        <span class="s0">(i.e. class BLOB(types.BLOB))</span>
+<a name="l68"><span class="ln">68   </span></a>
+<a name="l69"><span class="ln">69   </span></a>
+<a name="l70"><span class="ln">70   </span></a><span class="s0">Example 1.   pysqlite needs bind/result processing for the DateTime type in types.py, </span>
+<a name="l71"><span class="ln">71   </span></a><span class="s0">which applies to all DateTimes and subclasses.   It's named _SLDateTime and </span>
+<a name="l72"><span class="ln">72   </span></a><span class="s0">subclasses types.DateTime.</span>
+<a name="l73"><span class="ln">73   </span></a>
+<a name="l74"><span class="ln">74   </span></a><span class="s0">Example 2.  MS-SQL has a TIME type which takes a non-standard &quot;precision&quot; argument</span>
+<a name="l75"><span class="ln">75   </span></a><span class="s0">that is rendered within DDL.   So it's named TIME in the MS-SQL dialect's base.py, </span>
+<a name="l76"><span class="ln">76   </span></a><span class="s0">and subclasses types.TIME.  Users can then say mssql.TIME(precision=10).</span>
+<a name="l77"><span class="ln">77   </span></a>
+<a name="l78"><span class="ln">78   </span></a><span class="s0">Example 3.  MS-SQL dialects also need special bind/result processing for date </span>
+<a name="l79"><span class="ln">79   </span></a><span class="s0">But its DATE type doesn't render DDL differently than that of a plain </span>
+<a name="l80"><span class="ln">80   </span></a><span class="s0">DATE, i.e. it takes no special arguments.  Therefore we are just adding behavior</span>
+<a name="l81"><span class="ln">81   </span></a><span class="s0">to types.Date, so it's named _MSDate in the MS-SQL dialect's base.py, and subclasses</span>
+<a name="l82"><span class="ln">82   </span></a><span class="s0">types.Date.</span>
+<a name="l83"><span class="ln">83   </span></a>
+<a name="l84"><span class="ln">84   </span></a><span class="s0">Example 4.  MySQL has a SET type, there's no analogue for this in types.py. So</span>
+<a name="l85"><span class="ln">85   </span></a><span class="s0">MySQL names it SET in the dialect's base.py, and it subclasses types.String, since </span>
+<a name="l86"><span class="ln">86   </span></a><span class="s0">it ultimately deals with strings.</span>
+<a name="l87"><span class="ln">87   </span></a>
+<a name="l88"><span class="ln">88   </span></a><span class="s0">Example 5.  PostgreSQL has a DATETIME type.  The DBAPIs handle dates correctly,</span>
+<a name="l89"><span class="ln">89   </span></a><span class="s0">and no special arguments are used in PG's DDL beyond what types.py provides.</span>
+<a name="l90"><span class="ln">90   </span></a><span class="s0">PostgreSQL dialect therefore imports types.DATETIME into its base.py.</span>
+<a name="l91"><span class="ln">91   </span></a>
+<a name="l92"><span class="ln">92   </span></a><span class="s0">Ideally one should be able to specify a schema using names imported completely from a </span>
+<a name="l93"><span class="ln">93   </span></a><span class="s0">dialect, all matching the real name on that backend:</span>
+<a name="l94"><span class="ln">94   </span></a>
+<a name="l95"><span class="ln">95   </span></a>   <span class="s0">from sqlalchemy.dialects.postgresql import base as pg</span>
+<a name="l96"><span class="ln">96   </span></a>
+<a name="l97"><span class="ln">97   </span></a>   <span class="s0">t = Table('mytable', metadata,</span>
+<a name="l98"><span class="ln">98   </span></a>              <span class="s0">Column('id', pg.INTEGER, primary_key=True),</span>
+<a name="l99"><span class="ln">99   </span></a>              <span class="s0">Column('name', pg.VARCHAR(300)),</span>
+<a name="l100"><span class="ln">100  </span></a>              <span class="s0">Column('inetaddr', pg.INET)</span>
+<a name="l101"><span class="ln">101  </span></a>   <span class="s0">)</span>
+<a name="l102"><span class="ln">102  </span></a>
+<a name="l103"><span class="ln">103  </span></a><span class="s0">where above, the INTEGER and VARCHAR types are ultimately from sqlalchemy.types, </span>
+<a name="l104"><span class="ln">104  </span></a><span class="s0">but the PG dialect makes them available in its own namespace.</span>
+<a name="l105"><span class="ln">105  </span></a>
+<a name="l106"><span class="ln">106  </span></a><span class="s0">5. &quot;colspecs&quot; now is a dictionary of generic or uppercased types from sqlalchemy.types</span>
+<a name="l107"><span class="ln">107  </span></a><span class="s0">linked to types specified in the dialect.   Again, if a type in the dialect does not</span>
+<a name="l108"><span class="ln">108  </span></a><span class="s0">specify any special behavior for bind_processor() or result_processor() and does not</span>
+<a name="l109"><span class="ln">109  </span></a><span class="s0">indicate a special type only available in this database, it must be *removed* from the </span>
+<a name="l110"><span class="ln">110  </span></a><span class="s0">module and from this dictionary.</span>
+<a name="l111"><span class="ln">111  </span></a>
+<a name="l112"><span class="ln">112  </span></a><span class="s0">6. &quot;ischema_names&quot; indicates string descriptions of types as returned from the database</span>
+<a name="l113"><span class="ln">113  </span></a><span class="s0">linked to TypeEngine classes.</span>
+<a name="l114"><span class="ln">114  </span></a>
+<a name="l115"><span class="ln">115  </span></a>    <span class="s0">a. The string name should be matched to the most specific type possible within</span>
+<a name="l116"><span class="ln">116  </span></a>    <span class="s0">sqlalchemy.types, unless there is no matching type within sqlalchemy.types in which</span>
+<a name="l117"><span class="ln">117  </span></a>    <span class="s0">case it points to a dialect type.   *It doesn't matter* if the dialect has its </span>
+<a name="l118"><span class="ln">118  </span></a>    <span class="s0">own subclass of that type with special bind/result behavior - reflect to the types.py</span>
+<a name="l119"><span class="ln">119  </span></a>    <span class="s0">UPPERCASE type as much as possible.   With very few exceptions, all types</span>
+<a name="l120"><span class="ln">120  </span></a>    <span class="s0">should reflect to an UPPERCASE type.</span>
+<a name="l121"><span class="ln">121  </span></a>
+<a name="l122"><span class="ln">122  </span></a>    <span class="s0">b. If the dialect contains a matching dialect-specific type that takes extra arguments </span>
+<a name="l123"><span class="ln">123  </span></a>    <span class="s0">which the generic one does not, then point to the dialect-specific type.  E.g.</span>
+<a name="l124"><span class="ln">124  </span></a>    <span class="s0">mssql.VARCHAR takes a &quot;collation&quot; parameter which should be preserved.</span>
+<a name="l125"><span class="ln">125  </span></a>
+<a name="l126"><span class="ln">126  </span></a><span class="s0">5. DDL, or what was formerly issued by &quot;get_col_spec()&quot;, is now handled exclusively by</span>
+<a name="l127"><span class="ln">127  </span></a><span class="s0">a subclass of compiler.GenericTypeCompiler.</span>
+<a name="l128"><span class="ln">128  </span></a>
+<a name="l129"><span class="ln">129  </span></a>    <span class="s0">a. your TypeCompiler class will receive generic and uppercase types from </span>
+<a name="l130"><span class="ln">130  </span></a>    <span class="s0">sqlalchemy.types.  Do not assume the presence of dialect-specific attributes on</span>
+<a name="l131"><span class="ln">131  </span></a>    <span class="s0">these types. </span>
+<a name="l132"><span class="ln">132  </span></a>
+<a name="l133"><span class="ln">133  </span></a>    <span class="s0">b. the visit_UPPERCASE methods on GenericTypeCompiler should *not* be overridden with</span>
+<a name="l134"><span class="ln">134  </span></a>    <span class="s0">methods that produce a different DDL name.   Uppercase types don't do any kind of </span>
+<a name="l135"><span class="ln">135  </span></a>    <span class="s0">&quot;guessing&quot; - if visit_TIMESTAMP is called, the DDL should render as TIMESTAMP in</span>
+<a name="l136"><span class="ln">136  </span></a>    <span class="s0">all cases, regardless of whether or not that type is legal on the backend database.</span>
+<a name="l137"><span class="ln">137  </span></a>
+<a name="l138"><span class="ln">138  </span></a>    <span class="s0">c. the visit_UPPERCASE methods *should* be overridden with methods that add additional</span>
+<a name="l139"><span class="ln">139  </span></a>    <span class="s0">arguments and flags to those types.</span>
+<a name="l140"><span class="ln">140  </span></a>
+<a name="l141"><span class="ln">141  </span></a>    <span class="s0">d. the visit_lowercase methods are overridden to provide an interpretation of a generic </span>
+<a name="l142"><span class="ln">142  </span></a>    <span class="s0">type.  E.g.  visit_large_binary() might be overridden to say &quot;return self.visit_BIT(type_)&quot;.</span>
+<a name="l143"><span class="ln">143  </span></a>
+<a name="l144"><span class="ln">144  </span></a>    <span class="s0">e. visit_lowercase methods should *never* render strings directly - it should always</span>
+<a name="l145"><span class="ln">145  </span></a>    <span class="s0">be via calling a visit_UPPERCASE() method.</span>
+<a name="l146"><span class="ln">146  </span></a></pre>
+</body>
+</html>

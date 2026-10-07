@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Career Readiness - SkillBridge AI
+    </title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eef4f8,
+                    #f8fafc
+                );
+
+            color: #1f2937;
+        }
+
+        /* =================================================
+           HEADER
+        ================================================= */
+
+        .header {
+            background:
+                linear-gradient(
+                    135deg,
+                    #0f172a,
+                    #1e3a5f
+                );
+
+            color: white;
+
+            padding: 20px 40px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 20px;
+
+            box-shadow:
+                0 4px 18px
+                rgba(0, 0, 0, 0.15);
+        }
+
+        .brand {
+            font-size: 24px;
+
+            font-weight: 800;
+        }
+
+        .brand span {
+            color: #38bdf8;
+        }
+
+        .subtitle {
+            margin-top: 5px;
+
+            color: #cbd5e1;
+
+            font-size: 14px;
+        }
+
+        .nav {
+            display: flex;
+
+            gap: 8px;
+
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            text-decoration: none;
+
+            color: white;
+
+            padding: 9px 13px;
+
+            border-radius: 8px;
+
+            font-size: 13px;
+
+            transition: 0.2s;
+        }
+
+        .nav a:hover {
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.12
+                );
+        }
+
+        /* =================================================
+           CONTAINER
+        ================================================= */
+
+        .container {
+            width: min(
+                1150px,
+                calc(100% - 30px)
+            );
+
+            margin: 32px auto 60px;
+        }
+
+        /* =================================================
+           HERO
+        ================================================= */
+
+        .hero {
+            background: white;
+
+            border-radius: 18px;
+
+            padding: 28px;
+
+            margin-bottom: 22px;
+
+            border: 1px solid #e2e8f0;
+
+            box-shadow:
+                0 8px 25px
+                rgba(
+                    15,
+                    23,
+                    42,
+                    0.06
+                );
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+
+            color: #0f172a;
+
+            font-size: 30px;
+        }
+
+        .hero p {
+            margin: 0;
+
+            color: #64748b;
+
+            line-height: 1.7;
+        }
+
+        .career-target {
+            display: inline-block;
+
+            margin-top: 15px;
+
+            padding: 8px 13px;
+
+            border-radius: 20px;
+
+            background: #eff6ff;
+
+            color: #1d4ed8;
+
+            font-weight: 700;
+
+            font-size: 14px;
+        }
+
+        /* =================================================
+           MAIN SCORE
+        ================================================= */
+
+        .score-card {
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 35px;
+
+            margin-bottom: 22px;
+
+            border: 1px solid #e2e8f0;
+
+            text-align: center;
+
+            box-shadow:
+                0 10px 30px
+                rgba(
+                    15,
+                    23,
+                    42,
+                    0.07
+                );
+        }
+
+        .score {
+            font-size: 78px;
+
+            line-height: 1;
+
+            font-weight: 900;
+
+            color: #2563eb;
+
+            margin: 12px 0;
+        }
+
+        .score-label {
+            color: #64748b;
+
+            font-size: 14px;
+        }
+
+        .status {
+            margin-top: 14px;
+
+            font-size: 21px;
+
+            font-weight: 800;
+
+            color: #16a34a;
+        }
+
+        .progress-bar {
+            width: 100%;
+
+            height: 18px;
+
+            background: #e5e7eb;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+
+            margin-top: 24px;
+        }
+
+        .progress-fill {
+            height: 100%;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #2563eb,
+                    #16a34a
+                );
+
+            transition: width 0.5s ease;
+        }
+
+        .scale {
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-top: 8px;
+
+            font-size: 11px;
+
+            color: #94a3b8;
+        }
+
+        /* =================================================
+           CARDS
+        ================================================= */
+
+        .card {
+            background: white;
+
+            border-radius: 18px;
+
+            padding: 25px;
+
+            margin-bottom: 22px;
+
+            border: 1px solid #e2e8f0;
+
+            box-shadow:
+                0 7px 22px
+                rgba(
+                    15,
+                    23,
+                    42,
+                    0.05
+                );
+        }
+
+        .card h2 {
+            margin-top: 0;
+
+            color: #0f172a;
+
+            font-size: 21px;
+        }
+
+        .card-description {
+            color: #64748b;
+
+            line-height: 1.6;
+
+            margin-top: -5px;
+
+            margin-bottom: 20px;
+        }
+
+        /* =================================================
+           METRICS
+        ================================================= */
+
+        .metrics {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    1fr
+                );
+
+            gap: 15px;
+
+            margin-bottom: 22px;
+        }
+
+        .metric {
+            background: #f8fafc;
+
+            border: 1px solid #e2e8f0;
+
+            border-radius: 14px;
+
+            padding: 20px;
+
+            text-align: center;
+        }
+
+        .metric-icon {
+            font-size: 25px;
+
+            margin-bottom: 7px;
+        }
+
+        .metric-value {
+            font-size: 25px;
+
+            font-weight: 800;
+
+            color: #0f172a;
+        }
+
+        .metric-label {
+            margin-top: 5px;
+
+            font-size: 12px;
+
+            color: #64748b;
+        }
+
+        /* =================================================
+           SKILL BREAKDOWN
+        ================================================= */
+
+        .skill-row {
+            margin-bottom: 20px;
+        }
+
+        .skill-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            margin-bottom: 8px;
+        }
+
+        .skill-name {
+            font-weight: 700;
+
+            color: #1e293b;
+        }
+
+        .skill-values {
+            color: #64748b;
+
+            font-size: 13px;
+        }
+
+        .skill-bar {
+            height: 12px;
+
+            background: #e5e7eb;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+        }
+
+        .skill-fill {
+            height: 100%;
+
+            border-radius: 20px;
+
+            background: #2563eb;
+        }
+
+        .skill-footer {
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-top: 6px;
+
+            font-size: 12px;
+        }
+
+        .skill-status {
+            font-weight: 700;
+        }
+
+        .skill-gap {
+            color: #ef4444;
+        }
+
+        /* =================================================
+           STRENGTHS / IMPROVEMENTS
+        ================================================= */
+
+        .two-column {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 20px;
+        }
+
+        .list-card {
+            padding: 20px;
+
+            border-radius: 14px;
+
+            background: #f8fafc;
+
+            border: 1px solid #e2e8f0;
+        }
+
+        .list-card h3 {
+            margin-top: 0;
+        }
+
+        .list-item {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 12px 0;
+
+            border-bottom:
+                1px solid #e5e7eb;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .strength {
+            color: #15803d;
+
+            font-weight: 700;
+        }
+
+        .improvement {
+            color: #c2410c;
+
+            font-weight: 700;
+        }
+
+        .small-badge {
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            background: #e2e8f0;
+
+            color: #475569;
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        /* =================================================
+           ACTIONS
+        ================================================= */
+
+        .actions-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    1fr
+                );
+
+            gap: 15px;
+        }
+
+        .action {
+            display: flex;
+
+            gap: 14px;
+
+            padding: 18px;
+
+            border-radius: 14px;
+
+            background: #f8fafc;
+
+            border: 1px solid #e2e8f0;
+        }
+
+        .action-icon {
+            font-size: 28px;
+        }
+
+        .action h3 {
+            margin: 0 0 5px;
+
+            font-size: 16px;
+        }
+
+        .action p {
+            margin: 0;
+
+            color: #64748b;
+
+            line-height: 1.5;
+
+            font-size: 13px;
+        }
+
+        /* =================================================
+           READINESS SCALE
+        ================================================= */
+
+        .readiness-scale {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    5,
+                    1fr
+                );
+
+            gap: 10px;
+        }
+
+        .scale-card {
+            padding: 15px;
+
+            border-radius: 12px;
+
+            background: #f8fafc;
+
+            border: 1px solid #e2e8f0;
+
+            text-align: center;
+        }
+
+        .scale-card strong {
+            display: block;
+
+            font-size: 18px;
+
+            margin-bottom: 5px;
+        }
+
+        .scale-card span {
+            font-size: 12px;
+
+            color: #64748b;
+        }
+
+        /* =================================================
+           BUTTONS
+        ================================================= */
+
+        .buttons {
+            display: flex;
+
+            gap: 12px;
+
+            flex-wrap: wrap;
+
+            margin-top: 25px;
+        }
+
+        .buttons a {
+            text-decoration: none;
+
+            padding: 12px 18px;
+
+            border-radius: 9px;
+
+            background: #2563eb;
+
+            color: white;
+
+            font-weight: 700;
+
+            font-size: 14px;
+        }
+
+        .buttons a.secondary {
+            background: #0f172a;
+        }
+
+        .buttons a.green {
+            background: #16a34a;
+        }
+
+        /* =================================================
+           EMPTY
+        ================================================= */
+
+        .empty {
+            padding: 25px;
+
+            text-align: center;
+
+            color: #64748b;
+
+            background: #f8fafc;
+
+            border-radius: 12px;
+        }
+
+        /* =================================================
+           RESPONSIVE
+        ================================================= */
+
+        @media (max-width: 850px) {
+
+            .metrics {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
+            }
+
+            .readiness-scale {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            .header {
+                padding: 18px 20px;
+
+                flex-direction: column;
+
+                align-items: flex-start;
+            }
+
+            .container {
+                width:
+                    calc(100% - 20px);
+
+                margin-top: 20px;
+            }
+
+            .hero h1 {
+                font-size: 25px;
+            }
+
+            .score {
+                font-size: 58px;
+            }
+
+            .two-column,
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<div class="header">
+
+    <div>
+
+        <div class="brand">
+            Skill<span>Bridge</span> AI
+        </div>
+
+        <div class="subtitle">
+            AI-Powered Career Readiness Analysis
+        </div>
+
+    </div>
+
+
+    <div class="nav">
+
+        <a
+            href="{{ url_for('dashboard.dashboard') }}"
+        >
+            Dashboard
+        </a>
+
+        <a
+            href="{{ url_for('student.careers') }}"
+        >
+            Careers
+        </a>
+
+        <a
+            href="{{ url_for('student.digital_twin') }}"
+        >
+            Digital Twin
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="container">
+
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<div class="hero">
+
+    <h1>
+        🎯 Career Readiness
+    </h1>
+
+    <p>
+        SkillBridge AI analyzes your current skills
+        against your recommended career requirements
+        to estimate how prepared you are for your target
+        career.
+    </p>
+
+
+    {% if career %}
+
+        <div class="career-target">
+            🎯 Target Career: {{ career }}
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     SCORE
+===================================================== -->
+
+<div class="score-card">
+
+    <div class="score">
+        {{ score }}%
+    </div>
+
+    <div class="score-label">
+        Overall Career Readiness
+    </div>
+
+
+    <div class="progress-bar">
+
+        <div
+            class="progress-fill"
+            style="width: {{ score }}%;"
+        ></div>
+
+    </div>
+
+
+    <div class="scale">
+
+        <span>0%</span>
+
+        <span>25%</span>
+
+        <span>50%</span>
+
+        <span>75%</span>
+
+        <span>100%</span>
+
+    </div>
+
+
+    <div class="status">
+
+        {{ status }}
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     METRICS
+===================================================== -->
+
+<div class="metrics">
+
+    <div class="metric">
+
+        <div class="metric-icon">
+            🎯
+        </div>
+
+        <div class="metric-value">
+            {{ score }}%
+        </div>
+
+        <div class="metric-label">
+            Readiness Score
+        </div>
+
+    </div>
+
+
+    <div class="metric">
+
+        <div class="metric-icon">
+            💪
+        </div>
+
+        <div class="metric-value">
+            {{ strengths|length }}
+        </div>
+
+        <div class="metric-label">
+            Strong Skills
+        </div>
+
+    </div>
+
+
+    <div class="metric">
+
+        <div class="metric-icon">
+            🧩
+        </div>
+
+        <div class="metric-value">
+            {{ improvements|length }}
+        </div>
+
+        <div class="metric-label">
+            Improvement Areas
+        </div>
+
+    </div>
+
+
+    <div class="metric">
+
+        <div class="metric-icon">
+            🚀
+        </div>
+
+        <div class="metric-value">
+            {% if score >= 75 %}
+                Ready
+            {% elif score >= 60 %}
+                Near
+            {% else %}
+                Build
+            {% endif %}
+        </div>
+
+        <div class="metric-label">
+            Career Stage
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SKILL BREAKDOWN
+===================================================== -->
+
+<div class="card">
+
+    <h2>
+        🧠 Skill Readiness Breakdown
+    </h2>
+
+    <p class="card-description">
+        See how your current proficiency compares with
+        the skills required for your target career.
+    </p>
+
+
+    {% if skill_breakdown %}
+
+        {% for item in skill_breakdown %}
+
+            <div class="skill-row">
+
+                <div class="skill-header">
+
+                    <span class="skill-name">
+                        {{ item.skill }}
+                    </span>
+
+                    <span class="skill-values">
+
+                        {{ item.current }}%
+                        /
+                        {{ item.required }}%
+
+                    </span>
+
+                </div>
+
+
+                <div class="skill-bar">
+
+                    <div
+                        class="skill-fill"
+                        style="width: {{ item.percentage }}%;"
+                    ></div>
+
+                </div>
+
+
+                <div class="skill-footer">
+
+                    <span
+                        class="skill-status"
+                    >
+
+                        {{ item.status }}
+
+                    </span>
+
+
+                    {% if item.gap > 0 %}
+
+                        <span class="skill-gap">
+
+                            Gap:
+                            {{ item.gap }}%
+
+                        </span>
+
+                    {% else %}
+
+                        <span
+                            style="color:#16a34a;"
+                        >
+
+                            ✓ Requirement met
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty">
+
+            No career skill requirements are
+            available yet.
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     STRENGTHS / IMPROVEMENTS
+===================================================== -->
+
+<div class="card">
+
+    <h2>
+        📊 Your Readiness Analysis
+    </h2>
+
+    <div class="two-column">
+
+
+        <!-- STRENGTHS -->
+
+        <div class="list-card">
+
+            <h3>
+                💪 Strong Areas
+            </h3>
+
+
+            {% if strengths %}
+
+                {% for item in strengths %}
+
+                    <div class="list-item">
+
+                        <span class="strength">
+                            ✓ {{ item.skill }}
+                        </span>
+
+                        <span class="small-badge">
+                            {{ item.current }}%
+                        </span>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p
+                    style="color:#64748b;"
+                >
+                    Keep improving your skills to
+                    build stronger areas.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- IMPROVEMENTS -->
+
+        <div class="list-card">
+
+            <h3>
+                🧩 Priority Improvements
+            </h3>
+
+
+            {% if improvements %}
+
+                {% for item in improvements %}
+
+                    <div class="list-item">
+
+                        <span class="improvement">
+                            ⚠ {{ item.skill }}
+                        </span>
+
+                        <span class="small-badge">
+                            Gap {{ item.gap }}%
+                        </span>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p
+                    style="color:#64748b;"
+                >
+                    Excellent! No major improvement
+                    areas were detected.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     RECOMMENDED ACTIONS
+===================================================== -->
+
+<div class="card">
+
+    <h2>
+        🚀 Recommended Next Actions
+    </h2>
+
+    <p class="card-description">
+        SkillBridge AI recommends these actions based
+        on your current readiness.
+    </p>
+
+
+    {% if actions %}
+
+        <div class="actions-grid">
+
+            {% for action in actions %}
+
+                <div class="action">
+
+                    <div class="action-icon">
+                        {{ action.icon }}
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            {{ action.title }}
+                        </h3>
+
+                        <p>
+                            {{ action.description }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     READINESS SCALE
+===================================================== -->
+
+<div class="card">
+
+    <h2>
+        📈 Career Readiness Levels
+    </h2>
+
+    <div class="readiness-scale">
+
+
+        <div class="scale-card">
+
+            <strong>
+                0–39%
+            </strong>
+
+            <span>
+                Needs Improvement
+            </span>
+
+        </div>
+
+
+        <div class="scale-card">
+
+            <strong>
+                40–59%
+            </strong>
+
+            <span>
+                Developing
+            </span>
+
+        </div>
+
+
+        <div class="scale-card">
+
+            <strong>
+                60–74%
+            </strong>
+
+            <span>
+                Nearly Ready
+            </span>
+
+        </div>
+
+
+        <div class="scale-card">
+
+            <strong>
+                75–89%
+            </strong>
+
+            <span>
+                Job Ready
+            </span>
+
+        </div>
+
+
+        <div class="scale-card">
+
+            <strong>
+                90–100%
+            </strong>
+
+            <span>
+                Highly Ready
+            </span>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     NAVIGATION
+===================================================== -->
+
+<div class="card">
+
+    <h2>
+        🔗 Continue Your Career Journey
+    </h2>
+
+    <div class="buttons">
+
+
+        <a
+            href="{{ url_for('student.careers') }}"
+        >
+            🎯 Career Recommendations
+        </a>
+
+
+        <a
+            href="{{ url_for('student.digital_twin') }}"
+            class="green"
+        >
+            🔮 Career Digital Twin
+        </a>
+
+
+        <a
+            href="{{ url_for('student.what_if') }}"
+            class="secondary"
+        >
+            🔮 What-If Simulator
+        </a>
+
+
+        <a
+            href="{{ url_for('student.profile') }}"
+            class="secondary"
+        >
+            👤 Update Profile
+        </a>
+
+
+        <a
+            href="{{ url_for('dashboard.dashboard') }}"
+            class="secondary"
+        >
+            🏠 Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+</div>
+
+</body>
+
+</html>

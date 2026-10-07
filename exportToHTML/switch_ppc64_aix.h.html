@@ -1,0 +1,125 @@
+<html>
+<head>
+<title>switch_ppc64_aix.h</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #7a7e85;}
+.s1 { color: #bcbec4;}
+.s2 { color: #cf8e6d;}
+.s3 { color: #2aacb8;}
+.s4 { color: #6aab73;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+switch_ppc64_aix.h</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">/* 
+<a name="l2"><span class="ln">2    </span></a> * this is the internal transfer function. 
+<a name="l3"><span class="ln">3    </span></a> * 
+<a name="l4"><span class="ln">4    </span></a> * HISTORY 
+<a name="l5"><span class="ln">5    </span></a> * 16-Oct-20  Jesse Gorzinski &lt;jgorzins@us.ibm.com&gt; 
+<a name="l6"><span class="ln">6    </span></a> *      Copied from Linux PPC64 implementation 
+<a name="l7"><span class="ln">7    </span></a> * 04-Sep-18  Alexey Borzenkov  &lt;snaury@gmail.com&gt; 
+<a name="l8"><span class="ln">8    </span></a> *      Workaround a gcc bug using manual save/restore of r30 
+<a name="l9"><span class="ln">9    </span></a> * 21-Mar-18  Tulio Magno Quites Machado Filho  &lt;tuliom@linux.vnet.ibm.com&gt; 
+<a name="l10"><span class="ln">10   </span></a> *      Added r30 to the list of saved registers in order to fully comply with 
+<a name="l11"><span class="ln">11   </span></a> *      both ppc64 ELFv1 ABI and the ppc64le ELFv2 ABI, that classify this 
+<a name="l12"><span class="ln">12   </span></a> *      register as a nonvolatile register used for local variables. 
+<a name="l13"><span class="ln">13   </span></a> * 21-Mar-18  Laszlo Boszormenyi  &lt;gcs@debian.org&gt; 
+<a name="l14"><span class="ln">14   </span></a> *      Save r2 (TOC pointer) manually. 
+<a name="l15"><span class="ln">15   </span></a> * 10-Dec-13  Ulrich Weigand  &lt;uweigand@de.ibm.com&gt; 
+<a name="l16"><span class="ln">16   </span></a> *  Support ELFv2 ABI.  Save float/vector registers. 
+<a name="l17"><span class="ln">17   </span></a> * 09-Mar-12 Michael Ellerman &lt;michael@ellerman.id.au&gt; 
+<a name="l18"><span class="ln">18   </span></a> *      64-bit implementation, copied from 32-bit. 
+<a name="l19"><span class="ln">19   </span></a> * 07-Sep-05 (py-dev mailing list discussion) 
+<a name="l20"><span class="ln">20   </span></a> *      removed 'r31' from the register-saved.  !!!! WARNING !!!! 
+<a name="l21"><span class="ln">21   </span></a> *      It means that this file can no longer be compiled statically! 
+<a name="l22"><span class="ln">22   </span></a> *      It is now only suitable as part of a dynamic library! 
+<a name="l23"><span class="ln">23   </span></a> * 14-Jan-04  Bob Ippolito &lt;bob@redivi.com&gt; 
+<a name="l24"><span class="ln">24   </span></a> *      added cr2-cr4 to the registers to be saved. 
+<a name="l25"><span class="ln">25   </span></a> *      Open questions: Should we save FP registers? 
+<a name="l26"><span class="ln">26   </span></a> *      What about vector registers? 
+<a name="l27"><span class="ln">27   </span></a> *      Differences between darwin and unix? 
+<a name="l28"><span class="ln">28   </span></a> * 24-Nov-02  Christian Tismer  &lt;tismer@tismer.com&gt; 
+<a name="l29"><span class="ln">29   </span></a> *      needed to add another magic constant to insure 
+<a name="l30"><span class="ln">30   </span></a> *      that f in slp_eval_frame(PyFrameObject *f) 
+<a name="l31"><span class="ln">31   </span></a> *      STACK_REFPLUS will probably be 1 in most cases. 
+<a name="l32"><span class="ln">32   </span></a> *      gets included into the saved stack area. 
+<a name="l33"><span class="ln">33   </span></a> * 04-Oct-02  Gustavo Niemeyer &lt;niemeyer@conectiva.com&gt; 
+<a name="l34"><span class="ln">34   </span></a> *      Ported from MacOS version. 
+<a name="l35"><span class="ln">35   </span></a> * 17-Sep-02  Christian Tismer  &lt;tismer@tismer.com&gt; 
+<a name="l36"><span class="ln">36   </span></a> *      after virtualizing stack save/restore, the 
+<a name="l37"><span class="ln">37   </span></a> *      stack size shrunk a bit. Needed to introduce 
+<a name="l38"><span class="ln">38   </span></a> *      an adjustment STACK_MAGIC per platform. 
+<a name="l39"><span class="ln">39   </span></a> * 15-Sep-02  Gerd Woetzel       &lt;gerd.woetzel@GMD.DE&gt; 
+<a name="l40"><span class="ln">40   </span></a> *      slightly changed framework for sparc 
+<a name="l41"><span class="ln">41   </span></a> * 29-Jun-02  Christian Tismer  &lt;tismer@tismer.com&gt; 
+<a name="l42"><span class="ln">42   </span></a> *      Added register 13-29, 31 saves. The same way as 
+<a name="l43"><span class="ln">43   </span></a> *      Armin Rigo did for the x86_unix version. 
+<a name="l44"><span class="ln">44   </span></a> *      This seems to be now fully functional! 
+<a name="l45"><span class="ln">45   </span></a> * 04-Mar-02  Hye-Shik Chang  &lt;perky@fallin.lv&gt; 
+<a name="l46"><span class="ln">46   </span></a> *      Ported from i386. 
+<a name="l47"><span class="ln">47   </span></a> * 31-Jul-12  Trevor Bowen    &lt;trevorbowen@gmail.com&gt; 
+<a name="l48"><span class="ln">48   </span></a> *      Changed memory constraints to register only. 
+<a name="l49"><span class="ln">49   </span></a> */</span>
+<a name="l50"><span class="ln">50   </span></a>
+<a name="l51"><span class="ln">51   </span></a><span class="s2">#define </span><span class="s1">STACK_REFPLUS </span><span class="s3">1</span>
+<a name="l52"><span class="ln">52   </span></a>
+<a name="l53"><span class="ln">53   </span></a><span class="s2">#ifdef </span><span class="s1">SLP_EVAL</span>
+<a name="l54"><span class="ln">54   </span></a>
+<a name="l55"><span class="ln">55   </span></a><span class="s2">#define </span><span class="s1">STACK_MAGIC </span><span class="s3">6</span>
+<a name="l56"><span class="ln">56   </span></a>
+<a name="l57"><span class="ln">57   </span></a><span class="s2">#if </span><span class="s1">defined(__ALTIVEC__)</span>
+<a name="l58"><span class="ln">58   </span></a><span class="s2">#define </span><span class="s1">ALTIVEC_REGS \</span>
+<a name="l59"><span class="ln">59   </span></a>       <span class="s4">&quot;v20&quot;</span><span class="s1">, </span><span class="s4">&quot;v21&quot;</span><span class="s1">, </span><span class="s4">&quot;v22&quot;</span><span class="s1">, </span><span class="s4">&quot;v23&quot;</span><span class="s1">, </span><span class="s4">&quot;v24&quot;</span><span class="s1">, </span><span class="s4">&quot;v25&quot;</span><span class="s1">, </span><span class="s4">&quot;v26&quot;</span><span class="s1">, </span><span class="s4">&quot;v27&quot;</span><span class="s1">, \</span>
+<a name="l60"><span class="ln">60   </span></a>       <span class="s4">&quot;v28&quot;</span><span class="s1">, </span><span class="s4">&quot;v29&quot;</span><span class="s1">, </span><span class="s4">&quot;v30&quot;</span><span class="s1">, </span><span class="s4">&quot;v31&quot;</span><span class="s1">,</span>
+<a name="l61"><span class="ln">61   </span></a><span class="s2">#else</span>
+<a name="l62"><span class="ln">62   </span></a><span class="s2">#define </span><span class="s1">ALTIVEC_REGS</span>
+<a name="l63"><span class="ln">63   </span></a><span class="s2">#endif</span>
+<a name="l64"><span class="ln">64   </span></a>
+<a name="l65"><span class="ln">65   </span></a><span class="s2">#define </span><span class="s1">REGS_TO_SAVE </span><span class="s4">&quot;r14&quot;</span><span class="s1">, </span><span class="s4">&quot;r15&quot;</span><span class="s1">, </span><span class="s4">&quot;r16&quot;</span><span class="s1">, </span><span class="s4">&quot;r17&quot;</span><span class="s1">, </span><span class="s4">&quot;r18&quot;</span><span class="s1">, </span><span class="s4">&quot;r19&quot;</span><span class="s1">, </span><span class="s4">&quot;r20&quot;</span><span class="s1">,  \</span>
+<a name="l66"><span class="ln">66   </span></a>       <span class="s4">&quot;r21&quot;</span><span class="s1">, </span><span class="s4">&quot;r22&quot;</span><span class="s1">, </span><span class="s4">&quot;r23&quot;</span><span class="s1">, </span><span class="s4">&quot;r24&quot;</span><span class="s1">, </span><span class="s4">&quot;r25&quot;</span><span class="s1">, </span><span class="s4">&quot;r26&quot;</span><span class="s1">, </span><span class="s4">&quot;r27&quot;</span><span class="s1">, </span><span class="s4">&quot;r28&quot;</span><span class="s1">, </span><span class="s4">&quot;r29&quot;</span><span class="s1">,  \</span>
+<a name="l67"><span class="ln">67   </span></a>       <span class="s4">&quot;r31&quot;</span><span class="s1">,                                                    \</span>
+<a name="l68"><span class="ln">68   </span></a>       <span class="s4">&quot;fr14&quot;</span><span class="s1">, </span><span class="s4">&quot;fr15&quot;</span><span class="s1">, </span><span class="s4">&quot;fr16&quot;</span><span class="s1">, </span><span class="s4">&quot;fr17&quot;</span><span class="s1">, </span><span class="s4">&quot;fr18&quot;</span><span class="s1">, </span><span class="s4">&quot;fr19&quot;</span><span class="s1">, </span><span class="s4">&quot;fr20&quot;</span><span class="s1">, </span><span class="s4">&quot;fr21&quot;</span><span class="s1">, \</span>
+<a name="l69"><span class="ln">69   </span></a>       <span class="s4">&quot;fr22&quot;</span><span class="s1">, </span><span class="s4">&quot;fr23&quot;</span><span class="s1">, </span><span class="s4">&quot;fr24&quot;</span><span class="s1">, </span><span class="s4">&quot;fr25&quot;</span><span class="s1">, </span><span class="s4">&quot;fr26&quot;</span><span class="s1">, </span><span class="s4">&quot;fr27&quot;</span><span class="s1">, </span><span class="s4">&quot;fr28&quot;</span><span class="s1">, </span><span class="s4">&quot;fr29&quot;</span><span class="s1">, \</span>
+<a name="l70"><span class="ln">70   </span></a>       <span class="s4">&quot;fr30&quot;</span><span class="s1">, </span><span class="s4">&quot;fr31&quot;</span><span class="s1">, \</span>
+<a name="l71"><span class="ln">71   </span></a>       <span class="s1">ALTIVEC_REGS \</span>
+<a name="l72"><span class="ln">72   </span></a>       <span class="s4">&quot;cr2&quot;</span><span class="s1">, </span><span class="s4">&quot;cr3&quot;</span><span class="s1">, </span><span class="s4">&quot;cr4&quot;</span>
+<a name="l73"><span class="ln">73   </span></a>
+<a name="l74"><span class="ln">74   </span></a><span class="s2">static int</span>
+<a name="l75"><span class="ln">75   </span></a><span class="s1">slp_switch(</span><span class="s2">void</span><span class="s1">)</span>
+<a name="l76"><span class="ln">76   </span></a><span class="s1">{</span>
+<a name="l77"><span class="ln">77   </span></a>    <span class="s2">int </span><span class="s1">err;</span>
+<a name="l78"><span class="ln">78   </span></a>    <span class="s2">long </span><span class="s1">*stackref, stsizediff;</span>
+<a name="l79"><span class="ln">79   </span></a>    <span class="s2">void </span><span class="s1">* toc;</span>
+<a name="l80"><span class="ln">80   </span></a>    <span class="s2">void </span><span class="s1">* r30;</span>
+<a name="l81"><span class="ln">81   </span></a>    <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;&quot; </span><span class="s1">: : : REGS_TO_SAVE);</span>
+<a name="l82"><span class="ln">82   </span></a>    <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;std 2, %0&quot; </span><span class="s1">: </span><span class="s4">&quot;=m&quot; </span><span class="s1">(toc));</span>
+<a name="l83"><span class="ln">83   </span></a>    <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;std 30, %0&quot; </span><span class="s1">: </span><span class="s4">&quot;=m&quot; </span><span class="s1">(r30));</span>
+<a name="l84"><span class="ln">84   </span></a>    <span class="s1">__asm__ (</span><span class="s4">&quot;mr %0, 1&quot; </span><span class="s1">: </span><span class="s4">&quot;=r&quot; </span><span class="s1">(stackref) : );</span>
+<a name="l85"><span class="ln">85   </span></a>    <span class="s1">{</span>
+<a name="l86"><span class="ln">86   </span></a>        <span class="s1">SLP_SAVE_STATE(stackref, stsizediff);</span>
+<a name="l87"><span class="ln">87   </span></a>        <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span>
+<a name="l88"><span class="ln">88   </span></a>            <span class="s4">&quot;mr 11, %0</span><span class="s2">\n</span><span class="s4">&quot;</span>
+<a name="l89"><span class="ln">89   </span></a>            <span class="s4">&quot;add 1, 1, 11</span><span class="s2">\n</span><span class="s4">&quot;</span>
+<a name="l90"><span class="ln">90   </span></a>            <span class="s1">: </span><span class="s0">/* no outputs */</span>
+<a name="l91"><span class="ln">91   </span></a>            <span class="s1">: </span><span class="s4">&quot;r&quot; </span><span class="s1">(stsizediff)</span>
+<a name="l92"><span class="ln">92   </span></a>            <span class="s1">: </span><span class="s4">&quot;11&quot;</span>
+<a name="l93"><span class="ln">93   </span></a>            <span class="s1">);</span>
+<a name="l94"><span class="ln">94   </span></a>        <span class="s1">SLP_RESTORE_STATE();</span>
+<a name="l95"><span class="ln">95   </span></a>    <span class="s1">}</span>
+<a name="l96"><span class="ln">96   </span></a>    <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;ld 30, %0&quot; </span><span class="s1">: : </span><span class="s4">&quot;m&quot; </span><span class="s1">(r30));</span>
+<a name="l97"><span class="ln">97   </span></a>    <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;ld 2, %0&quot; </span><span class="s1">: : </span><span class="s4">&quot;m&quot; </span><span class="s1">(toc));</span>
+<a name="l98"><span class="ln">98   </span></a>    <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;&quot; </span><span class="s1">: : : REGS_TO_SAVE);</span>
+<a name="l99"><span class="ln">99   </span></a>    <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;li %0, 0&quot; </span><span class="s1">: </span><span class="s4">&quot;=r&quot; </span><span class="s1">(err));</span>
+<a name="l100"><span class="ln">100  </span></a>    <span class="s2">return </span><span class="s1">err;</span>
+<a name="l101"><span class="ln">101  </span></a><span class="s1">}</span>
+<a name="l102"><span class="ln">102  </span></a>
+<a name="l103"><span class="ln">103  </span></a><span class="s2">#endif</span>
+<a name="l104"><span class="ln">104  </span></a></pre>
+</body>
+</html>

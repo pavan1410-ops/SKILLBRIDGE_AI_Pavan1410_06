@@ -1,0 +1,180 @@
+<html>
+<head>
+<title>profiler.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #5f826b; font-style: italic;}
+.s1 { color: #bcbec4;}
+.s2 { color: #cf8e6d;}
+.s3 { color: #bcbec4;}
+.s4 { color: #7a7e85;}
+.s5 { color: #6aab73;}
+.s6 { color: #a5c261;}
+.s7 { color: #2aacb8;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+profiler.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">&quot;&quot;&quot; 
+<a name="l2"><span class="ln">2    </span></a>Application Profiler 
+<a name="l3"><span class="ln">3    </span></a>==================== 
+<a name="l4"><span class="ln">4    </span></a> 
+<a name="l5"><span class="ln">5    </span></a>This module provides a middleware that profiles each request with the 
+<a name="l6"><span class="ln">6    </span></a>:mod:`cProfile` module. This can help identify bottlenecks in your code 
+<a name="l7"><span class="ln">7    </span></a>that may be slowing down your application. 
+<a name="l8"><span class="ln">8    </span></a> 
+<a name="l9"><span class="ln">9    </span></a>.. autoclass:: ProfilerMiddleware 
+<a name="l10"><span class="ln">10   </span></a> 
+<a name="l11"><span class="ln">11   </span></a>:copyright: 2007 Pallets 
+<a name="l12"><span class="ln">12   </span></a>:license: BSD-3-Clause 
+<a name="l13"><span class="ln">13   </span></a>&quot;&quot;&quot;</span>
+<a name="l14"><span class="ln">14   </span></a>
+<a name="l15"><span class="ln">15   </span></a><span class="s2">from </span><span class="s1">__future__ </span><span class="s2">import </span><span class="s1">annotations</span>
+<a name="l16"><span class="ln">16   </span></a>
+<a name="l17"><span class="ln">17   </span></a><span class="s2">import </span><span class="s1">os</span><span class="s3">.</span><span class="s1">path</span>
+<a name="l18"><span class="ln">18   </span></a><span class="s2">import </span><span class="s1">sys</span>
+<a name="l19"><span class="ln">19   </span></a><span class="s2">import </span><span class="s1">time</span>
+<a name="l20"><span class="ln">20   </span></a><span class="s2">import </span><span class="s1">typing </span><span class="s2">as </span><span class="s1">t</span>
+<a name="l21"><span class="ln">21   </span></a><span class="s2">from </span><span class="s1">pstats </span><span class="s2">import </span><span class="s1">Stats</span>
+<a name="l22"><span class="ln">22   </span></a>
+<a name="l23"><span class="ln">23   </span></a><span class="s2">try</span><span class="s3">:</span>
+<a name="l24"><span class="ln">24   </span></a>    <span class="s2">from </span><span class="s1">cProfile </span><span class="s2">import </span><span class="s1">Profile</span>
+<a name="l25"><span class="ln">25   </span></a><span class="s2">except </span><span class="s1">ImportError</span><span class="s3">:</span>
+<a name="l26"><span class="ln">26   </span></a>    <span class="s2">from </span><span class="s1">profile </span><span class="s2">import </span><span class="s1">Profile  </span><span class="s4"># type: ignore</span>
+<a name="l27"><span class="ln">27   </span></a>
+<a name="l28"><span class="ln">28   </span></a><span class="s2">if </span><span class="s1">t</span><span class="s3">.</span><span class="s1">TYPE_CHECKING</span><span class="s3">:</span>
+<a name="l29"><span class="ln">29   </span></a>    <span class="s2">from </span><span class="s1">_typeshed</span><span class="s3">.</span><span class="s1">wsgi </span><span class="s2">import </span><span class="s1">StartResponse</span>
+<a name="l30"><span class="ln">30   </span></a>    <span class="s2">from </span><span class="s1">_typeshed</span><span class="s3">.</span><span class="s1">wsgi </span><span class="s2">import </span><span class="s1">WSGIApplication</span>
+<a name="l31"><span class="ln">31   </span></a>    <span class="s2">from </span><span class="s1">_typeshed</span><span class="s3">.</span><span class="s1">wsgi </span><span class="s2">import </span><span class="s1">WSGIEnvironment</span>
+<a name="l32"><span class="ln">32   </span></a>
+<a name="l33"><span class="ln">33   </span></a>
+<a name="l34"><span class="ln">34   </span></a><span class="s2">class </span><span class="s1">ProfilerMiddleware</span><span class="s3">:</span>
+<a name="l35"><span class="ln">35   </span></a>    <span class="s0">&quot;&quot;&quot;Wrap a WSGI application and profile the execution of each 
+<a name="l36"><span class="ln">36   </span></a>    request. Responses are buffered so that timings are more exact. 
+<a name="l37"><span class="ln">37   </span></a> 
+<a name="l38"><span class="ln">38   </span></a>    If ``stream`` is given, :class:`pstats.Stats` are written to it 
+<a name="l39"><span class="ln">39   </span></a>    after each request. If ``profile_dir`` is given, :mod:`cProfile` 
+<a name="l40"><span class="ln">40   </span></a>    data files are saved to that directory, one file per request. 
+<a name="l41"><span class="ln">41   </span></a> 
+<a name="l42"><span class="ln">42   </span></a>    The filename can be customized by passing ``filename_format``. If 
+<a name="l43"><span class="ln">43   </span></a>    it is a string, it will be formatted using :meth:`str.format` with 
+<a name="l44"><span class="ln">44   </span></a>    the following fields available: 
+<a name="l45"><span class="ln">45   </span></a> 
+<a name="l46"><span class="ln">46   </span></a>    -   ``{method}`` - The request method; GET, POST, etc. 
+<a name="l47"><span class="ln">47   </span></a>    -   ``{path}`` - The request path or 'root' should one not exist. 
+<a name="l48"><span class="ln">48   </span></a>    -   ``{elapsed}`` - The elapsed time of the request in milliseconds. 
+<a name="l49"><span class="ln">49   </span></a>    -   ``{time}`` - The time of the request. 
+<a name="l50"><span class="ln">50   </span></a> 
+<a name="l51"><span class="ln">51   </span></a>    If it is a callable, it will be called with the WSGI ``environ`` and 
+<a name="l52"><span class="ln">52   </span></a>    be expected to return a filename string. The ``environ`` dictionary 
+<a name="l53"><span class="ln">53   </span></a>    will also have the ``&quot;werkzeug.profiler&quot;`` key populated with a 
+<a name="l54"><span class="ln">54   </span></a>    dictionary containing the following fields (more may be added in the 
+<a name="l55"><span class="ln">55   </span></a>    future): 
+<a name="l56"><span class="ln">56   </span></a>    -   ``{elapsed}`` - The elapsed time of the request in milliseconds. 
+<a name="l57"><span class="ln">57   </span></a>    -   ``{time}`` - The time of the request. 
+<a name="l58"><span class="ln">58   </span></a> 
+<a name="l59"><span class="ln">59   </span></a>    :param app: The WSGI application to wrap. 
+<a name="l60"><span class="ln">60   </span></a>    :param stream: Write stats to this stream. Disable with ``None``. 
+<a name="l61"><span class="ln">61   </span></a>    :param sort_by: A tuple of columns to sort stats by. See 
+<a name="l62"><span class="ln">62   </span></a>        :meth:`pstats.Stats.sort_stats`. 
+<a name="l63"><span class="ln">63   </span></a>    :param restrictions: A tuple of restrictions to filter stats by. See 
+<a name="l64"><span class="ln">64   </span></a>        :meth:`pstats.Stats.print_stats`. 
+<a name="l65"><span class="ln">65   </span></a>    :param profile_dir: Save profile data files to this directory. 
+<a name="l66"><span class="ln">66   </span></a>    :param filename_format: Format string for profile data file names, 
+<a name="l67"><span class="ln">67   </span></a>        or a callable returning a name. See explanation above. 
+<a name="l68"><span class="ln">68   </span></a> 
+<a name="l69"><span class="ln">69   </span></a>    .. code-block:: python 
+<a name="l70"><span class="ln">70   </span></a> 
+<a name="l71"><span class="ln">71   </span></a>        from werkzeug.middleware.profiler import ProfilerMiddleware 
+<a name="l72"><span class="ln">72   </span></a>        app = ProfilerMiddleware(app) 
+<a name="l73"><span class="ln">73   </span></a> 
+<a name="l74"><span class="ln">74   </span></a>    .. versionchanged:: 3.0 
+<a name="l75"><span class="ln">75   </span></a>        Added the ``&quot;werkzeug.profiler&quot;`` key to the ``filename_format(environ)`` 
+<a name="l76"><span class="ln">76   </span></a>        parameter with the  ``elapsed`` and ``time`` fields. 
+<a name="l77"><span class="ln">77   </span></a> 
+<a name="l78"><span class="ln">78   </span></a>    .. versionchanged:: 0.15 
+<a name="l79"><span class="ln">79   </span></a>        Stats are written even if ``profile_dir`` is given, and can be 
+<a name="l80"><span class="ln">80   </span></a>        disable by passing ``stream=None``. 
+<a name="l81"><span class="ln">81   </span></a> 
+<a name="l82"><span class="ln">82   </span></a>    .. versionadded:: 0.15 
+<a name="l83"><span class="ln">83   </span></a>        Added ``filename_format``. 
+<a name="l84"><span class="ln">84   </span></a> 
+<a name="l85"><span class="ln">85   </span></a>    .. versionadded:: 0.9 
+<a name="l86"><span class="ln">86   </span></a>        Added ``restrictions`` and ``profile_dir``. 
+<a name="l87"><span class="ln">87   </span></a>    &quot;&quot;&quot;</span>
+<a name="l88"><span class="ln">88   </span></a>
+<a name="l89"><span class="ln">89   </span></a>    <span class="s2">def </span><span class="s1">__init__</span><span class="s3">(</span>
+<a name="l90"><span class="ln">90   </span></a>        <span class="s1">self</span><span class="s3">,</span>
+<a name="l91"><span class="ln">91   </span></a>        <span class="s1">app</span><span class="s3">: </span><span class="s1">WSGIApplication</span><span class="s3">,</span>
+<a name="l92"><span class="ln">92   </span></a>        <span class="s1">stream</span><span class="s3">: </span><span class="s1">t</span><span class="s3">.</span><span class="s1">IO</span><span class="s3">[</span><span class="s1">str</span><span class="s3">] | </span><span class="s2">None </span><span class="s3">= </span><span class="s1">sys</span><span class="s3">.</span><span class="s1">stdout</span><span class="s3">,</span>
+<a name="l93"><span class="ln">93   </span></a>        <span class="s1">sort_by</span><span class="s3">: </span><span class="s1">t</span><span class="s3">.</span><span class="s1">Iterable</span><span class="s3">[</span><span class="s1">str</span><span class="s3">] = (</span><span class="s5">&quot;time&quot;</span><span class="s3">, </span><span class="s5">&quot;calls&quot;</span><span class="s3">),</span>
+<a name="l94"><span class="ln">94   </span></a>        <span class="s1">restrictions</span><span class="s3">: </span><span class="s1">t</span><span class="s3">.</span><span class="s1">Iterable</span><span class="s3">[</span><span class="s1">str </span><span class="s3">| </span><span class="s1">int </span><span class="s3">| </span><span class="s1">float</span><span class="s3">] = (),</span>
+<a name="l95"><span class="ln">95   </span></a>        <span class="s1">profile_dir</span><span class="s3">: </span><span class="s1">str </span><span class="s3">| </span><span class="s2">None </span><span class="s3">= </span><span class="s2">None</span><span class="s3">,</span>
+<a name="l96"><span class="ln">96   </span></a>        <span class="s1">filename_format</span><span class="s3">: </span><span class="s1">str </span><span class="s3">= </span><span class="s5">&quot;{method}.{path}.{elapsed:.0f}ms.{time:.0f}.prof&quot;</span><span class="s3">,</span>
+<a name="l97"><span class="ln">97   </span></a>    <span class="s3">) </span><span class="s1">-&gt; </span><span class="s2">None</span><span class="s3">:</span>
+<a name="l98"><span class="ln">98   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">_app </span><span class="s3">= </span><span class="s1">app</span>
+<a name="l99"><span class="ln">99   </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">_stream </span><span class="s3">= </span><span class="s1">stream</span>
+<a name="l100"><span class="ln">100  </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">_sort_by </span><span class="s3">= </span><span class="s1">sort_by</span>
+<a name="l101"><span class="ln">101  </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">_restrictions </span><span class="s3">= </span><span class="s1">restrictions</span>
+<a name="l102"><span class="ln">102  </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">_profile_dir </span><span class="s3">= </span><span class="s1">profile_dir</span>
+<a name="l103"><span class="ln">103  </span></a>        <span class="s1">self</span><span class="s3">.</span><span class="s1">_filename_format </span><span class="s3">= </span><span class="s1">filename_format</span>
+<a name="l104"><span class="ln">104  </span></a>
+<a name="l105"><span class="ln">105  </span></a>    <span class="s2">def </span><span class="s1">__call__</span><span class="s3">(</span>
+<a name="l106"><span class="ln">106  </span></a>        <span class="s1">self</span><span class="s3">, </span><span class="s1">environ</span><span class="s3">: </span><span class="s1">WSGIEnvironment</span><span class="s3">, </span><span class="s1">start_response</span><span class="s3">: </span><span class="s1">StartResponse</span>
+<a name="l107"><span class="ln">107  </span></a>    <span class="s3">) </span><span class="s1">-&gt; t</span><span class="s3">.</span><span class="s1">Iterable</span><span class="s3">[</span><span class="s1">bytes</span><span class="s3">]:</span>
+<a name="l108"><span class="ln">108  </span></a>        <span class="s1">response_body</span><span class="s3">: </span><span class="s1">list</span><span class="s3">[</span><span class="s1">bytes</span><span class="s3">] = []</span>
+<a name="l109"><span class="ln">109  </span></a>
+<a name="l110"><span class="ln">110  </span></a>        <span class="s2">def </span><span class="s1">catching_start_response</span><span class="s3">(</span><span class="s1">status</span><span class="s3">, </span><span class="s1">headers</span><span class="s3">, </span><span class="s1">exc_info</span><span class="s3">=</span><span class="s2">None</span><span class="s3">):  </span><span class="s4"># type: ignore</span>
+<a name="l111"><span class="ln">111  </span></a>            <span class="s1">start_response</span><span class="s3">(</span><span class="s1">status</span><span class="s3">, </span><span class="s1">headers</span><span class="s3">, </span><span class="s1">exc_info</span><span class="s3">)</span>
+<a name="l112"><span class="ln">112  </span></a>            <span class="s2">return </span><span class="s1">response_body</span><span class="s3">.</span><span class="s1">append</span>
+<a name="l113"><span class="ln">113  </span></a>
+<a name="l114"><span class="ln">114  </span></a>        <span class="s2">def </span><span class="s1">runapp</span><span class="s3">() </span><span class="s1">-&gt; </span><span class="s2">None</span><span class="s3">:</span>
+<a name="l115"><span class="ln">115  </span></a>            <span class="s1">app_iter </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">_app</span><span class="s3">(</span>
+<a name="l116"><span class="ln">116  </span></a>                <span class="s1">environ</span><span class="s3">, </span><span class="s1">t</span><span class="s3">.</span><span class="s1">cast</span><span class="s3">(</span><span class="s5">&quot;StartResponse&quot;</span><span class="s3">, </span><span class="s1">catching_start_response</span><span class="s3">)</span>
+<a name="l117"><span class="ln">117  </span></a>            <span class="s3">)</span>
+<a name="l118"><span class="ln">118  </span></a>            <span class="s1">response_body</span><span class="s3">.</span><span class="s1">extend</span><span class="s3">(</span><span class="s1">app_iter</span><span class="s3">)</span>
+<a name="l119"><span class="ln">119  </span></a>
+<a name="l120"><span class="ln">120  </span></a>            <span class="s2">if </span><span class="s1">hasattr</span><span class="s3">(</span><span class="s1">app_iter</span><span class="s3">, </span><span class="s5">&quot;close&quot;</span><span class="s3">):</span>
+<a name="l121"><span class="ln">121  </span></a>                <span class="s1">app_iter</span><span class="s3">.</span><span class="s1">close</span><span class="s3">()</span>
+<a name="l122"><span class="ln">122  </span></a>
+<a name="l123"><span class="ln">123  </span></a>        <span class="s1">profile </span><span class="s3">= </span><span class="s1">Profile</span><span class="s3">()</span>
+<a name="l124"><span class="ln">124  </span></a>        <span class="s1">start </span><span class="s3">= </span><span class="s1">time</span><span class="s3">.</span><span class="s1">time</span><span class="s3">()</span>
+<a name="l125"><span class="ln">125  </span></a>        <span class="s1">profile</span><span class="s3">.</span><span class="s1">runcall</span><span class="s3">(</span><span class="s1">runapp</span><span class="s3">)</span>
+<a name="l126"><span class="ln">126  </span></a>        <span class="s1">body </span><span class="s3">= </span><span class="s6">b&quot;&quot;</span><span class="s3">.</span><span class="s1">join</span><span class="s3">(</span><span class="s1">response_body</span><span class="s3">)</span>
+<a name="l127"><span class="ln">127  </span></a>        <span class="s1">elapsed </span><span class="s3">= </span><span class="s1">time</span><span class="s3">.</span><span class="s1">time</span><span class="s3">() - </span><span class="s1">start</span>
+<a name="l128"><span class="ln">128  </span></a>
+<a name="l129"><span class="ln">129  </span></a>        <span class="s2">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">_profile_dir </span><span class="s2">is not None</span><span class="s3">:</span>
+<a name="l130"><span class="ln">130  </span></a>            <span class="s2">if </span><span class="s1">callable</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">_filename_format</span><span class="s3">):</span>
+<a name="l131"><span class="ln">131  </span></a>                <span class="s1">environ</span><span class="s3">[</span><span class="s5">&quot;werkzeug.profiler&quot;</span><span class="s3">] = {</span>
+<a name="l132"><span class="ln">132  </span></a>                    <span class="s5">&quot;elapsed&quot;</span><span class="s3">: </span><span class="s1">elapsed </span><span class="s3">* </span><span class="s7">1000.0</span><span class="s3">,</span>
+<a name="l133"><span class="ln">133  </span></a>                    <span class="s5">&quot;time&quot;</span><span class="s3">: </span><span class="s1">time</span><span class="s3">.</span><span class="s1">time</span><span class="s3">(),</span>
+<a name="l134"><span class="ln">134  </span></a>                <span class="s3">}</span>
+<a name="l135"><span class="ln">135  </span></a>                <span class="s1">filename </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">_filename_format</span><span class="s3">(</span><span class="s1">environ</span><span class="s3">)</span>
+<a name="l136"><span class="ln">136  </span></a>            <span class="s2">else</span><span class="s3">:</span>
+<a name="l137"><span class="ln">137  </span></a>                <span class="s1">filename </span><span class="s3">= </span><span class="s1">self</span><span class="s3">.</span><span class="s1">_filename_format</span><span class="s3">.</span><span class="s1">format</span><span class="s3">(</span>
+<a name="l138"><span class="ln">138  </span></a>                    <span class="s1">method</span><span class="s3">=</span><span class="s1">environ</span><span class="s3">[</span><span class="s5">&quot;REQUEST_METHOD&quot;</span><span class="s3">],</span>
+<a name="l139"><span class="ln">139  </span></a>                    <span class="s1">path</span><span class="s3">=</span><span class="s1">environ</span><span class="s3">[</span><span class="s5">&quot;PATH_INFO&quot;</span><span class="s3">].</span><span class="s1">strip</span><span class="s3">(</span><span class="s5">&quot;/&quot;</span><span class="s3">).</span><span class="s1">replace</span><span class="s3">(</span><span class="s5">&quot;/&quot;</span><span class="s3">, </span><span class="s5">&quot;.&quot;</span><span class="s3">) </span><span class="s2">or </span><span class="s5">&quot;root&quot;</span><span class="s3">,</span>
+<a name="l140"><span class="ln">140  </span></a>                    <span class="s1">elapsed</span><span class="s3">=</span><span class="s1">elapsed </span><span class="s3">* </span><span class="s7">1000.0</span><span class="s3">,</span>
+<a name="l141"><span class="ln">141  </span></a>                    <span class="s1">time</span><span class="s3">=</span><span class="s1">time</span><span class="s3">.</span><span class="s1">time</span><span class="s3">(),</span>
+<a name="l142"><span class="ln">142  </span></a>                <span class="s3">)</span>
+<a name="l143"><span class="ln">143  </span></a>            <span class="s1">filename </span><span class="s3">= </span><span class="s1">os</span><span class="s3">.</span><span class="s1">path</span><span class="s3">.</span><span class="s1">join</span><span class="s3">(</span><span class="s1">self</span><span class="s3">.</span><span class="s1">_profile_dir</span><span class="s3">, </span><span class="s1">filename</span><span class="s3">)</span>
+<a name="l144"><span class="ln">144  </span></a>            <span class="s1">profile</span><span class="s3">.</span><span class="s1">dump_stats</span><span class="s3">(</span><span class="s1">filename</span><span class="s3">)</span>
+<a name="l145"><span class="ln">145  </span></a>
+<a name="l146"><span class="ln">146  </span></a>        <span class="s2">if </span><span class="s1">self</span><span class="s3">.</span><span class="s1">_stream </span><span class="s2">is not None</span><span class="s3">:</span>
+<a name="l147"><span class="ln">147  </span></a>            <span class="s1">stats </span><span class="s3">= </span><span class="s1">Stats</span><span class="s3">(</span><span class="s1">profile</span><span class="s3">, </span><span class="s1">stream</span><span class="s3">=</span><span class="s1">self</span><span class="s3">.</span><span class="s1">_stream</span><span class="s3">)</span>
+<a name="l148"><span class="ln">148  </span></a>            <span class="s1">stats</span><span class="s3">.</span><span class="s1">sort_stats</span><span class="s3">(*</span><span class="s1">self</span><span class="s3">.</span><span class="s1">_sort_by</span><span class="s3">)</span>
+<a name="l149"><span class="ln">149  </span></a>            <span class="s1">print</span><span class="s3">(</span><span class="s5">&quot;-&quot; </span><span class="s3">* </span><span class="s7">80</span><span class="s3">, </span><span class="s1">file</span><span class="s3">=</span><span class="s1">self</span><span class="s3">.</span><span class="s1">_stream</span><span class="s3">)</span>
+<a name="l150"><span class="ln">150  </span></a>            <span class="s1">path_info </span><span class="s3">= </span><span class="s1">environ</span><span class="s3">.</span><span class="s1">get</span><span class="s3">(</span><span class="s5">&quot;PATH_INFO&quot;</span><span class="s3">, </span><span class="s5">&quot;&quot;</span><span class="s3">)</span>
+<a name="l151"><span class="ln">151  </span></a>            <span class="s1">print</span><span class="s3">(</span><span class="s5">f&quot;PATH: </span><span class="s2">{</span><span class="s1">path_info</span><span class="s2">!r}</span><span class="s5">&quot;</span><span class="s3">, </span><span class="s1">file</span><span class="s3">=</span><span class="s1">self</span><span class="s3">.</span><span class="s1">_stream</span><span class="s3">)</span>
+<a name="l152"><span class="ln">152  </span></a>            <span class="s1">stats</span><span class="s3">.</span><span class="s1">print_stats</span><span class="s3">(*</span><span class="s1">self</span><span class="s3">.</span><span class="s1">_restrictions</span><span class="s3">)</span>
+<a name="l153"><span class="ln">153  </span></a>            <span class="s1">print</span><span class="s3">(</span><span class="s5">f&quot;</span><span class="s2">{</span><span class="s5">'-' </span><span class="s3">* </span><span class="s7">80</span><span class="s2">}\n</span><span class="s5">&quot;</span><span class="s3">, </span><span class="s1">file</span><span class="s3">=</span><span class="s1">self</span><span class="s3">.</span><span class="s1">_stream</span><span class="s3">)</span>
+<a name="l154"><span class="ln">154  </span></a>
+<a name="l155"><span class="ln">155  </span></a>        <span class="s2">return </span><span class="s3">[</span><span class="s1">body</span><span class="s3">]</span>
+<a name="l156"><span class="ln">156  </span></a></pre>
+</body>
+</html>

@@ -1,0 +1,1619 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | SkillBridge AI{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   SKILLBRIDGE AI — MAIN COMMAND CENTER
+========================================================= */
+
+.dashboard-page {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 18px 0 70px;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.dashboard-hero {
+
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    min-height: 245px;
+
+    padding: 38px 40px;
+
+    margin-bottom: 25px;
+
+    border-radius: 28px;
+
+    border: 1px solid rgba(56,189,248,.14);
+
+    background:
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(56,189,248,.15),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 65% 100%,
+            rgba(52,211,153,.08),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            rgba(8,18,32,.98),
+            rgba(10,20,35,.90)
+        );
+
+    box-shadow:
+        0 25px 70px rgba(0,0,0,.30);
+}
+
+
+/* decorative grid */
+
+.dashboard-hero::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    opacity: .16;
+
+    background-image:
+        linear-gradient(
+            rgba(148,163,184,.08) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(148,163,184,.08) 1px,
+            transparent 1px
+        );
+
+    background-size: 35px 35px;
+
+    mask-image:
+        linear-gradient(
+            to right,
+            black,
+            transparent
+        );
+}
+
+
+.hero-content {
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+.hero-eyebrow {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 7px 13px;
+
+    margin-bottom: 15px;
+
+    border-radius: 999px;
+
+    color: #38bdf8;
+
+    background:
+        rgba(56,189,248,.07);
+
+    border:
+        1px solid rgba(56,189,248,.16);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.4px;
+
+    text-transform: uppercase;
+}
+
+
+.dashboard-hero h1 {
+
+    margin: 0;
+
+    color: #f1f5f9;
+
+    font-size: clamp(29px, 4vw, 42px);
+
+    font-weight: 800;
+
+    letter-spacing: -1.2px;
+}
+
+
+.dashboard-hero h1 span {
+
+    color: #38bdf8;
+}
+
+
+.dashboard-hero p {
+
+    max-width: 650px;
+
+    margin: 12px 0 0;
+
+    color: #8fa3bd;
+
+    line-height: 1.7;
+
+    font-size: 14px;
+}
+
+
+/* AI orb */
+
+.ai-orb {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: 125px;
+
+    height: 125px;
+
+    flex-shrink: 0;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(56,189,248,.20),
+            rgba(56,189,248,.03) 60%,
+            transparent 70%
+        );
+
+    border:
+        1px solid rgba(56,189,248,.22);
+
+    box-shadow:
+        0 0 45px rgba(56,189,248,.12);
+
+    font-size: 45px;
+}
+
+
+.ai-orb::before,
+.ai-orb::after {
+
+    content: "";
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(56,189,248,.18);
+}
+
+
+.ai-orb::before {
+
+    inset: -12px;
+}
+
+
+.ai-orb::after {
+
+    inset: -25px;
+
+    border-color:
+        rgba(52,211,153,.10);
+}
+
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+.section-heading {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin: 32px 2px 15px;
+}
+
+
+.section-heading h2 {
+
+    margin: 0;
+
+    color: #e7eef8;
+
+    font-size: 18px;
+
+    font-weight: 750;
+}
+
+
+.section-heading span {
+
+    color: #64748b;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
+
+.summary-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+}
+
+
+.summary-card {
+
+    position: relative;
+
+    overflow: hidden;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    min-height: 125px;
+
+    padding: 20px;
+
+    border-radius: 18px;
+
+    background:
+        rgba(15,23,42,.72);
+
+    border:
+        1px solid rgba(148,163,184,.10);
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.14);
+
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        background .25s ease;
+}
+
+
+.summary-card::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 90px;
+
+    height: 90px;
+
+    right: -35px;
+
+    bottom: -45px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(56,189,248,.05);
+}
+
+
+.summary-card:hover {
+
+    transform:
+        translateY(-4px);
+
+    border-color:
+        rgba(56,189,248,.20);
+
+    background:
+        rgba(20,32,54,.85);
+}
+
+
+.summary-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    flex-shrink: 0;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 14px;
+
+    background:
+        rgba(56,189,248,.07);
+
+    border:
+        1px solid rgba(56,189,248,.12);
+
+    font-size: 22px;
+}
+
+
+.summary-card h3 {
+
+    margin: 0 0 3px;
+
+    color: #8fa3bd;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .6px;
+}
+
+
+.summary-value {
+
+    color: #f1f5f9;
+
+    font-size: 27px;
+
+    font-weight: 800;
+
+    line-height: 1.1;
+}
+
+
+.summary-card p {
+
+    margin: 4px 0 0;
+
+    color: #53657c;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   FEATURE GRID
+========================================================= */
+
+.feature-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 17px;
+}
+
+
+.feature-card {
+
+    position: relative;
+
+    overflow: hidden;
+
+    min-height: 245px;
+
+    padding: 24px;
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15,23,42,.88),
+            rgba(10,18,32,.78)
+        );
+
+    border:
+        1px solid rgba(148,163,184,.10);
+
+    box-shadow:
+        0 12px 32px rgba(0,0,0,.15);
+
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+
+.feature-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    right: 0;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(56,189,248,.45),
+            transparent
+        );
+
+    opacity: 0;
+
+    transition:
+        opacity .25s ease;
+}
+
+
+.feature-card:hover {
+
+    transform:
+        translateY(-5px);
+
+    border-color:
+        rgba(56,189,248,.18);
+
+    box-shadow:
+        0 20px 42px rgba(0,0,0,.24);
+}
+
+
+.feature-card:hover::before {
+
+    opacity: 1;
+}
+
+
+.feature-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    display: grid;
+
+    place-items: center;
+
+    margin-bottom: 16px;
+
+    border-radius: 14px;
+
+    background:
+        rgba(167,139,250,.07);
+
+    border:
+        1px solid rgba(167,139,250,.12);
+
+    font-size: 22px;
+}
+
+
+.feature-card h3 {
+
+    margin: 0 0 9px;
+
+    color: #e7eef8;
+
+    font-size: 17px;
+
+    font-weight: 750;
+}
+
+
+.feature-card p {
+
+    min-height: 58px;
+
+    margin: 0;
+
+    color: #71839c;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   FEATURE BUTTON
+========================================================= */
+
+.feature-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 17px;
+
+    padding: 9px 13px;
+
+    color: #cfeeff;
+
+    background:
+        rgba(56,189,248,.055);
+
+    border:
+        1px solid rgba(56,189,248,.13);
+
+    border-radius: 9px;
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    transition:
+        all .2s ease;
+}
+
+
+.feature-button:hover {
+
+    color: white;
+
+    background:
+        rgba(56,189,248,.12);
+
+    border-color:
+        rgba(56,189,248,.28);
+
+    transform:
+        translateX(2px);
+}
+
+
+/* =========================================================
+   SMALL CERTIFICATE LINK
+========================================================= */
+
+.small-link {
+
+    margin-top: 9px;
+}
+
+
+.small-link a {
+
+    color: #34d399;
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   LINKEDIN SUCCESS
+========================================================= */
+
+.success-text {
+
+    color: #34d399 !important;
+
+    font-size: 12px !important;
+
+    font-weight: 700;
+
+    min-height: auto !important;
+}
+
+
+/* =========================================================
+   QUICK NAVIGATION
+========================================================= */
+
+.quick-section {
+
+    margin-top: 38px;
+
+    padding: 25px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(15,23,42,.65);
+
+    border:
+        1px solid rgba(148,163,184,.10);
+}
+
+
+.quick-section h2 {
+
+    margin: 0 0 17px;
+
+    color: #e7eef8;
+
+    font-size: 18px;
+}
+
+
+.quick-links {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 9px;
+}
+
+
+.quick-links a {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 9px 13px;
+
+    color: #8fa3bd;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border:
+        1px solid rgba(148,163,184,.09);
+
+    border-radius: 9px;
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-weight: 650;
+
+    transition:
+        all .2s ease;
+}
+
+
+.quick-links a:hover {
+
+    color: #e7eef8;
+
+    border-color:
+        rgba(56,189,248,.20);
+
+    background:
+        rgba(56,189,248,.06);
+
+    transform:
+        translateY(-2px);
+}
+
+
+/* =========================================================
+   POWER BI
+========================================================= */
+
+.powerbi-section {
+
+    position: relative;
+
+    overflow: hidden;
+
+    margin-top: 20px;
+
+    padding: 28px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(14,23,42,.90),
+            rgba(8,18,32,.88)
+        );
+
+    border:
+        1px solid rgba(52,211,153,.13);
+}
+
+
+.powerbi-section::before {
+
+    content: "ANALYTICS";
+
+    position: absolute;
+
+    right: 25px;
+
+    top: 18px;
+
+    color: rgba(52,211,153,.07);
+
+    font-size: 45px;
+
+    font-weight: 900;
+
+    letter-spacing: 3px;
+}
+
+
+.powerbi-section h2 {
+
+    position: relative;
+
+    margin: 0 0 8px;
+
+    color: #e7eef8;
+
+    font-size: 19px;
+}
+
+
+.powerbi-section p {
+
+    position: relative;
+
+    margin: 0;
+
+    max-width: 650px;
+
+    color: #71839c;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+
+.powerbi-links {
+
+    position: relative;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+    margin-top: 20px;
+}
+
+
+.powerbi-links a {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 10px 14px;
+
+    color: #d1fae5;
+
+    background:
+        rgba(52,211,153,.055);
+
+    border:
+        1px solid rgba(52,211,153,.13);
+
+    border-radius: 9px;
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    transition:
+        all .2s ease;
+}
+
+
+.powerbi-links a:hover {
+
+    color: white;
+
+    background:
+        rgba(52,211,153,.11);
+
+    border-color:
+        rgba(52,211,153,.25);
+
+    transform:
+        translateY(-2px);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1050px) {
+
+    .summary-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .feature-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .dashboard-page {
+
+        padding:
+            8px 0 45px;
+    }
+
+
+    .dashboard-hero {
+
+        min-height: auto;
+
+        padding: 27px 22px;
+    }
+
+
+    .ai-orb {
+
+        display: none;
+    }
+
+
+    .summary-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .feature-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .feature-card {
+
+        min-height: auto;
+    }
+
+
+    .feature-card p {
+
+        min-height: auto;
+    }
+
+
+    .quick-section,
+    .powerbi-section {
+
+        padding: 21px;
+    }
+
+}
+
+
+@media (max-width: 450px) {
+
+    .dashboard-hero h1 {
+
+        font-size: 27px;
+    }
+
+
+    .summary-card {
+
+        min-height: 110px;
+
+        padding: 17px;
+    }
+
+
+    .quick-links a,
+    .powerbi-links a {
+
+        width: 100%;
+
+        justify-content: center;
+    }
+
+}
+
+</style>
+
+
+<div class="dashboard-page">
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="dashboard-hero">
+
+        <div class="hero-content">
+
+            <div class="hero-eyebrow">
+                ✦ AI Career Command Center
+            </div>
+
+            <h1>
+                Welcome,
+                <span>{{ student.name or user.username }}</span>
+                👋
+            </h1>
+
+            <p>
+                Your personalized SkillBridge AI workspace.
+                Track your skills, discover career opportunities,
+                close skill gaps and build your path toward
+                career readiness.
+            </p>
+
+        </div>
+
+
+        <div class="ai-orb">
+            🤖
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SUMMARY
+    ====================================================== -->
+
+    <div class="section-heading">
+
+        <h2>
+            Career Overview
+        </h2>
+
+        <span>
+            AI-powered profile snapshot
+        </span>
+
+    </div>
+
+
+    <div class="summary-grid">
+
+
+        <!-- CERTIFICATES -->
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                📜
+            </div>
+
+            <div>
+
+                <h3>
+                    Certificates
+                </h3>
+
+                <div class="summary-value">
+                    {{ student.certificates|length }}
+                </div>
+
+                <p>
+                    Course credentials
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- SKILLS -->
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                🧠
+            </div>
+
+            <div>
+
+                <h3>
+                    Skills
+                </h3>
+
+                <div class="summary-value">
+                    {{ student.student_skills|length }}
+                </div>
+
+                <p>
+                    Skills in profile
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- CAREERS -->
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                🎯
+            </div>
+
+            <div>
+
+                <h3>
+                    AI Careers
+                </h3>
+
+                <div class="summary-value">
+                    AI
+                </div>
+
+                <p>
+                    Personalized recommendations
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- READINESS -->
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                📈
+            </div>
+
+            <div>
+
+                <h3>
+                    Readiness
+                </h3>
+
+                <div class="summary-value">
+                    AI
+                </div>
+
+                <p>
+                    Career preparation analysis
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         AI CAREER WORKSPACE
+    ====================================================== -->
+
+    <div class="section-heading">
+
+        <h2>
+            AI Career Workspace
+        </h2>
+
+        <span>
+            Explore your SkillBridge ecosystem
+        </span>
+
+    </div>
+
+
+    <div class="feature-grid">
+
+
+        <!-- PROFILE -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🎯
+            </div>
+
+            <h3>
+                Career Profile
+            </h3>
+
+            <p>
+                Add your education, degree, branch, college,
+                experience and LinkedIn profile.
+            </p>
+
+            <a
+                href="{{ url_for('student.profile') }}"
+                class="feature-button"
+            >
+                Open Career Profile →
+            </a>
+
+        </div>
+
+
+        <!-- SKILLS -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🧠
+            </div>
+
+            <h3>
+                AI Skills
+            </h3>
+
+            <p>
+                Add technical skills, programming languages,
+                soft skills and self-learned skills.
+            </p>
+
+            <a
+                href="{{ url_for('student.skills') }}"
+                class="feature-button"
+            >
+                Manage Skills →
+            </a>
+
+        </div>
+
+
+        <!-- CERTIFICATES -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                📜
+            </div>
+
+            <h3>
+                Course Certificates
+            </h3>
+
+            <p>
+                Upload and manage your course certificates
+                to strengthen your professional profile.
+            </p>
+
+            <a
+                href="{{ url_for('student.certificates') }}"
+                class="feature-button"
+            >
+                Manage Certificates →
+            </a>
+
+            <div class="small-link">
+
+                <a href="{{ url_for('student.certificates') }}">
+
+                    {{ student.certificates|length }}
+
+                    certificate{% if student.certificates|length != 1 %}s{% endif %}
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- CAREER RECOMMENDATIONS -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🎯
+            </div>
+
+            <h3>
+                AI Career Recommendations
+            </h3>
+
+            <p>
+                Discover careers that best match your
+                skills, education and experience.
+            </p>
+
+            <a
+                href="{{ url_for('student.careers') }}"
+                class="feature-button"
+            >
+                View Recommendations →
+            </a>
+
+        </div>
+
+
+        <!-- SKILL GAP -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🧩
+            </div>
+
+            <h3>
+                Skill Gap Analysis
+            </h3>
+
+            <p>
+                Compare your current skills with the
+                requirements of your target career.
+            </p>
+
+            <a
+                href="{{ url_for('student.careers') }}"
+                class="feature-button"
+            >
+                Analyze Skill Gap →
+            </a>
+
+        </div>
+
+
+        <!-- LEARNING PATH -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🗺️
+            </div>
+
+            <h3>
+                Personalized Learning Path
+            </h3>
+
+            <p>
+                Build a learning roadmap based on your
+                current career skill gaps.
+            </p>
+
+            <a
+                href="{{ url_for('student.careers') }}"
+                class="feature-button"
+            >
+                Build Learning Path →
+            </a>
+
+        </div>
+
+
+        <!-- JOB MATCHING -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                💼
+            </div>
+
+            <h3>
+                Job Matching
+            </h3>
+
+            <p>
+                Find opportunities that match your skills
+                and compare job requirements.
+            </p>
+
+            <a
+                href="{{ url_for('student.jobs') }}"
+                class="feature-button"
+            >
+                Find Matching Jobs →
+            </a>
+
+        </div>
+
+
+        <!-- LINKEDIN -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🔗
+            </div>
+
+            <h3>
+                LinkedIn Profile
+            </h3>
+
+            {% if student.linkedin_url %}
+
+                <p class="success-text">
+                    ✓ LinkedIn profile connected
+                </p>
+
+                <a
+                    href="{{ student.linkedin_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="feature-button"
+                >
+                    View LinkedIn Profile →
+                </a>
+
+            {% else %}
+
+                <p>
+                    Connect your LinkedIn profile to strengthen
+                    your professional presence.
+                </p>
+
+                <a
+                    href="{{ url_for('student.profile') }}"
+                    class="feature-button"
+                >
+                    Add LinkedIn Profile →
+                </a>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- READINESS -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                📈
+            </div>
+
+            <h3>
+                Career Readiness
+            </h3>
+
+            <p>
+                Measure how prepared you are for your
+                selected career.
+            </p>
+
+            <a
+                href="{{ url_for('student.readiness') }}"
+                class="feature-button"
+            >
+                Check Readiness →
+            </a>
+
+        </div>
+
+
+        <!-- DIGITAL TWIN -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🤖
+            </div>
+
+            <h3>
+                AI Career Digital Twin
+            </h3>
+
+            <p>
+                View your virtual career profile and track
+                your journey from skills to readiness.
+            </p>
+
+            <a
+                href="{{ url_for('student.digital_twin') }}"
+                class="feature-button"
+            >
+                View Digital Twin →
+            </a>
+
+        </div>
+
+
+        <!-- WHAT IF -->
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🔮
+            </div>
+
+            <h3>
+                What-If Career Simulation
+            </h3>
+
+            <p>
+                Simulate how learning new skills could improve
+                your career match and readiness.
+            </p>
+
+            <a
+                href="{{ url_for('student.what_if') }}"
+                class="feature-button"
+            >
+                Run Simulation →
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         QUICK NAVIGATION
+    ====================================================== -->
+
+    <section class="quick-section">
+
+        <h2>
+            ⚡ Quick Navigation
+        </h2>
+
+        <div class="quick-links">
+
+            <a href="{{ url_for('student.profile') }}">
+                🎯 Profile
+            </a>
+
+            <a href="{{ url_for('student.skills') }}">
+                🧠 Skills
+            </a>
+
+            <a href="{{ url_for('student.certificates') }}">
+                📜 Certificates
+            </a>
+
+            <a href="{{ url_for('student.careers') }}">
+                🎯 Careers
+            </a>
+
+            <a href="{{ url_for('student.jobs') }}">
+                💼 Jobs
+            </a>
+
+            <a href="{{ url_for('student.readiness') }}">
+                📈 Readiness
+            </a>
+
+            <a href="{{ url_for('student.digital_twin') }}">
+                🤖 Digital Twin
+            </a>
+
+            <a href="{{ url_for('student.what_if') }}">
+                🔮 What-If
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         POWER BI ANALYTICS
+    ====================================================== -->
+
+    <section class="powerbi-section">
+
+        <h2>
+            📊 Power BI Career Analytics
+        </h2>
+
+        <p>
+            Export your SkillBridge AI data for advanced
+            analytics, reporting and visualization in Power BI.
+        </p>
+
+        <div class="powerbi-links">
+
+            <a
+                href="{{ url_for(
+                    'student.export_powerbi_table',
+                    table_name='students'
+                ) }}"
+            >
+                👤 Students
+            </a>
+
+            <a
+                href="{{ url_for(
+                    'student.export_powerbi_table',
+                    table_name='studentskills'
+                ) }}"
+            >
+                🧠 Student Skills
+            </a>
+
+            <a
+                href="{{ url_for(
+                    'student.export_powerbi_table',
+                    table_name='careerrecord'
+                ) }}"
+            >
+                🎯 Career Recommendations
+            </a>
+
+            <a
+                href="{{ url_for(
+                    'student.export_powerbi_table',
+                    table_name='skillgaps'
+                ) }}"
+            >
+                🧩 Skill Gaps
+            </a>
+
+            <a
+                href="{{ url_for(
+                    'student.export_powerbi_table',
+                    table_name='readliness'
+                ) }}"
+            >
+                📈 Readiness
+            </a>
+
+        </div>
+
+    </section>
+
+
+</div>
+
+{% endblock %}

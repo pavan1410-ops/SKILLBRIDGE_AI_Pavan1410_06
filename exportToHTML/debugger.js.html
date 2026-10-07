@@ -1,0 +1,366 @@
+<html>
+<head>
+<title>debugger.js</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #bcbec4;}
+.s1 { color: #cf8e6d;}
+.s2 { color: #7a7e85;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+debugger.js</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">docReady(() =&gt; {</span>
+<a name="l2"><span class="ln">2    </span></a>  <span class="s1">if </span><span class="s0">(!EVALEX_TRUSTED) {</span>
+<a name="l3"><span class="ln">3    </span></a>    <span class="s0">initPinBox();</span>
+<a name="l4"><span class="ln">4    </span></a>  <span class="s0">}</span>
+<a name="l5"><span class="ln">5    </span></a>  <span class="s2">// if we are in console mode, show the console.</span>
+<a name="l6"><span class="ln">6    </span></a>  <span class="s1">if </span><span class="s0">(CONSOLE_MODE &amp;&amp; EVALEX) {</span>
+<a name="l7"><span class="ln">7    </span></a>    <span class="s0">createInteractiveConsole();</span>
+<a name="l8"><span class="ln">8    </span></a>  <span class="s0">}</span>
+<a name="l9"><span class="ln">9    </span></a>
+<a name="l10"><span class="ln">10   </span></a>  <span class="s0">const frames = document.querySelectorAll(</span><span class="s3">&quot;div.traceback div.frame&quot;</span><span class="s0">);</span>
+<a name="l11"><span class="ln">11   </span></a>  <span class="s1">if </span><span class="s0">(EVALEX) {</span>
+<a name="l12"><span class="ln">12   </span></a>    <span class="s0">addConsoleIconToFrames(frames);</span>
+<a name="l13"><span class="ln">13   </span></a>  <span class="s0">}</span>
+<a name="l14"><span class="ln">14   </span></a>  <span class="s0">addEventListenersToElements(document.querySelectorAll(</span><span class="s3">&quot;div.detail&quot;</span><span class="s0">), </span><span class="s3">&quot;click&quot;</span><span class="s0">, () =&gt;</span>
+<a name="l15"><span class="ln">15   </span></a>    <span class="s0">document.querySelector(</span><span class="s3">&quot;div.traceback&quot;</span><span class="s0">).scrollIntoView(</span><span class="s1">false</span><span class="s0">)</span>
+<a name="l16"><span class="ln">16   </span></a>  <span class="s0">);</span>
+<a name="l17"><span class="ln">17   </span></a>  <span class="s0">addToggleFrameTraceback(frames);</span>
+<a name="l18"><span class="ln">18   </span></a>  <span class="s0">addToggleTraceTypesOnClick(document.querySelectorAll(</span><span class="s3">&quot;h2.traceback&quot;</span><span class="s0">));</span>
+<a name="l19"><span class="ln">19   </span></a>  <span class="s0">addInfoPrompt(document.querySelectorAll(</span><span class="s3">&quot;span.nojavascript&quot;</span><span class="s0">));</span>
+<a name="l20"><span class="ln">20   </span></a>  <span class="s0">wrapPlainTraceback();</span>
+<a name="l21"><span class="ln">21   </span></a><span class="s0">});</span>
+<a name="l22"><span class="ln">22   </span></a>
+<a name="l23"><span class="ln">23   </span></a><span class="s1">function </span><span class="s0">addToggleFrameTraceback(frames) {</span>
+<a name="l24"><span class="ln">24   </span></a>  <span class="s0">frames.forEach((frame) =&gt; {</span>
+<a name="l25"><span class="ln">25   </span></a>    <span class="s0">frame.addEventListener(</span><span class="s3">&quot;click&quot;</span><span class="s0">, () =&gt; {</span>
+<a name="l26"><span class="ln">26   </span></a>      <span class="s0">frame.getElementsByTagName(</span><span class="s3">&quot;pre&quot;</span><span class="s0">)[</span><span class="s4">0</span><span class="s0">].parentElement.classList.toggle(</span><span class="s3">&quot;expanded&quot;</span><span class="s0">);</span>
+<a name="l27"><span class="ln">27   </span></a>    <span class="s0">});</span>
+<a name="l28"><span class="ln">28   </span></a>  <span class="s0">})</span>
+<a name="l29"><span class="ln">29   </span></a><span class="s0">}</span>
+<a name="l30"><span class="ln">30   </span></a>
+<a name="l31"><span class="ln">31   </span></a>
+<a name="l32"><span class="ln">32   </span></a><span class="s1">function </span><span class="s0">wrapPlainTraceback() {</span>
+<a name="l33"><span class="ln">33   </span></a>  <span class="s0">const plainTraceback = document.querySelector(</span><span class="s3">&quot;div.plain textarea&quot;</span><span class="s0">);</span>
+<a name="l34"><span class="ln">34   </span></a>  <span class="s0">const wrapper = document.createElement(</span><span class="s3">&quot;pre&quot;</span><span class="s0">);</span>
+<a name="l35"><span class="ln">35   </span></a>  <span class="s0">const textNode = document.createTextNode(plainTraceback.textContent);</span>
+<a name="l36"><span class="ln">36   </span></a>  <span class="s0">wrapper.appendChild(textNode);</span>
+<a name="l37"><span class="ln">37   </span></a>  <span class="s0">plainTraceback.replaceWith(wrapper);</span>
+<a name="l38"><span class="ln">38   </span></a><span class="s0">}</span>
+<a name="l39"><span class="ln">39   </span></a>
+<a name="l40"><span class="ln">40   </span></a><span class="s1">function </span><span class="s0">makeDebugURL(args) {</span>
+<a name="l41"><span class="ln">41   </span></a>  <span class="s0">const params = </span><span class="s1">new </span><span class="s0">URLSearchParams(args)</span>
+<a name="l42"><span class="ln">42   </span></a>  <span class="s0">params.set(</span><span class="s3">&quot;s&quot;</span><span class="s0">, SECRET)</span>
+<a name="l43"><span class="ln">43   </span></a>  <span class="s1">return </span><span class="s0">`?__debugger__=yes&amp;${params}`</span>
+<a name="l44"><span class="ln">44   </span></a><span class="s0">}</span>
+<a name="l45"><span class="ln">45   </span></a>
+<a name="l46"><span class="ln">46   </span></a><span class="s1">function </span><span class="s0">initPinBox() {</span>
+<a name="l47"><span class="ln">47   </span></a>  <span class="s0">document.querySelector(</span><span class="s3">&quot;.pin-prompt form&quot;</span><span class="s0">).addEventListener(</span>
+<a name="l48"><span class="ln">48   </span></a>    <span class="s3">&quot;submit&quot;</span><span class="s0">,</span>
+<a name="l49"><span class="ln">49   </span></a>    <span class="s1">function </span><span class="s0">(event) {</span>
+<a name="l50"><span class="ln">50   </span></a>      <span class="s0">event.preventDefault();</span>
+<a name="l51"><span class="ln">51   </span></a>      <span class="s0">const btn = </span><span class="s1">this</span><span class="s0">.btn;</span>
+<a name="l52"><span class="ln">52   </span></a>      <span class="s0">btn.disabled = </span><span class="s1">true</span><span class="s0">;</span>
+<a name="l53"><span class="ln">53   </span></a>
+<a name="l54"><span class="ln">54   </span></a>      <span class="s0">fetch(</span>
+<a name="l55"><span class="ln">55   </span></a>        <span class="s0">makeDebugURL({cmd: </span><span class="s3">&quot;pinauth&quot;</span><span class="s0">, pin: </span><span class="s1">this</span><span class="s0">.pin.value})</span>
+<a name="l56"><span class="ln">56   </span></a>      <span class="s0">)</span>
+<a name="l57"><span class="ln">57   </span></a>        <span class="s0">.then((res) =&gt; res.json())</span>
+<a name="l58"><span class="ln">58   </span></a>        <span class="s0">.then(({auth, exhausted}) =&gt; {</span>
+<a name="l59"><span class="ln">59   </span></a>          <span class="s1">if </span><span class="s0">(auth) {</span>
+<a name="l60"><span class="ln">60   </span></a>            <span class="s0">EVALEX_TRUSTED = </span><span class="s1">true</span><span class="s0">;</span>
+<a name="l61"><span class="ln">61   </span></a>            <span class="s0">fadeOut(document.getElementsByClassName(</span><span class="s3">&quot;pin-prompt&quot;</span><span class="s0">)[</span><span class="s4">0</span><span class="s0">]);</span>
+<a name="l62"><span class="ln">62   </span></a>          <span class="s0">} </span><span class="s1">else </span><span class="s0">{</span>
+<a name="l63"><span class="ln">63   </span></a>            <span class="s0">alert(</span>
+<a name="l64"><span class="ln">64   </span></a>              <span class="s0">`Error: ${</span>
+<a name="l65"><span class="ln">65   </span></a>                <span class="s0">exhausted</span>
+<a name="l66"><span class="ln">66   </span></a>                  <span class="s0">? </span><span class="s3">&quot;too many attempts.  Restart server to retry.&quot;</span>
+<a name="l67"><span class="ln">67   </span></a>                  <span class="s0">: </span><span class="s3">&quot;incorrect pin&quot;</span>
+<a name="l68"><span class="ln">68   </span></a>              <span class="s0">}`</span>
+<a name="l69"><span class="ln">69   </span></a>            <span class="s0">);</span>
+<a name="l70"><span class="ln">70   </span></a>          <span class="s0">}</span>
+<a name="l71"><span class="ln">71   </span></a>        <span class="s0">})</span>
+<a name="l72"><span class="ln">72   </span></a>        <span class="s0">.</span><span class="s1">catch</span><span class="s0">((err) =&gt; {</span>
+<a name="l73"><span class="ln">73   </span></a>          <span class="s0">alert(</span><span class="s3">&quot;Error: Could not verify PIN.  Network error?&quot;</span><span class="s0">);</span>
+<a name="l74"><span class="ln">74   </span></a>          <span class="s0">console.error(err);</span>
+<a name="l75"><span class="ln">75   </span></a>        <span class="s0">})</span>
+<a name="l76"><span class="ln">76   </span></a>        <span class="s0">.</span><span class="s1">finally</span><span class="s0">(() =&gt; (btn.disabled = </span><span class="s1">false</span><span class="s0">));</span>
+<a name="l77"><span class="ln">77   </span></a>    <span class="s0">},</span>
+<a name="l78"><span class="ln">78   </span></a>    <span class="s1">false</span>
+<a name="l79"><span class="ln">79   </span></a>  <span class="s0">);</span>
+<a name="l80"><span class="ln">80   </span></a><span class="s0">}</span>
+<a name="l81"><span class="ln">81   </span></a>
+<a name="l82"><span class="ln">82   </span></a><span class="s1">function </span><span class="s0">promptForPin() {</span>
+<a name="l83"><span class="ln">83   </span></a>  <span class="s1">if </span><span class="s0">(!EVALEX_TRUSTED) {</span>
+<a name="l84"><span class="ln">84   </span></a>    <span class="s0">fetch(makeDebugURL({cmd: </span><span class="s3">&quot;printpin&quot;</span><span class="s0">}));</span>
+<a name="l85"><span class="ln">85   </span></a>    <span class="s0">const pinPrompt = document.getElementsByClassName(</span><span class="s3">&quot;pin-prompt&quot;</span><span class="s0">)[</span><span class="s4">0</span><span class="s0">];</span>
+<a name="l86"><span class="ln">86   </span></a>    <span class="s0">fadeIn(pinPrompt);</span>
+<a name="l87"><span class="ln">87   </span></a>    <span class="s0">document.querySelector(</span><span class="s3">'.pin-prompt input[name=&quot;pin&quot;]'</span><span class="s0">).focus();</span>
+<a name="l88"><span class="ln">88   </span></a>  <span class="s0">}</span>
+<a name="l89"><span class="ln">89   </span></a><span class="s0">}</span>
+<a name="l90"><span class="ln">90   </span></a>
+<a name="l91"><span class="ln">91   </span></a><span class="s2">/** 
+<a name="l92"><span class="ln">92   </span></a> * Helper function for shell initialization 
+<a name="l93"><span class="ln">93   </span></a> */</span>
+<a name="l94"><span class="ln">94   </span></a><span class="s1">function </span><span class="s0">openShell(consoleNode, target, frameID) {</span>
+<a name="l95"><span class="ln">95   </span></a>  <span class="s0">promptForPin();</span>
+<a name="l96"><span class="ln">96   </span></a>  <span class="s1">if </span><span class="s0">(consoleNode) {</span>
+<a name="l97"><span class="ln">97   </span></a>    <span class="s0">slideToggle(consoleNode);</span>
+<a name="l98"><span class="ln">98   </span></a>    <span class="s1">return </span><span class="s0">consoleNode;</span>
+<a name="l99"><span class="ln">99   </span></a>  <span class="s0">}</span>
+<a name="l100"><span class="ln">100  </span></a>  <span class="s0">let historyPos = </span><span class="s4">0</span><span class="s0">;</span>
+<a name="l101"><span class="ln">101  </span></a>  <span class="s0">const history = [</span><span class="s3">&quot;&quot;</span><span class="s0">];</span>
+<a name="l102"><span class="ln">102  </span></a>  <span class="s0">const consoleElement = createConsole();</span>
+<a name="l103"><span class="ln">103  </span></a>  <span class="s0">const output = createConsoleOutput();</span>
+<a name="l104"><span class="ln">104  </span></a>  <span class="s0">const form = createConsoleInputForm();</span>
+<a name="l105"><span class="ln">105  </span></a>  <span class="s0">const command = createConsoleInput();</span>
+<a name="l106"><span class="ln">106  </span></a>
+<a name="l107"><span class="ln">107  </span></a>  <span class="s0">target.parentNode.appendChild(consoleElement);</span>
+<a name="l108"><span class="ln">108  </span></a>  <span class="s0">consoleElement.append(output);</span>
+<a name="l109"><span class="ln">109  </span></a>  <span class="s0">consoleElement.append(form);</span>
+<a name="l110"><span class="ln">110  </span></a>  <span class="s0">form.append(command);</span>
+<a name="l111"><span class="ln">111  </span></a>  <span class="s0">command.focus();</span>
+<a name="l112"><span class="ln">112  </span></a>  <span class="s0">slideToggle(consoleElement);</span>
+<a name="l113"><span class="ln">113  </span></a>
+<a name="l114"><span class="ln">114  </span></a>  <span class="s0">form.addEventListener(</span><span class="s3">&quot;submit&quot;</span><span class="s0">, (e) =&gt; {</span>
+<a name="l115"><span class="ln">115  </span></a>    <span class="s0">handleConsoleSubmit(e, command, frameID).then((consoleOutput) =&gt; {</span>
+<a name="l116"><span class="ln">116  </span></a>      <span class="s0">output.append(consoleOutput);</span>
+<a name="l117"><span class="ln">117  </span></a>      <span class="s0">command.focus();</span>
+<a name="l118"><span class="ln">118  </span></a>      <span class="s0">consoleElement.scrollTo(</span><span class="s4">0</span><span class="s0">, consoleElement.scrollHeight);</span>
+<a name="l119"><span class="ln">119  </span></a>      <span class="s0">const old = history.pop();</span>
+<a name="l120"><span class="ln">120  </span></a>      <span class="s0">history.push(command.value);</span>
+<a name="l121"><span class="ln">121  </span></a>      <span class="s1">if </span><span class="s0">(</span><span class="s1">typeof </span><span class="s0">old !== </span><span class="s3">&quot;undefined&quot;</span><span class="s0">) {</span>
+<a name="l122"><span class="ln">122  </span></a>        <span class="s0">history.push(old);</span>
+<a name="l123"><span class="ln">123  </span></a>      <span class="s0">}</span>
+<a name="l124"><span class="ln">124  </span></a>      <span class="s0">historyPos = history.length - </span><span class="s4">1</span><span class="s0">;</span>
+<a name="l125"><span class="ln">125  </span></a>      <span class="s0">command.value = </span><span class="s3">&quot;&quot;</span><span class="s0">;</span>
+<a name="l126"><span class="ln">126  </span></a>    <span class="s0">});</span>
+<a name="l127"><span class="ln">127  </span></a>  <span class="s0">});</span>
+<a name="l128"><span class="ln">128  </span></a>
+<a name="l129"><span class="ln">129  </span></a>  <span class="s0">command.addEventListener(</span><span class="s3">&quot;keydown&quot;</span><span class="s0">, (e) =&gt; {</span>
+<a name="l130"><span class="ln">130  </span></a>    <span class="s1">if </span><span class="s0">(e.key === </span><span class="s3">&quot;l&quot; </span><span class="s0">&amp;&amp; e.ctrlKey) {</span>
+<a name="l131"><span class="ln">131  </span></a>      <span class="s0">output.innerText = </span><span class="s3">&quot;--- screen cleared ---&quot;</span><span class="s0">;</span>
+<a name="l132"><span class="ln">132  </span></a>    <span class="s0">} </span><span class="s1">else if </span><span class="s0">(e.key === </span><span class="s3">&quot;ArrowUp&quot; </span><span class="s0">|| e.key === </span><span class="s3">&quot;ArrowDown&quot;</span><span class="s0">) {</span>
+<a name="l133"><span class="ln">133  </span></a>      <span class="s2">// Handle up arrow and down arrow.</span>
+<a name="l134"><span class="ln">134  </span></a>      <span class="s1">if </span><span class="s0">(e.key === </span><span class="s3">&quot;ArrowUp&quot; </span><span class="s0">&amp;&amp; historyPos &gt; </span><span class="s4">0</span><span class="s0">) {</span>
+<a name="l135"><span class="ln">135  </span></a>        <span class="s0">e.preventDefault();</span>
+<a name="l136"><span class="ln">136  </span></a>        <span class="s0">historyPos--;</span>
+<a name="l137"><span class="ln">137  </span></a>      <span class="s0">} </span><span class="s1">else if </span><span class="s0">(e.key === </span><span class="s3">&quot;ArrowDown&quot; </span><span class="s0">&amp;&amp; historyPos &lt; history.length - </span><span class="s4">1</span><span class="s0">) {</span>
+<a name="l138"><span class="ln">138  </span></a>        <span class="s0">historyPos++;</span>
+<a name="l139"><span class="ln">139  </span></a>      <span class="s0">}</span>
+<a name="l140"><span class="ln">140  </span></a>      <span class="s0">command.value = history[historyPos];</span>
+<a name="l141"><span class="ln">141  </span></a>    <span class="s0">}</span>
+<a name="l142"><span class="ln">142  </span></a>    <span class="s1">return false</span><span class="s0">;</span>
+<a name="l143"><span class="ln">143  </span></a>  <span class="s0">});</span>
+<a name="l144"><span class="ln">144  </span></a>
+<a name="l145"><span class="ln">145  </span></a>  <span class="s1">return </span><span class="s0">consoleElement;</span>
+<a name="l146"><span class="ln">146  </span></a><span class="s0">}</span>
+<a name="l147"><span class="ln">147  </span></a>
+<a name="l148"><span class="ln">148  </span></a><span class="s1">function </span><span class="s0">addEventListenersToElements(elements, event, listener) {</span>
+<a name="l149"><span class="ln">149  </span></a>  <span class="s0">elements.forEach((el) =&gt; el.addEventListener(event, listener));</span>
+<a name="l150"><span class="ln">150  </span></a><span class="s0">}</span>
+<a name="l151"><span class="ln">151  </span></a>
+<a name="l152"><span class="ln">152  </span></a><span class="s2">/** 
+<a name="l153"><span class="ln">153  </span></a> * Add extra info 
+<a name="l154"><span class="ln">154  </span></a> */</span>
+<a name="l155"><span class="ln">155  </span></a><span class="s1">function </span><span class="s0">addInfoPrompt(elements) {</span>
+<a name="l156"><span class="ln">156  </span></a>  <span class="s1">for </span><span class="s0">(let i = </span><span class="s4">0</span><span class="s0">; i &lt; elements.length; i++) {</span>
+<a name="l157"><span class="ln">157  </span></a>    <span class="s0">elements[i].innerHTML =</span>
+<a name="l158"><span class="ln">158  </span></a>      <span class="s3">&quot;&lt;p&gt;To switch between the interactive traceback and the plaintext &quot; </span><span class="s0">+</span>
+<a name="l159"><span class="ln">159  </span></a>      <span class="s3">'one, you can click on the &quot;Traceback&quot; headline. From the text ' </span><span class="s0">+</span>
+<a name="l160"><span class="ln">160  </span></a>      <span class="s3">&quot;traceback you can also create a paste of it. &quot; </span><span class="s0">+</span>
+<a name="l161"><span class="ln">161  </span></a>      <span class="s0">(!EVALEX</span>
+<a name="l162"><span class="ln">162  </span></a>        <span class="s0">? </span><span class="s3">&quot;&quot;</span>
+<a name="l163"><span class="ln">163  </span></a>        <span class="s0">: </span><span class="s3">&quot;For code execution mouse-over the frame you want to debug and &quot; </span><span class="s0">+</span>
+<a name="l164"><span class="ln">164  </span></a>          <span class="s3">&quot;click on the console icon on the right side.&quot; </span><span class="s0">+</span>
+<a name="l165"><span class="ln">165  </span></a>          <span class="s3">&quot;&lt;p&gt;You can execute arbitrary Python code in the stack frames and &quot; </span><span class="s0">+</span>
+<a name="l166"><span class="ln">166  </span></a>          <span class="s3">&quot;there are some extra helpers available for introspection:&quot; </span><span class="s0">+</span>
+<a name="l167"><span class="ln">167  </span></a>          <span class="s3">&quot;&lt;ul&gt;&lt;li&gt;&lt;code&gt;dump()&lt;/code&gt; shows all variables in the frame&quot; </span><span class="s0">+</span>
+<a name="l168"><span class="ln">168  </span></a>          <span class="s3">&quot;&lt;li&gt;&lt;code&gt;dump(obj)&lt;/code&gt; dumps all that's known about the object&lt;/ul&gt;&quot;</span><span class="s0">);</span>
+<a name="l169"><span class="ln">169  </span></a>    <span class="s0">elements[i].classList.remove(</span><span class="s3">&quot;nojavascript&quot;</span><span class="s0">);</span>
+<a name="l170"><span class="ln">170  </span></a>  <span class="s0">}</span>
+<a name="l171"><span class="ln">171  </span></a><span class="s0">}</span>
+<a name="l172"><span class="ln">172  </span></a>
+<a name="l173"><span class="ln">173  </span></a><span class="s1">function </span><span class="s0">addConsoleIconToFrames(frames) {</span>
+<a name="l174"><span class="ln">174  </span></a>  <span class="s1">for </span><span class="s0">(let i = </span><span class="s4">0</span><span class="s0">; i &lt; frames.length; i++) {</span>
+<a name="l175"><span class="ln">175  </span></a>    <span class="s0">let consoleNode = </span><span class="s1">null</span><span class="s0">;</span>
+<a name="l176"><span class="ln">176  </span></a>    <span class="s0">const target = frames[i];</span>
+<a name="l177"><span class="ln">177  </span></a>    <span class="s0">const frameID = frames[i].id.substring(</span><span class="s4">6</span><span class="s0">);</span>
+<a name="l178"><span class="ln">178  </span></a>
+<a name="l179"><span class="ln">179  </span></a>    <span class="s1">for </span><span class="s0">(let j = </span><span class="s4">0</span><span class="s0">; j &lt; target.getElementsByTagName(</span><span class="s3">&quot;pre&quot;</span><span class="s0">).length; j++) {</span>
+<a name="l180"><span class="ln">180  </span></a>      <span class="s0">const img = createIconForConsole();</span>
+<a name="l181"><span class="ln">181  </span></a>      <span class="s0">img.addEventListener(</span><span class="s3">&quot;click&quot;</span><span class="s0">, (e) =&gt; {</span>
+<a name="l182"><span class="ln">182  </span></a>        <span class="s0">e.stopPropagation();</span>
+<a name="l183"><span class="ln">183  </span></a>        <span class="s0">consoleNode = openShell(consoleNode, target, frameID);</span>
+<a name="l184"><span class="ln">184  </span></a>        <span class="s1">return false</span><span class="s0">;</span>
+<a name="l185"><span class="ln">185  </span></a>      <span class="s0">});</span>
+<a name="l186"><span class="ln">186  </span></a>      <span class="s0">target.getElementsByTagName(</span><span class="s3">&quot;pre&quot;</span><span class="s0">)[j].append(img);</span>
+<a name="l187"><span class="ln">187  </span></a>    <span class="s0">}</span>
+<a name="l188"><span class="ln">188  </span></a>  <span class="s0">}</span>
+<a name="l189"><span class="ln">189  </span></a><span class="s0">}</span>
+<a name="l190"><span class="ln">190  </span></a>
+<a name="l191"><span class="ln">191  </span></a><span class="s1">function </span><span class="s0">slideToggle(target) {</span>
+<a name="l192"><span class="ln">192  </span></a>  <span class="s0">target.classList.toggle(</span><span class="s3">&quot;active&quot;</span><span class="s0">);</span>
+<a name="l193"><span class="ln">193  </span></a><span class="s0">}</span>
+<a name="l194"><span class="ln">194  </span></a>
+<a name="l195"><span class="ln">195  </span></a><span class="s2">/** 
+<a name="l196"><span class="ln">196  </span></a> * toggle traceback types on click. 
+<a name="l197"><span class="ln">197  </span></a> */</span>
+<a name="l198"><span class="ln">198  </span></a><span class="s1">function </span><span class="s0">addToggleTraceTypesOnClick(elements) {</span>
+<a name="l199"><span class="ln">199  </span></a>  <span class="s1">for </span><span class="s0">(let i = </span><span class="s4">0</span><span class="s0">; i &lt; elements.length; i++) {</span>
+<a name="l200"><span class="ln">200  </span></a>    <span class="s0">elements[i].addEventListener(</span><span class="s3">&quot;click&quot;</span><span class="s0">, () =&gt; {</span>
+<a name="l201"><span class="ln">201  </span></a>      <span class="s0">document.querySelector(</span><span class="s3">&quot;div.traceback&quot;</span><span class="s0">).classList.toggle(</span><span class="s3">&quot;hidden&quot;</span><span class="s0">);</span>
+<a name="l202"><span class="ln">202  </span></a>      <span class="s0">document.querySelector(</span><span class="s3">&quot;div.plain&quot;</span><span class="s0">).classList.toggle(</span><span class="s3">&quot;hidden&quot;</span><span class="s0">);</span>
+<a name="l203"><span class="ln">203  </span></a>    <span class="s0">});</span>
+<a name="l204"><span class="ln">204  </span></a>    <span class="s0">elements[i].style.cursor = </span><span class="s3">&quot;pointer&quot;</span><span class="s0">;</span>
+<a name="l205"><span class="ln">205  </span></a>    <span class="s0">document.querySelector(</span><span class="s3">&quot;div.plain&quot;</span><span class="s0">).classList.toggle(</span><span class="s3">&quot;hidden&quot;</span><span class="s0">);</span>
+<a name="l206"><span class="ln">206  </span></a>  <span class="s0">}</span>
+<a name="l207"><span class="ln">207  </span></a><span class="s0">}</span>
+<a name="l208"><span class="ln">208  </span></a>
+<a name="l209"><span class="ln">209  </span></a><span class="s1">function </span><span class="s0">createConsole() {</span>
+<a name="l210"><span class="ln">210  </span></a>  <span class="s0">const consoleNode = document.createElement(</span><span class="s3">&quot;pre&quot;</span><span class="s0">);</span>
+<a name="l211"><span class="ln">211  </span></a>  <span class="s0">consoleNode.classList.add(</span><span class="s3">&quot;console&quot;</span><span class="s0">);</span>
+<a name="l212"><span class="ln">212  </span></a>  <span class="s0">consoleNode.classList.add(</span><span class="s3">&quot;active&quot;</span><span class="s0">);</span>
+<a name="l213"><span class="ln">213  </span></a>  <span class="s1">return </span><span class="s0">consoleNode;</span>
+<a name="l214"><span class="ln">214  </span></a><span class="s0">}</span>
+<a name="l215"><span class="ln">215  </span></a>
+<a name="l216"><span class="ln">216  </span></a><span class="s1">function </span><span class="s0">createConsoleOutput() {</span>
+<a name="l217"><span class="ln">217  </span></a>  <span class="s0">const output = document.createElement(</span><span class="s3">&quot;div&quot;</span><span class="s0">);</span>
+<a name="l218"><span class="ln">218  </span></a>  <span class="s0">output.classList.add(</span><span class="s3">&quot;output&quot;</span><span class="s0">);</span>
+<a name="l219"><span class="ln">219  </span></a>  <span class="s0">output.innerHTML = </span><span class="s3">&quot;[console ready]&quot;</span><span class="s0">;</span>
+<a name="l220"><span class="ln">220  </span></a>  <span class="s1">return </span><span class="s0">output;</span>
+<a name="l221"><span class="ln">221  </span></a><span class="s0">}</span>
+<a name="l222"><span class="ln">222  </span></a>
+<a name="l223"><span class="ln">223  </span></a><span class="s1">function </span><span class="s0">createConsoleInputForm() {</span>
+<a name="l224"><span class="ln">224  </span></a>  <span class="s0">const form = document.createElement(</span><span class="s3">&quot;form&quot;</span><span class="s0">);</span>
+<a name="l225"><span class="ln">225  </span></a>  <span class="s0">form.innerHTML = </span><span class="s3">&quot;&amp;gt;&amp;gt;&amp;gt; &quot;</span><span class="s0">;</span>
+<a name="l226"><span class="ln">226  </span></a>  <span class="s1">return </span><span class="s0">form;</span>
+<a name="l227"><span class="ln">227  </span></a><span class="s0">}</span>
+<a name="l228"><span class="ln">228  </span></a>
+<a name="l229"><span class="ln">229  </span></a><span class="s1">function </span><span class="s0">createConsoleInput() {</span>
+<a name="l230"><span class="ln">230  </span></a>  <span class="s0">const command = document.createElement(</span><span class="s3">&quot;input&quot;</span><span class="s0">);</span>
+<a name="l231"><span class="ln">231  </span></a>  <span class="s0">command.type = </span><span class="s3">&quot;text&quot;</span><span class="s0">;</span>
+<a name="l232"><span class="ln">232  </span></a>  <span class="s0">command.setAttribute(</span><span class="s3">&quot;autocomplete&quot;</span><span class="s0">, </span><span class="s3">&quot;off&quot;</span><span class="s0">);</span>
+<a name="l233"><span class="ln">233  </span></a>  <span class="s0">command.setAttribute(</span><span class="s3">&quot;spellcheck&quot;</span><span class="s0">, </span><span class="s1">false</span><span class="s0">);</span>
+<a name="l234"><span class="ln">234  </span></a>  <span class="s0">command.setAttribute(</span><span class="s3">&quot;autocapitalize&quot;</span><span class="s0">, </span><span class="s3">&quot;off&quot;</span><span class="s0">);</span>
+<a name="l235"><span class="ln">235  </span></a>  <span class="s0">command.setAttribute(</span><span class="s3">&quot;autocorrect&quot;</span><span class="s0">, </span><span class="s3">&quot;off&quot;</span><span class="s0">);</span>
+<a name="l236"><span class="ln">236  </span></a>  <span class="s1">return </span><span class="s0">command;</span>
+<a name="l237"><span class="ln">237  </span></a><span class="s0">}</span>
+<a name="l238"><span class="ln">238  </span></a>
+<a name="l239"><span class="ln">239  </span></a><span class="s1">function </span><span class="s0">createIconForConsole() {</span>
+<a name="l240"><span class="ln">240  </span></a>  <span class="s0">const img = document.createElement(</span><span class="s3">&quot;img&quot;</span><span class="s0">);</span>
+<a name="l241"><span class="ln">241  </span></a>  <span class="s0">img.setAttribute(</span><span class="s3">&quot;src&quot;</span><span class="s0">, makeDebugURL({cmd: </span><span class="s3">&quot;resource&quot;</span><span class="s0">, f: </span><span class="s3">&quot;console.png&quot;</span><span class="s0">}));</span>
+<a name="l242"><span class="ln">242  </span></a>  <span class="s0">img.setAttribute(</span><span class="s3">&quot;title&quot;</span><span class="s0">, </span><span class="s3">&quot;Open an interactive python shell in this frame&quot;</span><span class="s0">);</span>
+<a name="l243"><span class="ln">243  </span></a>  <span class="s1">return </span><span class="s0">img;</span>
+<a name="l244"><span class="ln">244  </span></a><span class="s0">}</span>
+<a name="l245"><span class="ln">245  </span></a>
+<a name="l246"><span class="ln">246  </span></a><span class="s1">function </span><span class="s0">createExpansionButtonForConsole() {</span>
+<a name="l247"><span class="ln">247  </span></a>  <span class="s0">const expansionButton = document.createElement(</span><span class="s3">&quot;a&quot;</span><span class="s0">);</span>
+<a name="l248"><span class="ln">248  </span></a>  <span class="s0">expansionButton.setAttribute(</span><span class="s3">&quot;href&quot;</span><span class="s0">, </span><span class="s3">&quot;#&quot;</span><span class="s0">);</span>
+<a name="l249"><span class="ln">249  </span></a>  <span class="s0">expansionButton.setAttribute(</span><span class="s3">&quot;class&quot;</span><span class="s0">, </span><span class="s3">&quot;toggle&quot;</span><span class="s0">);</span>
+<a name="l250"><span class="ln">250  </span></a>  <span class="s0">expansionButton.innerHTML = </span><span class="s3">&quot;&amp;nbsp;&amp;nbsp;&quot;</span><span class="s0">;</span>
+<a name="l251"><span class="ln">251  </span></a>  <span class="s1">return </span><span class="s0">expansionButton;</span>
+<a name="l252"><span class="ln">252  </span></a><span class="s0">}</span>
+<a name="l253"><span class="ln">253  </span></a>
+<a name="l254"><span class="ln">254  </span></a><span class="s1">function </span><span class="s0">createInteractiveConsole() {</span>
+<a name="l255"><span class="ln">255  </span></a>  <span class="s0">const target = document.querySelector(</span><span class="s3">&quot;div.console div.inner&quot;</span><span class="s0">);</span>
+<a name="l256"><span class="ln">256  </span></a>  <span class="s1">while </span><span class="s0">(target.firstChild) {</span>
+<a name="l257"><span class="ln">257  </span></a>    <span class="s0">target.removeChild(target.firstChild);</span>
+<a name="l258"><span class="ln">258  </span></a>  <span class="s0">}</span>
+<a name="l259"><span class="ln">259  </span></a>  <span class="s0">openShell(</span><span class="s1">null</span><span class="s0">, target, </span><span class="s4">0</span><span class="s0">);</span>
+<a name="l260"><span class="ln">260  </span></a><span class="s0">}</span>
+<a name="l261"><span class="ln">261  </span></a>
+<a name="l262"><span class="ln">262  </span></a><span class="s1">function </span><span class="s0">handleConsoleSubmit(e, command, frameID) {</span>
+<a name="l263"><span class="ln">263  </span></a>  <span class="s2">// Prevent page from refreshing.</span>
+<a name="l264"><span class="ln">264  </span></a>  <span class="s0">e.preventDefault();</span>
+<a name="l265"><span class="ln">265  </span></a>
+<a name="l266"><span class="ln">266  </span></a>  <span class="s1">return new </span><span class="s0">Promise((resolve) =&gt; {</span>
+<a name="l267"><span class="ln">267  </span></a>    <span class="s0">fetch(makeDebugURL({cmd: command.value, frm: frameID}))</span>
+<a name="l268"><span class="ln">268  </span></a>      <span class="s0">.then((res) =&gt; {</span>
+<a name="l269"><span class="ln">269  </span></a>        <span class="s1">return </span><span class="s0">res.text();</span>
+<a name="l270"><span class="ln">270  </span></a>      <span class="s0">})</span>
+<a name="l271"><span class="ln">271  </span></a>      <span class="s0">.then((data) =&gt; {</span>
+<a name="l272"><span class="ln">272  </span></a>        <span class="s0">const tmp = document.createElement(</span><span class="s3">&quot;div&quot;</span><span class="s0">);</span>
+<a name="l273"><span class="ln">273  </span></a>        <span class="s0">tmp.innerHTML = data;</span>
+<a name="l274"><span class="ln">274  </span></a>        <span class="s0">resolve(tmp);</span>
+<a name="l275"><span class="ln">275  </span></a>
+<a name="l276"><span class="ln">276  </span></a>        <span class="s2">// Handle expandable span for long list outputs.</span>
+<a name="l277"><span class="ln">277  </span></a>        <span class="s2">// Example to test: list(range(13))</span>
+<a name="l278"><span class="ln">278  </span></a>        <span class="s0">let wrapperAdded = </span><span class="s1">false</span><span class="s0">;</span>
+<a name="l279"><span class="ln">279  </span></a>        <span class="s0">const wrapperSpan = document.createElement(</span><span class="s3">&quot;span&quot;</span><span class="s0">);</span>
+<a name="l280"><span class="ln">280  </span></a>        <span class="s0">const expansionButton = createExpansionButtonForConsole();</span>
+<a name="l281"><span class="ln">281  </span></a>
+<a name="l282"><span class="ln">282  </span></a>        <span class="s0">tmp.querySelectorAll(</span><span class="s3">&quot;span.extended&quot;</span><span class="s0">).forEach((spanToWrap) =&gt; {</span>
+<a name="l283"><span class="ln">283  </span></a>          <span class="s0">const parentDiv = spanToWrap.parentNode;</span>
+<a name="l284"><span class="ln">284  </span></a>          <span class="s1">if </span><span class="s0">(!wrapperAdded) {</span>
+<a name="l285"><span class="ln">285  </span></a>            <span class="s0">parentDiv.insertBefore(wrapperSpan, spanToWrap);</span>
+<a name="l286"><span class="ln">286  </span></a>            <span class="s0">wrapperAdded = </span><span class="s1">true</span><span class="s0">;</span>
+<a name="l287"><span class="ln">287  </span></a>          <span class="s0">}</span>
+<a name="l288"><span class="ln">288  </span></a>          <span class="s0">parentDiv.removeChild(spanToWrap);</span>
+<a name="l289"><span class="ln">289  </span></a>          <span class="s0">wrapperSpan.append(spanToWrap);</span>
+<a name="l290"><span class="ln">290  </span></a>          <span class="s0">spanToWrap.hidden = </span><span class="s1">true</span><span class="s0">;</span>
+<a name="l291"><span class="ln">291  </span></a>
+<a name="l292"><span class="ln">292  </span></a>          <span class="s0">expansionButton.addEventListener(</span><span class="s3">&quot;click&quot;</span><span class="s0">, (event) =&gt; {</span>
+<a name="l293"><span class="ln">293  </span></a>            <span class="s0">event.preventDefault();</span>
+<a name="l294"><span class="ln">294  </span></a>            <span class="s0">spanToWrap.hidden = !spanToWrap.hidden;</span>
+<a name="l295"><span class="ln">295  </span></a>            <span class="s0">expansionButton.classList.toggle(</span><span class="s3">&quot;open&quot;</span><span class="s0">);</span>
+<a name="l296"><span class="ln">296  </span></a>            <span class="s1">return false</span><span class="s0">;</span>
+<a name="l297"><span class="ln">297  </span></a>          <span class="s0">});</span>
+<a name="l298"><span class="ln">298  </span></a>        <span class="s0">});</span>
+<a name="l299"><span class="ln">299  </span></a>
+<a name="l300"><span class="ln">300  </span></a>        <span class="s2">// Add expansion button at end of wrapper.</span>
+<a name="l301"><span class="ln">301  </span></a>        <span class="s1">if </span><span class="s0">(wrapperAdded) {</span>
+<a name="l302"><span class="ln">302  </span></a>          <span class="s0">wrapperSpan.append(expansionButton);</span>
+<a name="l303"><span class="ln">303  </span></a>        <span class="s0">}</span>
+<a name="l304"><span class="ln">304  </span></a>      <span class="s0">})</span>
+<a name="l305"><span class="ln">305  </span></a>      <span class="s0">.</span><span class="s1">catch</span><span class="s0">((err) =&gt; {</span>
+<a name="l306"><span class="ln">306  </span></a>        <span class="s0">console.error(err);</span>
+<a name="l307"><span class="ln">307  </span></a>      <span class="s0">});</span>
+<a name="l308"><span class="ln">308  </span></a>    <span class="s1">return false</span><span class="s0">;</span>
+<a name="l309"><span class="ln">309  </span></a>  <span class="s0">});</span>
+<a name="l310"><span class="ln">310  </span></a><span class="s0">}</span>
+<a name="l311"><span class="ln">311  </span></a>
+<a name="l312"><span class="ln">312  </span></a><span class="s1">function </span><span class="s0">fadeOut(element) {</span>
+<a name="l313"><span class="ln">313  </span></a>  <span class="s0">element.style.opacity = </span><span class="s4">1</span><span class="s0">;</span>
+<a name="l314"><span class="ln">314  </span></a>
+<a name="l315"><span class="ln">315  </span></a>  <span class="s0">(</span><span class="s1">function </span><span class="s0">fade() {</span>
+<a name="l316"><span class="ln">316  </span></a>    <span class="s0">element.style.opacity -= </span><span class="s4">0.1</span><span class="s0">;</span>
+<a name="l317"><span class="ln">317  </span></a>    <span class="s1">if </span><span class="s0">(element.style.opacity &lt; </span><span class="s4">0</span><span class="s0">) {</span>
+<a name="l318"><span class="ln">318  </span></a>      <span class="s0">element.style.display = </span><span class="s3">&quot;none&quot;</span><span class="s0">;</span>
+<a name="l319"><span class="ln">319  </span></a>    <span class="s0">} </span><span class="s1">else </span><span class="s0">{</span>
+<a name="l320"><span class="ln">320  </span></a>      <span class="s0">requestAnimationFrame(fade);</span>
+<a name="l321"><span class="ln">321  </span></a>    <span class="s0">}</span>
+<a name="l322"><span class="ln">322  </span></a>  <span class="s0">})();</span>
+<a name="l323"><span class="ln">323  </span></a><span class="s0">}</span>
+<a name="l324"><span class="ln">324  </span></a>
+<a name="l325"><span class="ln">325  </span></a><span class="s1">function </span><span class="s0">fadeIn(element, display) {</span>
+<a name="l326"><span class="ln">326  </span></a>  <span class="s0">element.style.opacity = </span><span class="s4">0</span><span class="s0">;</span>
+<a name="l327"><span class="ln">327  </span></a>  <span class="s0">element.style.display = display || </span><span class="s3">&quot;block&quot;</span><span class="s0">;</span>
+<a name="l328"><span class="ln">328  </span></a>
+<a name="l329"><span class="ln">329  </span></a>  <span class="s0">(</span><span class="s1">function </span><span class="s0">fade() {</span>
+<a name="l330"><span class="ln">330  </span></a>    <span class="s0">let val = parseFloat(element.style.opacity) + </span><span class="s4">0.1</span><span class="s0">;</span>
+<a name="l331"><span class="ln">331  </span></a>    <span class="s1">if </span><span class="s0">(val &lt;= </span><span class="s4">1</span><span class="s0">) {</span>
+<a name="l332"><span class="ln">332  </span></a>      <span class="s0">element.style.opacity = val;</span>
+<a name="l333"><span class="ln">333  </span></a>      <span class="s0">requestAnimationFrame(fade);</span>
+<a name="l334"><span class="ln">334  </span></a>    <span class="s0">}</span>
+<a name="l335"><span class="ln">335  </span></a>  <span class="s0">})();</span>
+<a name="l336"><span class="ln">336  </span></a><span class="s0">}</span>
+<a name="l337"><span class="ln">337  </span></a>
+<a name="l338"><span class="ln">338  </span></a><span class="s1">function </span><span class="s0">docReady(fn) {</span>
+<a name="l339"><span class="ln">339  </span></a>  <span class="s1">if </span><span class="s0">(document.readyState === </span><span class="s3">&quot;complete&quot; </span><span class="s0">|| document.readyState === </span><span class="s3">&quot;interactive&quot;</span><span class="s0">) {</span>
+<a name="l340"><span class="ln">340  </span></a>    <span class="s0">setTimeout(fn, </span><span class="s4">1</span><span class="s0">);</span>
+<a name="l341"><span class="ln">341  </span></a>  <span class="s0">} </span><span class="s1">else </span><span class="s0">{</span>
+<a name="l342"><span class="ln">342  </span></a>    <span class="s0">document.addEventListener(</span><span class="s3">&quot;DOMContentLoaded&quot;</span><span class="s0">, fn);</span>
+<a name="l343"><span class="ln">343  </span></a>  <span class="s0">}</span>
+<a name="l344"><span class="ln">344  </span></a><span class="s0">}</span>
+<a name="l345"><span class="ln">345  </span></a></pre>
+</body>
+</html>

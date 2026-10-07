@@ -1,0 +1,53 @@
+<html>
+<head>
+<title>greenlet_thread_support.hpp</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #7a7e85;}
+.s3 { color: #6aab73;}
+.s4 { color: #c77dbb;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+greenlet_thread_support.hpp</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">#ifndef </span><span class="s1">GREENLET_THREAD_SUPPORT_HPP</span>
+<a name="l2"><span class="ln">2    </span></a><span class="s0">#define </span><span class="s1">GREENLET_THREAD_SUPPORT_HPP</span>
+<a name="l3"><span class="ln">3    </span></a>
+<a name="l4"><span class="ln">4    </span></a><span class="s2">/** 
+<a name="l5"><span class="ln">5    </span></a> * Defines various utility functions to help greenlet integrate well 
+<a name="l6"><span class="ln">6    </span></a> * with threads. This used to be needed when we supported Python 
+<a name="l7"><span class="ln">7    </span></a> * 2.7 on Windows, which used a very old compiler. We wrote an 
+<a name="l8"><span class="ln">8    </span></a> * alternative implementation using Python APIs and POSIX or Windows 
+<a name="l9"><span class="ln">9    </span></a> * APIs, but that's no longer needed. So this file is a shadow of its 
+<a name="l10"><span class="ln">10   </span></a> * former self --- but may be needed in the future. 
+<a name="l11"><span class="ln">11   </span></a> */</span>
+<a name="l12"><span class="ln">12   </span></a>
+<a name="l13"><span class="ln">13   </span></a><span class="s0">#include </span><span class="s1">&lt;stdexcept&gt;</span>
+<a name="l14"><span class="ln">14   </span></a><span class="s0">#include </span><span class="s1">&lt;thread&gt;</span>
+<a name="l15"><span class="ln">15   </span></a><span class="s0">#include </span><span class="s1">&lt;mutex&gt;</span>
+<a name="l16"><span class="ln">16   </span></a>
+<a name="l17"><span class="ln">17   </span></a><span class="s0">#include </span><span class="s3">&quot;greenlet_compiler_compat.hpp&quot;</span>
+<a name="l18"><span class="ln">18   </span></a>
+<a name="l19"><span class="ln">19   </span></a><span class="s4">namespace </span><span class="s1">greenlet {</span>
+<a name="l20"><span class="ln">20   </span></a>    <span class="s0">typedef </span><span class="s1">std::mutex Mutex;</span>
+<a name="l21"><span class="ln">21   </span></a>    <span class="s0">typedef </span><span class="s1">std::lock_guard&lt;Mutex&gt; LockGuard;</span>
+<a name="l22"><span class="ln">22   </span></a>    <span class="s4">class </span><span class="s1">LockInitError : </span><span class="s4">public </span><span class="s1">std::runtime_error</span>
+<a name="l23"><span class="ln">23   </span></a>    <span class="s1">{</span>
+<a name="l24"><span class="ln">24   </span></a>    <span class="s4">public</span><span class="s1">:</span>
+<a name="l25"><span class="ln">25   </span></a>        <span class="s1">LockInitError(</span><span class="s0">const char</span><span class="s1">* what) : std::runtime_error(what)</span>
+<a name="l26"><span class="ln">26   </span></a>        <span class="s1">{};</span>
+<a name="l27"><span class="ln">27   </span></a>    <span class="s1">};</span>
+<a name="l28"><span class="ln">28   </span></a><span class="s1">};</span>
+<a name="l29"><span class="ln">29   </span></a>
+<a name="l30"><span class="ln">30   </span></a>
+<a name="l31"><span class="ln">31   </span></a><span class="s0">#endif </span><span class="s2">/* GREENLET_THREAD_SUPPORT_HPP */</span>
+<a name="l32"><span class="ln">32   </span></a></pre>
+</body>
+</html>

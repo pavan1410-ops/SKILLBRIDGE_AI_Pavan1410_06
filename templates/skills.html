@@ -1,0 +1,836 @@
+{% extends "base.html" %}
+
+{% block title %}My Skills - SkillBridge AI{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
+
+    <div class="mb-4">
+
+        <h1>
+            🛠️ My Skills
+        </h1>
+
+        <p class="text-muted">
+            Add and manage your technical and professional skills.
+            Your skills are used by SkillBridge AI for career recommendations,
+            skill-gap analysis, job matching and personalized learning paths.
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         FLASH MESSAGES
+         ===================================================== -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div
+                    class="alert alert-{{ category }} alert-dismissible fade show"
+                    role="alert"
+                >
+
+                    {{ message }}
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                    ></button>
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- =====================================================
+         ADD SKILL
+         ===================================================== -->
+
+    <div class="card mb-4">
+
+        <div class="card-header">
+
+            <h4 class="mb-0">
+                ➕ Add a Skill
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <form
+                method="POST"
+                action="{{ url_for('student.skills') }}"
+            >
+
+                <div class="row">
+
+
+                    <!-- =========================================
+                         SKILL NAME
+                         ========================================= -->
+
+                    <div class="col-md-4 mb-3">
+
+                        <label
+                            for="skill_name"
+                            class="form-label"
+                        >
+                            Skill Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="skill_name"
+                            name="skill_name"
+                            class="form-control"
+                            placeholder="Example: Python"
+                            required
+                        >
+
+                        <small class="text-muted">
+                            Enter a technical or professional skill.
+                        </small>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         PROFICIENCY
+                         ========================================= -->
+
+                    <div class="col-md-3 mb-3">
+
+                        <label
+                            for="proficiency"
+                            class="form-label"
+                        >
+                            Proficiency
+                        </label>
+
+                        <input
+                            type="number"
+                            id="proficiency"
+                            name="proficiency"
+                            class="form-control"
+                            min="0"
+                            max="100"
+                            value="50"
+                            required
+                        >
+
+                        <small class="text-muted">
+                            Enter a value from 0 to 100.
+                        </small>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         LEARNING SOURCE
+                         ========================================= -->
+
+                    <div class="col-md-3 mb-3">
+
+                        <label
+                            for="source"
+                            class="form-label"
+                        >
+                            Learning Source
+                        </label>
+
+                        <select
+                            id="source"
+                            name="source"
+                            class="form-select"
+                            required
+                        >
+
+                            <option
+                                value="Self-Learned"
+                                selected
+                            >
+                                🧠 Self-Learned
+                            </option>
+
+                            <option value="Online Course">
+                                💻 Online Course
+                            </option>
+
+                            <option value="College / Academic">
+                                🎓 College / Academic
+                            </option>
+
+                            <option value="Certification">
+                                📜 Certification
+                            </option>
+
+                            <option value="Project">
+                                🛠️ Project
+                            </option>
+
+                            <option value="Internship">
+                                💼 Internship
+                            </option>
+
+                            <option value="Other">
+                                📌 Other
+                            </option>
+
+                        </select>
+
+                        <small class="text-muted">
+                            How did you learn this skill?
+                        </small>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         ADD BUTTON
+                         ========================================= -->
+
+                    <div
+                        class="col-md-2 mb-3 d-flex align-items-end"
+                    >
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary w-100"
+                        >
+                            Add Skill
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CURRENT SKILLS
+         ===================================================== -->
+
+    <div class="card mb-4">
+
+        <div class="card-header">
+
+            <h4 class="mb-0">
+                📋 My Current Skills
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+            {% if student_skills %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Skill
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Proficiency
+                                </th>
+
+                                <th>
+                                    Learning Source
+                                </th>
+
+                                <th>
+                                    Progress
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        {% for item in student_skills %}
+
+                            <tr>
+
+                                <!-- =================================
+                                     NUMBER
+                                     ================================= -->
+
+                                <td>
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <!-- =================================
+                                     SKILL
+                                     ================================= -->
+
+                                <td>
+
+                                    {% if item.skill %}
+
+                                        <strong>
+                                            {{ item.skill.name }}
+                                        </strong>
+
+                                    {% else %}
+
+                                        <span class="text-muted">
+                                            Unknown Skill
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- =================================
+                                     CATEGORY
+                                     ================================= -->
+
+                                <td>
+
+                                    {% if item.skill %}
+
+                                        {{ item.skill.category or "General" }}
+
+                                    {% else %}
+
+                                        General
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- =================================
+                                     PROFICIENCY
+                                     ================================= -->
+
+                                <td>
+
+                                    <strong>
+                                        {{ item.proficiency or 0 }}%
+                                    </strong>
+
+                                </td>
+
+
+                                <!-- =================================
+                                     LEARNING SOURCE
+                                     ================================= -->
+
+                                <td>
+
+                                    {% if item.source == "Self-Learned" %}
+
+                                        <span class="badge bg-secondary">
+                                            🧠 Self-Learned
+                                        </span>
+
+                                    {% elif item.source == "Online Course" %}
+
+                                        <span class="badge bg-primary">
+                                            💻 Online Course
+                                        </span>
+
+                                    {% elif item.source == "College / Academic" %}
+
+                                        <span class="badge bg-info text-dark">
+                                            🎓 College / Academic
+                                        </span>
+
+                                    {% elif item.source == "Certification" %}
+
+                                        <span class="badge bg-success">
+                                            📜 Certification
+                                        </span>
+
+                                    {% elif item.source == "Project" %}
+
+                                        <span class="badge bg-warning text-dark">
+                                            🛠️ Project
+                                        </span>
+
+                                    {% elif item.source == "Internship" %}
+
+                                        <span class="badge bg-dark">
+                                            💼 Internship
+                                        </span>
+
+                                    {% elif item.source == "Other" %}
+
+                                        <span class="badge bg-light text-dark border">
+                                            📌 Other
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge bg-secondary">
+                                            🧠 Self-Learned
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- =================================
+                                     PROGRESS
+                                     ================================= -->
+
+                                <td style="min-width: 150px;">
+
+                                    <div
+                                        class="progress"
+                                        style="height: 22px;"
+                                    >
+
+                                        <div
+                                            class="progress-bar"
+                                            role="progressbar"
+                                            style="width: {{ item.proficiency or 0 }}%;"
+                                            aria-valuenow="{{ item.proficiency or 0 }}"
+                                            aria-valuemin="0"
+                                            aria-valuemax="100"
+                                        >
+
+                                            {{ item.proficiency or 0 }}%
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =================================
+                                     DELETE
+                                     ================================= -->
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'student.delete_skill',
+                                            student_skill_id=item.id
+                                        ) }}"
+                                        onsubmit="return confirm(
+                                            'Are you sure you want to remove this skill?'
+                                        );"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                        >
+                                            🗑️ Delete
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <!-- =============================================
+                     EMPTY STATE
+                     ============================================= -->
+
+                <div class="text-center py-5">
+
+                    <div style="font-size: 50px;">
+                        🛠️
+                    </div>
+
+                    <h5 class="mt-3">
+                        No skills added yet.
+                    </h5>
+
+                    <p class="text-muted">
+                        Add your first skill above to start building
+                        your SkillBridge AI career profile.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         LEARNING SOURCE INFORMATION
+         ===================================================== -->
+
+    <div class="card mb-4">
+
+        <div class="card-header">
+
+            <h4 class="mb-0">
+                📚 Skill Learning Sources
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row text-center">
+
+
+                <!-- =============================================
+                     SELF LEARNED
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        🧠
+                    </h2>
+
+                    <h5>
+                        Self-Learned
+                    </h5>
+
+                    <p class="text-muted">
+                        Skills developed through independent
+                        practice, tutorials or personal study.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     ONLINE COURSE
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        💻
+                    </h2>
+
+                    <h5>
+                        Online Course
+                    </h5>
+
+                    <p class="text-muted">
+                        Skills learned through online courses
+                        and training platforms.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     ACADEMIC
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        🎓
+                    </h2>
+
+                    <h5>
+                        College / Academic
+                    </h5>
+
+                    <p class="text-muted">
+                        Skills learned through academic
+                        subjects and college education.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     CERTIFICATION
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        📜
+                    </h2>
+
+                    <h5>
+                        Certification
+                    </h5>
+
+                    <p class="text-muted">
+                        Skills supported by professional
+                        certification or formal training.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     PROJECT
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        🛠️
+                    </h2>
+
+                    <h5>
+                        Project
+                    </h5>
+
+                    <p class="text-muted">
+                        Skills developed while building
+                        academic or personal projects.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     INTERNSHIP
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        💼
+                    </h2>
+
+                    <h5>
+                        Internship
+                    </h5>
+
+                    <p class="text-muted">
+                        Skills gained through internship
+                        or practical industry experience.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     OTHER
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        📌
+                    </h2>
+
+                    <h5>
+                        Other
+                    </h5>
+
+                    <p class="text-muted">
+                        Any other valid way in which
+                        the skill was acquired.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HOW SKILLS ARE USED
+         ===================================================== -->
+
+    <div class="card mb-5">
+
+        <div class="card-header">
+
+            <h4 class="mb-0">
+                🤖 How SkillBridge AI Uses Your Skills
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row text-center">
+
+
+                <!-- =============================================
+                     CAREER MATCH
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        🎯
+                    </h2>
+
+                    <h5>
+                        Career Match
+                    </h5>
+
+                    <p class="text-muted">
+                        Your skills are compared with
+                        career requirements.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     SKILL GAP
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        📉
+                    </h2>
+
+                    <h5>
+                        Skill Gap
+                    </h5>
+
+                    <p class="text-muted">
+                        Missing or weak skills are identified.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     LEARNING PATH
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        📚
+                    </h2>
+
+                    <h5>
+                        Learning Path
+                    </h5>
+
+                    <p class="text-muted">
+                        Learning priorities are generated
+                        from your skill gaps.
+                    </p>
+
+                </div>
+
+
+                <!-- =============================================
+                     READINESS
+                     ============================================= -->
+
+                <div class="col-md-3 mb-4">
+
+                    <h2>
+                        📊
+                    </h2>
+
+                    <h5>
+                        Career Readiness
+                    </h5>
+
+                    <p class="text-muted">
+                        Your career readiness score
+                        is calculated from your profile.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SELF-LEARNED INFORMATION
+         ===================================================== -->
+
+    <div
+        class="alert alert-info mb-5"
+        role="alert"
+    >
+
+        <h5>
+            💡 Self-Learned Skills
+        </h5>
+
+        <p class="mb-0">
+            You can add skills learned independently through
+            practice, YouTube, books, personal projects,
+            documentation, or other self-learning methods.
+            These skills are included in your SkillBridge AI
+            career analysis just like skills learned through
+            formal courses.
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

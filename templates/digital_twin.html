@@ -1,0 +1,2899 @@
+{% extends "base.html" %}
+
+{% block title %}
+AI Career Digital Twin | SkillBridge AI
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   SKILLBRIDGE AI — DIGITAL TWIN COMMAND CENTER
+========================================================= */
+
+.digital-twin-page {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 15px 0 70px;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.dt-hero {
+
+    position: relative;
+    overflow: hidden;
+
+    min-height: 275px;
+
+    padding: 38px;
+
+    margin-bottom: 22px;
+
+    border-radius: 28px;
+
+    background:
+        radial-gradient(
+            circle at 78% 35%,
+            rgba(167,139,250,.17),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 90% 90%,
+            rgba(56,189,248,.10),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #080d18,
+            #10172a 60%,
+            #0a1423
+        );
+
+    border:
+        1px solid rgba(167,139,250,.16);
+
+    box-shadow:
+        0 28px 75px rgba(0,0,0,.32);
+}
+
+
+/* digital grid */
+
+.dt-hero::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background-image:
+        linear-gradient(
+            rgba(148,163,184,.055) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(148,163,184,.055) 1px,
+            transparent 1px
+        );
+
+    background-size: 34px 34px;
+
+    opacity: .35;
+
+    mask-image:
+        linear-gradient(
+            to right,
+            transparent,
+            black 35%,
+            black
+        );
+}
+
+
+.dt-hero-content {
+
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 760px;
+}
+
+
+.dt-eyebrow {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 7px 13px;
+
+    margin-bottom: 16px;
+
+    border-radius: 999px;
+
+    color: #c4b5fd;
+
+    background:
+        rgba(167,139,250,.07);
+
+    border:
+        1px solid rgba(167,139,250,.17);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.4px;
+
+    text-transform: uppercase;
+}
+
+
+.dt-hero h1 {
+
+    margin: 0;
+
+    color: #f8fafc;
+
+    font-size: clamp(30px, 4vw, 44px);
+
+    font-weight: 850;
+
+    letter-spacing: -1.4px;
+}
+
+
+.dt-hero h1 span {
+
+    color: #a78bfa;
+}
+
+
+.dt-hero p {
+
+    max-width: 690px;
+
+    margin: 13px 0 0;
+
+    color: #91a3bb;
+
+    line-height: 1.75;
+
+    font-size: 13px;
+}
+
+
+/* AI core */
+
+.dt-core {
+
+    position: absolute;
+
+    right: 75px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    width: 145px;
+
+    height: 145px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(167,139,250,.22),
+            rgba(56,189,248,.06) 48%,
+            transparent 70%
+        );
+
+    border:
+        1px solid rgba(167,139,250,.24);
+
+    box-shadow:
+        0 0 55px rgba(167,139,250,.12);
+
+    font-size: 48px;
+}
+
+
+.dt-core::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -15px;
+
+    border:
+        1px solid rgba(167,139,250,.16);
+
+    border-radius: 50%;
+}
+
+
+.dt-core::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -31px;
+
+    border:
+        1px dashed rgba(56,189,248,.13);
+
+    border-radius: 50%;
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.dt-section {
+
+    margin-bottom: 22px;
+}
+
+
+.dt-section-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin: 30px 2px 14px;
+}
+
+
+.dt-section-title h2 {
+
+    margin: 0;
+
+    color: #e7eef8;
+
+    font-size: 18px;
+
+    font-weight: 760;
+}
+
+
+.dt-section-title span {
+
+    margin-left: auto;
+
+    color: #60738c;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+.dt-profile {
+
+    padding: 24px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(15,23,42,.76);
+
+    border:
+        1px solid rgba(148,163,184,.10);
+
+    box-shadow:
+        0 15px 38px rgba(0,0,0,.16);
+}
+
+
+.dt-profile-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 10px;
+}
+
+
+.dt-profile-item {
+
+    padding: 15px;
+
+    min-height: 78px;
+
+    border-radius: 13px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border:
+        1px solid rgba(148,163,184,.07);
+}
+
+
+.dt-profile-item strong {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #647892;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .6px;
+}
+
+
+.dt-profile-item {
+
+    color: #d8e2ef;
+
+    font-size: 12px;
+
+    word-break: break-word;
+}
+
+
+.dt-profile-item a {
+
+    color: #38bdf8;
+
+    text-decoration: none;
+
+    font-weight: 700;
+}
+
+
+.dt-profile-item a:hover {
+
+    color: #7dd3fc;
+}
+
+
+/* =========================================================
+   PROFESSIONAL PROFILE
+========================================================= */
+
+.dt-linkedin {
+
+    padding: 20px;
+
+    border-radius: 17px;
+
+    border:
+        1px solid rgba(56,189,248,.13);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(56,189,248,.045),
+            rgba(15,23,42,.65)
+        );
+}
+
+
+.dt-linkedin h3 {
+
+    margin: 0 0 8px;
+
+    color: #7dd3fc;
+
+    font-size: 16px;
+}
+
+
+.dt-linkedin p {
+
+    margin: 0 0 15px;
+
+    color: #71839c;
+
+    font-size: 12px;
+
+    word-break: break-all;
+}
+
+
+.dt-linkedin-button {
+
+    display: inline-flex;
+
+    padding: 10px 15px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #0ea5e9
+        );
+
+    border-radius: 9px;
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+
+.dt-linkedin-button:hover {
+
+    color: white;
+
+    transform:
+        translateY(-1px);
+}
+
+
+.dt-linkedin-empty {
+
+    padding: 20px;
+
+    border-radius: 17px;
+
+    background:
+        rgba(245,158,11,.045);
+
+    border:
+        1px solid rgba(245,158,11,.13);
+}
+
+
+.dt-linkedin-empty h3 {
+
+    margin: 0 0 7px;
+
+    color: #fbbf24;
+
+    font-size: 16px;
+}
+
+
+.dt-linkedin-empty p {
+
+    color: #71839c;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+
+.dt-linkedin-add {
+
+    display: inline-flex;
+
+    margin-top: 12px;
+
+    padding: 10px 15px;
+
+    color: #fff;
+
+    background:
+        #d97706;
+
+    border-radius: 9px;
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   KPI GRID
+========================================================= */
+
+.dt-kpi-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 14px;
+}
+
+
+.dt-kpi {
+
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 21px;
+
+    min-height: 135px;
+
+    border-radius: 18px;
+
+    background:
+        rgba(15,23,42,.78);
+
+    border:
+        1px solid rgba(148,163,184,.10);
+}
+
+
+.dt-kpi::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 100px;
+
+    height: 100px;
+
+    right: -50px;
+
+    bottom: -50px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(167,139,250,.06);
+}
+
+
+.dt-kpi-label {
+
+    color: #647892;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    text-transform: uppercase;
+
+    letter-spacing: .7px;
+}
+
+
+.dt-kpi-value {
+
+    margin-top: 9px;
+
+    color: #f1f5f9;
+
+    font-size: 27px;
+
+    font-weight: 850;
+}
+
+
+.dt-kpi-sub {
+
+    margin-top: 5px;
+
+    color: #52657d;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   READINESS
+========================================================= */
+
+.dt-readiness-panel {
+
+    display: grid;
+
+    grid-template-columns:
+        175px 1fr;
+
+    align-items: center;
+
+    gap: 30px;
+
+    padding: 28px;
+
+    border-radius: 21px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(15,23,42,.92),
+            rgba(10,18,32,.80)
+        );
+
+    border:
+        1px solid rgba(52,211,153,.13);
+}
+
+
+.readiness-circle {
+
+    position: relative;
+
+    width: 145px;
+
+    height: 145px;
+
+    margin: auto;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        conic-gradient(
+            #34d399
+            calc(var(--score) * 1%),
+            rgba(148,163,184,.09)
+            0
+        );
+}
+
+
+.readiness-circle::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 11px;
+
+    border-radius: 50%;
+
+    background:
+        #0b1322;
+
+    border:
+        1px solid rgba(148,163,184,.08);
+}
+
+
+.readiness-number {
+
+    position: relative;
+
+    z-index: 2;
+
+    text-align: center;
+}
+
+
+.readiness-number strong {
+
+    display: block;
+
+    color: #f1f5f9;
+
+    font-size: 29px;
+
+    font-weight: 850;
+}
+
+
+.readiness-number span {
+
+    color: #647892;
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+}
+
+
+.dt-readiness-info h3 {
+
+    margin: 0 0 8px;
+
+    color: #e7eef8;
+
+    font-size: 20px;
+}
+
+
+.dt-readiness-info p {
+
+    margin: 0;
+
+    color: #71839c;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+
+.dt-status {
+
+    display: inline-flex;
+
+    margin-top: 13px;
+
+    padding: 7px 11px;
+
+    color: #34d399;
+
+    background:
+        rgba(52,211,153,.07);
+
+    border:
+        1px solid rgba(52,211,153,.15);
+
+    border-radius: 999px;
+
+    font-size: 10px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   CAREER RECOMMENDATIONS
+========================================================= */
+
+.dt-card {
+
+    padding: 24px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(15,23,42,.76);
+
+    border:
+        1px solid rgba(148,163,184,.10);
+
+    box-shadow:
+        0 14px 35px rgba(0,0,0,.14);
+}
+
+
+.career-list {
+
+    display: grid;
+
+    gap: 10px;
+}
+
+
+.career-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 16px;
+
+    border-radius: 13px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border:
+        1px solid rgba(148,163,184,.07);
+
+    transition:
+        all .2s ease;
+}
+
+
+.career-row:hover {
+
+    border-color:
+        rgba(167,139,250,.18);
+
+    transform:
+        translateX(3px);
+}
+
+
+.career-name {
+
+    color: #e7eef8;
+
+    font-size: 13px;
+
+    font-weight: 750;
+}
+
+
+.career-description {
+
+    margin-top: 4px;
+
+    color: #647892;
+
+    font-size: 10px;
+}
+
+
+.career-match {
+
+    color: #a78bfa;
+
+    font-size: 18px;
+
+    font-weight: 850;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.dt-table-wrapper {
+
+    overflow-x: auto;
+}
+
+
+.dt-table {
+
+    width: 100%;
+
+    border-collapse: separate;
+
+    border-spacing: 0 7px;
+
+    min-width: 750px;
+}
+
+
+.dt-table th {
+
+    padding: 9px 12px;
+
+    color: #60738c;
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .8px;
+
+    text-align: left;
+}
+
+
+.dt-table td {
+
+    padding: 13px 12px;
+
+    color: #aab8c9;
+
+    font-size: 11px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border-top:
+        1px solid rgba(148,163,184,.06);
+
+    border-bottom:
+        1px solid rgba(148,163,184,.06);
+}
+
+
+.dt-table td:first-child {
+
+    border-left:
+        1px solid rgba(148,163,184,.06);
+
+    border-radius:
+        10px 0 0 10px;
+
+    color: #e7eef8;
+}
+
+
+.dt-table td:last-child {
+
+    border-right:
+        1px solid rgba(148,163,184,.06);
+
+    border-radius:
+        0 10px 10px 0;
+}
+
+
+/* =========================================================
+   PRIORITY
+========================================================= */
+
+.priority {
+
+    display: inline-flex;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+}
+
+
+.priority-critical {
+
+    color: #fda4af;
+
+    background:
+        rgba(251,113,133,.08);
+
+    border:
+        1px solid rgba(251,113,133,.14);
+}
+
+
+.priority-high {
+
+    color: #fdba74;
+
+    background:
+        rgba(245,158,11,.08);
+
+    border:
+        1px solid rgba(245,158,11,.14);
+}
+
+
+.priority-medium {
+
+    color: #fde68a;
+
+    background:
+        rgba(250,204,21,.07);
+
+    border:
+        1px solid rgba(250,204,21,.13);
+}
+
+
+.priority-low {
+
+    color: #86efac;
+
+    background:
+        rgba(52,211,153,.07);
+
+    border:
+        1px solid rgba(52,211,153,.13);
+}
+
+
+/* =========================================================
+   LEARNING PATH
+========================================================= */
+
+.learning-list {
+
+    display: grid;
+
+    gap: 13px;
+}
+
+
+.learning-card {
+
+    position: relative;
+
+    padding: 21px;
+
+    border-radius: 16px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border:
+        1px solid rgba(148,163,184,.08);
+}
+
+
+.learning-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+
+    top: 16px;
+
+    bottom: 16px;
+
+    width: 2px;
+
+    border-radius: 2px;
+
+    background:
+        linear-gradient(
+            #a78bfa,
+            #38bdf8
+        );
+}
+
+
+.learning-card h3 {
+
+    margin: 0 0 10px 8px;
+
+    color: #e7eef8;
+
+    font-size: 14px;
+}
+
+
+.learning-meta {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin-left: 8px;
+}
+
+
+.learning-badge {
+
+    padding: 5px 8px;
+
+    color: #91a3bb;
+
+    background:
+        rgba(148,163,184,.06);
+
+    border:
+        1px solid rgba(148,163,184,.09);
+
+    border-radius: 999px;
+
+    font-size: 9px;
+}
+
+
+.learning-card p {
+
+    margin: 13px 0 0 8px;
+
+    color: #71839c;
+
+    font-size: 11px;
+
+    line-height: 1.7;
+}
+
+
+.learning-card ul {
+
+    margin:
+        8px 0 0 27px;
+
+    color: #71839c;
+
+    font-size: 11px;
+
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.progress-track {
+
+    height: 8px;
+
+    margin:
+        13px 8px 0;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background:
+        rgba(148,163,184,.08);
+}
+
+
+.progress-fill {
+
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #7c3aed,
+            #38bdf8
+        );
+}
+
+
+.progress-label {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin:
+        7px 8px 0;
+
+    color: #60738c;
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   DIGITAL TWIN FLOW
+========================================================= */
+
+.twin-flow {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
+    gap: 5px;
+
+    align-items: center;
+
+    padding: 24px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(15,23,42,.88),
+            rgba(10,18,32,.78)
+        );
+
+    border:
+        1px solid rgba(167,139,250,.11);
+}
+
+
+.twin-node {
+
+    position: relative;
+
+    padding: 15px 8px;
+
+    text-align: center;
+
+    border-radius: 12px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border:
+        1px solid rgba(148,163,184,.08);
+}
+
+
+.twin-node-icon {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 19px;
+}
+
+
+.twin-node span {
+
+    color: #8fa3bd;
+
+    font-size: 9px;
+
+    font-weight: 700;
+}
+
+
+.twin-arrow {
+
+    color: #53657c;
+
+    text-align: center;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   INFO PANEL
+========================================================= */
+
+.dt-info-panel {
+
+    padding: 24px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(167,139,250,.035);
+
+    border:
+        1px solid rgba(167,139,250,.11);
+}
+
+
+.dt-info-panel h2 {
+
+    margin: 0 0 10px;
+
+    color: #e7eef8;
+
+    font-size: 18px;
+}
+
+
+.dt-info-panel p {
+
+    margin: 0;
+
+    color: #71839c;
+
+    font-size: 12px;
+
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.dt-empty {
+
+    padding: 35px 20px;
+
+    text-align: center;
+
+    color: #60738c;
+
+    border:
+        1px dashed rgba(148,163,184,.13);
+
+    border-radius: 14px;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.dt-footer {
+
+    padding: 28px 0;
+
+    text-align: center;
+
+    color: #43556c;
+
+    font-size: 10px;
+
+    letter-spacing: .5px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .dt-core {
+
+        right: 35px;
+
+        width: 115px;
+
+        height: 115px;
+    }
+
+
+    .dt-profile-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .dt-kpi-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .twin-flow {
+
+        grid-template-columns:
+            repeat(4, 1fr);
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .digital-twin-page {
+
+        padding-top: 5px;
+    }
+
+
+    .dt-hero {
+
+        min-height: auto;
+
+        padding: 27px 22px;
+    }
+
+
+    .dt-core {
+
+        display: none;
+    }
+
+
+    .dt-profile-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .dt-kpi-grid {
+
+        grid-template-columns: 1fr 1fr;
+    }
+
+
+    .dt-readiness-panel {
+
+        grid-template-columns: 1fr;
+
+        text-align: center;
+    }
+
+
+    .dt-section-title span {
+
+        display: none;
+    }
+
+
+    .twin-flow {
+
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+
+    .twin-arrow {
+
+        display: none;
+    }
+
+}
+
+
+@media (max-width: 450px) {
+
+    .dt-kpi-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .dt-profile,
+    .dt-card,
+    .dt-info-panel {
+
+        padding: 18px;
+    }
+
+
+    .dt-hero h1 {
+
+        font-size: 28px;
+    }
+
+}
+
+</style>
+
+
+<div class="digital-twin-page">
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="dt-hero">
+
+        <div class="dt-hero-content">
+
+            <div class="dt-eyebrow">
+                ✦ SkillBridge AI Intelligence Layer
+            </div>
+
+            <h1>
+                🤖 AI Career
+                <span>Digital Twin</span>
+            </h1>
+
+            <p>
+                Your virtual career representation continuously
+                connects your profile, skills, learning evidence,
+                career goals, skill gaps and readiness into one
+                intelligent career model.
+            </p>
+
+        </div>
+
+
+        <div class="dt-core">
+            🤖
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PROFILE VARIABLES
+    ====================================================== -->
+
+    {% set target_career =
+        digital_twin_data.get("target_career")
+        if digital_twin_data else None
+    %}
+
+    {% set readiness_score =
+        digital_twin_data.get("readiness_score", 0)
+        if digital_twin_data else 0
+    %}
+
+    {% set readiness_status =
+        digital_twin_data.get(
+            "readiness_status",
+            "Needs Improvement"
+        )
+        if digital_twin_data else "Needs Improvement"
+    %}
+
+    {% set recommendations =
+        digital_twin_data.get(
+            "career_recommendations",
+            []
+        )
+        if digital_twin_data else []
+    %}
+
+    {% set skill_gaps =
+        digital_twin_data.get(
+            "skill_gaps",
+            []
+        )
+        if digital_twin_data else []
+    %}
+
+    {% set skill_gap_summary =
+        digital_twin_data.get(
+            "skill_gap_summary",
+            {}
+        )
+        if digital_twin_data else {}
+    %}
+
+    {% set learning_path =
+        digital_twin_data.get(
+            "learning_path",
+            []
+        )
+        if digital_twin_data else []
+    %}
+
+    {% set roadmap =
+        digital_twin_data.get(
+            "roadmap",
+            []
+        )
+        if digital_twin_data else []
+    %}
+
+    {% set learning_progress =
+        digital_twin_data.get(
+            "learning_progress",
+            []
+        )
+        if digital_twin_data else []
+    %}
+
+    {% set learning_summary =
+        digital_twin_data.get(
+            "learning_summary",
+            {}
+        )
+        if digital_twin_data else {}
+    %}
+
+
+    <!-- =====================================================
+         STUDENT PROFILE
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                👤 Student Identity
+            </h2>
+
+            <span>
+                Digital Twin Source
+            </span>
+
+        </div>
+
+
+        <div class="dt-profile">
+
+            <div class="dt-profile-grid">
+
+
+                <div class="dt-profile-item">
+
+                    <strong>
+                        Education
+                    </strong>
+
+                    {{ student.education or "Not added" }}
+
+                </div>
+
+
+                <div class="dt-profile-item">
+
+                    <strong>
+                        Degree
+                    </strong>
+
+                    {{ student.degree or "Not added" }}
+
+                </div>
+
+
+                <div class="dt-profile-item">
+
+                    <strong>
+                        Branch
+                    </strong>
+
+                    {{ student.branch or "Not added" }}
+
+                </div>
+
+
+                <div class="dt-profile-item">
+
+                    <strong>
+                        College
+                    </strong>
+
+                    {{ student.college or "Not added" }}
+
+                </div>
+
+
+                <div class="dt-profile-item">
+
+                    <strong>
+                        Graduation Year
+                    </strong>
+
+                    {{ student.graduation_year or "Not added" }}
+
+                </div>
+
+
+                <div class="dt-profile-item">
+
+                    <strong>
+                        Experience
+                    </strong>
+
+                    {{ student.experience_level or "Not added" }}
+
+                </div>
+
+
+                <div class="dt-profile-item">
+
+                    <strong>
+                        Location
+                    </strong>
+
+                    {{ student.location or "Not added" }}
+
+                </div>
+
+
+                <div class="dt-profile-item">
+
+                    <strong>
+                        LinkedIn
+                    </strong>
+
+                    {% if student.linkedin_url %}
+
+                        <a
+                            href="{{ student.linkedin_url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            View Profile →
+                        </a>
+
+                    {% else %}
+
+                        <span style="color:#60738c;">
+                            Not connected
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PROFESSIONAL PROFILE
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                🔗 Professional Identity
+            </h2>
+
+            <span>
+                External Profile
+            </span>
+
+        </div>
+
+
+        {% if student.linkedin_url %}
+
+            <div class="dt-linkedin">
+
+                <h3>
+                    LinkedIn Profile Connected ✓
+                </h3>
+
+                <p>
+                    {{ student.linkedin_url }}
+                </p>
+
+                <a
+                    href="{{ student.linkedin_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="dt-linkedin-button"
+                >
+                    🔗 View LinkedIn Profile →
+                </a>
+
+            </div>
+
+        {% else %}
+
+            <div class="dt-linkedin-empty">
+
+                <h3>
+                    LinkedIn Profile Not Connected
+                </h3>
+
+                <p>
+                    Add your LinkedIn profile to strengthen
+                    your professional identity inside the
+                    SkillBridge AI Digital Twin.
+                </p>
+
+                <a
+                    href="{{ url_for('student.profile') }}"
+                    class="dt-linkedin-add"
+                >
+                    ➕ Add LinkedIn Profile
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         DIGITAL TWIN KPIs
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                📊 Twin Intelligence Snapshot
+            </h2>
+
+            <span>
+                Live Profile Signals
+            </span>
+
+        </div>
+
+
+        <div class="dt-kpi-grid">
+
+
+            <div class="dt-kpi">
+
+                <div class="dt-kpi-label">
+                    Target Career
+                </div>
+
+                <div
+                    class="dt-kpi-value"
+                    style="font-size:19px;"
+                >
+                    {{ target_career or "Not set" }}
+                </div>
+
+                <div class="dt-kpi-sub">
+                    Current career direction
+                </div>
+
+            </div>
+
+
+            <div class="dt-kpi">
+
+                <div class="dt-kpi-label">
+                    Readiness
+                </div>
+
+                <div class="dt-kpi-value">
+                    {{ readiness_score }}%
+                </div>
+
+                <div class="dt-kpi-sub">
+                    Career preparation level
+                </div>
+
+            </div>
+
+
+            <div class="dt-kpi">
+
+                <div class="dt-kpi-label">
+                    Skills To Improve
+                </div>
+
+                <div class="dt-kpi-value">
+                    {{ skill_gap_summary.get(
+                        "skills_to_improve",
+                        0
+                    ) }}
+                </div>
+
+                <div class="dt-kpi-sub">
+                    Active skill gaps
+                </div>
+
+            </div>
+
+
+            <div class="dt-kpi">
+
+                <div class="dt-kpi-label">
+                    Learning Steps
+                </div>
+
+                <div class="dt-kpi-value">
+                    {{ learning_path|length }}
+                </div>
+
+                <div class="dt-kpi-sub">
+                    Personalized roadmap
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         READINESS
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                📈 Career Readiness
+            </h2>
+
+            <span>
+                AI Assessment
+            </span>
+
+        </div>
+
+
+        <div class="dt-readiness-panel">
+
+
+            <div
+                class="readiness-circle"
+                style="--score: {{ readiness_score }};"
+            >
+
+                <div class="readiness-number">
+
+                    <strong>
+                        {{ readiness_score }}%
+                    </strong>
+
+                    <span>
+                        Ready
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="dt-readiness-info">
+
+                <h3>
+                    {{ target_career or "Career Not Selected" }}
+                </h3>
+
+                <p>
+                    Your Digital Twin currently estimates
+                    your career readiness at
+                    <strong>{{ readiness_score }}%</strong>.
+                    Continue improving your highest-priority
+                    skill gaps to increase your readiness.
+                </p>
+
+                <div class="dt-status">
+                    {{ readiness_status }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CAREER RECOMMENDATIONS
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                🎯 AI Career Recommendations
+            </h2>
+
+            <span>
+                Career Matching Engine
+            </span>
+
+        </div>
+
+
+        <div class="dt-card">
+
+            {% if recommendations %}
+
+                <div class="career-list">
+
+                    {% for career in recommendations %}
+
+                        <div class="career-row">
+
+                            <div>
+
+                                <div class="career-name">
+
+                                    {{ career.get(
+                                        "career",
+                                        "Unknown Career"
+                                    ) }}
+
+                                </div>
+
+                                {% if career.get("description") %}
+
+                                    <div class="career-description">
+
+                                        {{ career.get(
+                                            "description"
+                                        ) }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="career-match">
+
+                                {{ career.get(
+                                    "match",
+                                    0
+                                ) }}%
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="dt-empty">
+
+                    Add your skills to generate AI career
+                    recommendations.
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SKILL GAPS
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                🧩 Skill Gap Intelligence
+            </h2>
+
+            <span>
+                Current vs Required
+            </span>
+
+        </div>
+
+
+        <div class="dt-card">
+
+            {% if skill_gaps %}
+
+                <div class="dt-table-wrapper">
+
+                    <table class="dt-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Skill</th>
+
+                                <th>Current</th>
+
+                                <th>Required</th>
+
+                                <th>Gap</th>
+
+                                <th>Progress</th>
+
+                                <th>Status</th>
+
+                                <th>Priority</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        {% for item in skill_gaps %}
+
+                            {% set priority =
+                                item.get(
+                                    "priority",
+                                    "Low"
+                                )
+                            %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ item.get(
+                                            "skill",
+                                            "Unknown"
+                                        ) }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ item.get(
+                                        "current",
+                                        0
+                                    ) }}
+                                </td>
+
+                                <td>
+                                    {{ item.get(
+                                        "required",
+                                        0
+                                    ) }}
+                                </td>
+
+                                <td>
+                                    {{ item.get(
+                                        "gap",
+                                        0
+                                    ) }}
+                                </td>
+
+                                <td>
+                                    {{ item.get(
+                                        "percentage",
+                                        0
+                                    ) }}%
+                                </td>
+
+                                <td>
+                                    {{ item.get(
+                                        "status",
+                                        "Unknown"
+                                    ) }}
+                                </td>
+
+                                <td>
+
+                                    <span
+                                        class="
+                                        priority
+
+                                        {% if priority == 'Critical' %}
+                                            priority-critical
+
+                                        {% elif priority == 'High' %}
+                                            priority-high
+
+                                        {% elif priority == 'Medium' %}
+                                            priority-medium
+
+                                        {% else %}
+                                            priority-low
+                                        {% endif %}
+                                        "
+                                    >
+
+                                        {{ priority }}
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="dt-empty">
+
+                    🎉 No active skill gaps detected.
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SKILL GAP SUMMARY
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                📊 Gap Summary
+            </h2>
+
+            <span>
+                Skill Intelligence
+            </span>
+
+        </div>
+
+
+        <div class="dt-kpi-grid">
+
+
+            <div class="dt-kpi">
+
+                <div class="dt-kpi-label">
+                    Total Skills
+                </div>
+
+                <div class="dt-kpi-value">
+                    {{ skill_gap_summary.get(
+                        "total_skills",
+                        0
+                    ) }}
+                </div>
+
+            </div>
+
+
+            <div class="dt-kpi">
+
+                <div class="dt-kpi-label">
+                    Strong Skills
+                </div>
+
+                <div class="dt-kpi-value">
+                    {{ skill_gap_summary.get(
+                        "strong_skills",
+                        0
+                    ) }}
+                </div>
+
+            </div>
+
+
+            <div class="dt-kpi">
+
+                <div class="dt-kpi-label">
+                    Improve
+                </div>
+
+                <div class="dt-kpi-value">
+                    {{ skill_gap_summary.get(
+                        "skills_to_improve",
+                        0
+                    ) }}
+                </div>
+
+            </div>
+
+
+            <div class="dt-kpi">
+
+                <div class="dt-kpi-label">
+                    Critical Gaps
+                </div>
+
+                <div class="dt-kpi-value">
+                    {{ skill_gap_summary.get(
+                        "critical_gaps",
+                        0
+                    ) }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         LEARNING EVIDENCE
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                🧠 Learning Evidence
+            </h2>
+
+            <span>
+                Digital Twin Signals
+            </span>
+
+        </div>
+
+
+        <div class="dt-card">
+
+            {% if learning_progress %}
+
+                <div class="learning-list">
+
+                    {% for progress in learning_progress %}
+
+                        {% set progress_value =
+                            progress.progress_percentage or 0
+                        %}
+
+                        <div class="learning-card">
+
+                            <h3>
+
+                                📘
+                                {{ progress.skill }}
+
+                            </h3>
+
+                            <p>
+
+                                <strong>
+                                    Course:
+                                </strong>
+
+                                {{ progress.course_name }}
+
+                            </p>
+
+
+                            <div class="progress-track">
+
+                                <div
+                                    class="progress-fill"
+                                    style="
+                                        width:
+                                        {{ progress_value }}%;
+                                    "
+                                ></div>
+
+                            </div>
+
+
+                            <div class="progress-label">
+
+                                <span>
+                                    {{ progress.status }}
+                                </span>
+
+                                <span>
+                                    {{ progress_value }}%
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="dt-empty">
+
+                    📚 No learning evidence recorded yet.
+
+                    <br>
+
+                    Start a course from your learning path
+                    to update your Digital Twin.
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PERSONALIZED LEARNING PATH
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                📚 Personalized Learning Path
+            </h2>
+
+            <span>
+                AI Roadmap
+            </span>
+
+        </div>
+
+
+        <div class="dt-card">
+
+            {% if learning_path %}
+
+                <div class="learning-list">
+
+                    {% for item in learning_path %}
+
+                        {% set priority =
+                            item.get(
+                                "priority",
+                                "Low"
+                            )
+                        %}
+
+                        {% set progress =
+                            item.get(
+                                "progress_percentage",
+                                0
+                            )
+                        %}
+
+                        <div class="learning-card">
+
+                            <h3>
+
+                                Step
+                                {{ item.get(
+                                    "step",
+                                    loop.index
+                                ) }}
+
+                                ·
+
+                                {{ item.get(
+                                    "skill",
+                                    "Unknown Skill"
+                                ) }}
+
+                            </h3>
+
+
+                            <div class="learning-meta">
+
+                                <span class="learning-badge">
+                                    Current:
+                                    {{ item.get(
+                                        "current",
+                                        0
+                                    ) }}
+                                </span>
+
+                                <span class="learning-badge">
+                                    Required:
+                                    {{ item.get(
+                                        "required",
+                                        0
+                                    ) }}
+                                </span>
+
+                                <span class="learning-badge">
+                                    Gap:
+                                    {{ item.get(
+                                        "gap",
+                                        0
+                                    ) }}
+                                </span>
+
+                                <span class="learning-badge">
+                                    {{ item.get(
+                                        "duration",
+                                        "Not specified"
+                                    ) }}
+                                </span>
+
+                                <span class="learning-badge">
+                                    {{ priority }}
+                                </span>
+
+                            </div>
+
+
+                            <p>
+
+                                <strong>
+                                    Recommended Course:
+                                </strong>
+
+                                {{ item.get(
+                                    "course",
+                                    "Recommended course"
+                                ) }}
+
+                            </p>
+
+
+                            {% set topics =
+                                item.get(
+                                    "topics",
+                                    []
+                                )
+                            %}
+
+                            {% if topics %}
+
+                                <ul>
+
+                                    {% for topic in topics %}
+
+                                        <li>
+                                            {{ topic }}
+                                        </li>
+
+                                    {% endfor %}
+
+                                </ul>
+
+                            {% endif %}
+
+
+                            {% if progress > 0 %}
+
+                                <div class="progress-track">
+
+                                    <div
+                                        class="progress-fill"
+                                        style="
+                                            width:
+                                            {{ progress }}%;
+                                        "
+                                    ></div>
+
+                                </div>
+
+                                <div class="progress-label">
+
+                                    <span>
+                                        Learning Progress
+                                    </span>
+
+                                    <span>
+                                        {{ progress }}%
+                                    </span>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="dt-empty">
+
+                    🎉 No learning gaps detected.
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CAREER ROADMAP
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                🗺️ Career Roadmap
+            </h2>
+
+            <span>
+                Long-Term Path
+            </span>
+
+        </div>
+
+
+        <div class="dt-card">
+
+            {% if roadmap %}
+
+                <div class="learning-list">
+
+                    {% for item in roadmap %}
+
+                        <div class="learning-card">
+
+                            <h3>
+
+                                {{ item.get(
+                                    "step",
+                                    loop.index
+                                ) }}.
+
+                                {{ item.get(
+                                    "skill",
+                                    "Unknown Skill"
+                                ) }}
+
+                            </h3>
+
+
+                            <div class="learning-meta">
+
+                                <span class="learning-badge">
+                                    Current:
+                                    {{ item.get(
+                                        "current",
+                                        0
+                                    ) }}
+                                </span>
+
+                                <span class="learning-badge">
+                                    Required:
+                                    {{ item.get(
+                                        "required",
+                                        0
+                                    ) }}
+                                </span>
+
+                                <span class="learning-badge">
+                                    Gap:
+                                    {{ item.get(
+                                        "gap",
+                                        0
+                                    ) }}
+                                </span>
+
+                                <span class="learning-badge">
+                                    {{ item.get(
+                                        "duration",
+                                        "Not specified"
+                                    ) }}
+                                </span>
+
+                            </div>
+
+
+                            <p>
+
+                                <strong>
+                                    Course:
+                                </strong>
+
+                                {{ item.get(
+                                    "course",
+                                    "Not specified"
+                                ) }}
+
+                            </p>
+
+
+                            <p>
+
+                                <strong>
+                                    Priority:
+                                </strong>
+
+                                {{ item.get(
+                                    "priority",
+                                    "Low"
+                                ) }}
+
+                            </p>
+
+
+                            <p>
+
+                                <strong>
+                                    Status:
+                                </strong>
+
+                                {{ item.get(
+                                    "status",
+                                    "Not Started"
+                                ) }}
+
+                            </p>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="dt-empty">
+
+                    No roadmap is available yet.
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DIGITAL TWIN FLOW
+    ====================================================== -->
+
+    <section class="dt-section">
+
+        <div class="dt-section-title">
+
+            <h2>
+                🔄 Digital Twin Intelligence Flow
+            </h2>
+
+            <span>
+                Continuous Career Model
+            </span>
+
+        </div>
+
+
+        <div class="twin-flow">
+
+
+            <div class="twin-node">
+
+                <span class="twin-node-icon">
+                    👤
+                </span>
+
+                <span>
+                    Profile
+                </span>
+
+            </div>
+
+
+            <div class="twin-arrow">
+                →
+            </div>
+
+
+            <div class="twin-node">
+
+                <span class="twin-node-icon">
+                    🧠
+                </span>
+
+                <span>
+                    Skills
+                </span>
+
+            </div>
+
+
+            <div class="twin-arrow">
+                →
+            </div>
+
+
+            <div class="twin-node">
+
+                <span class="twin-node-icon">
+                    🎯
+                </span>
+
+                <span>
+                    Career
+                </span>
+
+            </div>
+
+
+            <div class="twin-arrow">
+                →
+            </div>
+
+
+            <div class="twin-node">
+
+                <span class="twin-node-icon">
+                    🧩
+                </span>
+
+                <span>
+                    Skill Gap
+                </span>
+
+            </div>
+
+
+            <div class="twin-node">
+
+                <span class="twin-node-icon">
+                    📚
+                </span>
+
+                <span>
+                    Learning
+                </span>
+
+            </div>
+
+
+            <div class="twin-arrow">
+                →
+            </div>
+
+
+            <div class="twin-node">
+
+                <span class="twin-node-icon">
+                    🏆
+                </span>
+
+                <span>
+                    Evidence
+                </span>
+
+            </div>
+
+
+            <div class="twin-arrow">
+                →
+            </div>
+
+
+            <div class="twin-node">
+
+                <span class="twin-node-icon">
+                    📊
+                </span>
+
+                <span>
+                    Readiness
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DIGITAL TWIN EXPLANATION
+    ====================================================== -->
+
+    <section class="dt-info-panel">
+
+        <h2>
+            🤖 How Your Digital Twin Works
+        </h2>
+
+        <p>
+
+            SkillBridge AI continuously combines your profile,
+            technical skills, course progress, learning evidence,
+            career recommendations and skill gaps to maintain a
+            dynamic representation of your career readiness.
+
+            Completing courses creates learning evidence that can
+            contribute to your effective skill level and improve
+            future skill-gap and career-readiness calculations.
+
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <div class="dt-footer">
+
+        SkillBridge AI · AI-Powered Career Intelligence · 2026
+
+    </div>
+
+
+</div>
+
+{% endblock %}

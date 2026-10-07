@@ -1,0 +1,146 @@
+<html>
+<head>
+<title>switch_aarch64_gcc.h</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #7a7e85;}
+.s1 { color: #bcbec4;}
+.s2 { color: #cf8e6d;}
+.s3 { color: #2aacb8;}
+.s4 { color: #6aab73;}
+.ln { color: #4b5059; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+switch_aarch64_gcc.h</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">/* 
+<a name="l2"><span class="ln">2    </span></a> * this is the internal transfer function. 
+<a name="l3"><span class="ln">3    </span></a> * 
+<a name="l4"><span class="ln">4    </span></a> * HISTORY 
+<a name="l5"><span class="ln">5    </span></a> * 07-Sep-16 Add clang support using x register naming. Fredrik Fornwall 
+<a name="l6"><span class="ln">6    </span></a> * 13-Apr-13 Add support for strange GCC caller-save decisions 
+<a name="l7"><span class="ln">7    </span></a> * 08-Apr-13 File creation. Michael Matz 
+<a name="l8"><span class="ln">8    </span></a> * 
+<a name="l9"><span class="ln">9    </span></a> * NOTES 
+<a name="l10"><span class="ln">10   </span></a> * 
+<a name="l11"><span class="ln">11   </span></a> * Simply save all callee saved registers 
+<a name="l12"><span class="ln">12   </span></a> * 
+<a name="l13"><span class="ln">13   </span></a> */</span>
+<a name="l14"><span class="ln">14   </span></a>
+<a name="l15"><span class="ln">15   </span></a><span class="s2">#define </span><span class="s1">STACK_REFPLUS </span><span class="s3">1</span>
+<a name="l16"><span class="ln">16   </span></a>
+<a name="l17"><span class="ln">17   </span></a><span class="s2">#ifdef </span><span class="s1">SLP_EVAL</span>
+<a name="l18"><span class="ln">18   </span></a><span class="s2">#define </span><span class="s1">STACK_MAGIC </span><span class="s3">0</span>
+<a name="l19"><span class="ln">19   </span></a><span class="s2">#define </span><span class="s1">REGS_TO_SAVE </span><span class="s4">&quot;x19&quot;</span><span class="s1">, </span><span class="s4">&quot;x20&quot;</span><span class="s1">, </span><span class="s4">&quot;x21&quot;</span><span class="s1">, </span><span class="s4">&quot;x22&quot;</span><span class="s1">, </span><span class="s4">&quot;x23&quot;</span><span class="s1">, </span><span class="s4">&quot;x24&quot;</span><span class="s1">, </span><span class="s4">&quot;x25&quot;</span><span class="s1">, </span><span class="s4">&quot;x26&quot;</span><span class="s1">, \</span>
+<a name="l20"><span class="ln">20   </span></a>                     <span class="s4">&quot;x27&quot;</span><span class="s1">, </span><span class="s4">&quot;x28&quot;</span><span class="s1">, </span><span class="s4">&quot;x30&quot; </span><span class="s0">/* aka lr */</span><span class="s1">, \</span>
+<a name="l21"><span class="ln">21   </span></a>                     <span class="s4">&quot;v8&quot;</span><span class="s1">, </span><span class="s4">&quot;v9&quot;</span><span class="s1">, </span><span class="s4">&quot;v10&quot;</span><span class="s1">, </span><span class="s4">&quot;v11&quot;</span><span class="s1">, \</span>
+<a name="l22"><span class="ln">22   </span></a>                     <span class="s4">&quot;v12&quot;</span><span class="s1">, </span><span class="s4">&quot;v13&quot;</span><span class="s1">, </span><span class="s4">&quot;v14&quot;</span><span class="s1">, </span><span class="s4">&quot;v15&quot;</span>
+<a name="l23"><span class="ln">23   </span></a>
+<a name="l24"><span class="ln">24   </span></a><span class="s0">/* 
+<a name="l25"><span class="ln">25   </span></a> * Recall: 
+<a name="l26"><span class="ln">26   </span></a>   asm asm-qualifiers ( AssemblerTemplate 
+<a name="l27"><span class="ln">27   </span></a>                 : OutputOperands 
+<a name="l28"><span class="ln">28   </span></a>                 [ : InputOperands 
+<a name="l29"><span class="ln">29   </span></a>                 [ : Clobbers ] ]) 
+<a name="l30"><span class="ln">30   </span></a> 
+<a name="l31"><span class="ln">31   </span></a> or  (if asm-qualifiers contains 'goto') 
+<a name="l32"><span class="ln">32   </span></a> 
+<a name="l33"><span class="ln">33   </span></a>   asm asm-qualifiers ( AssemblerTemplate 
+<a name="l34"><span class="ln">34   </span></a>                      : OutputOperands 
+<a name="l35"><span class="ln">35   </span></a>                      : InputOperands 
+<a name="l36"><span class="ln">36   </span></a>                      : Clobbers 
+<a name="l37"><span class="ln">37   </span></a>                      : GotoLabels) 
+<a name="l38"><span class="ln">38   </span></a> 
+<a name="l39"><span class="ln">39   </span></a> and OutputOperands are 
+<a name="l40"><span class="ln">40   </span></a> 
+<a name="l41"><span class="ln">41   </span></a>   [ [asmSymbolicName] ] constraint (cvariablename) 
+<a name="l42"><span class="ln">42   </span></a> 
+<a name="l43"><span class="ln">43   </span></a> When a name is given, refer to it as ``%[the name]``. 
+<a name="l44"><span class="ln">44   </span></a> When not given, ``%i`` where ``i`` is the zero-based index. 
+<a name="l45"><span class="ln">45   </span></a> 
+<a name="l46"><span class="ln">46   </span></a> constraints starting with ``=`` means only writing; ``+`` means 
+<a name="l47"><span class="ln">47   </span></a> reading and writing. 
+<a name="l48"><span class="ln">48   </span></a> 
+<a name="l49"><span class="ln">49   </span></a> This is followed by ``r`` (must be register) or ``m`` (must be memory) 
+<a name="l50"><span class="ln">50   </span></a> and these can be combined. 
+<a name="l51"><span class="ln">51   </span></a> 
+<a name="l52"><span class="ln">52   </span></a> The ``cvariablename`` is actually an lvalue expression. 
+<a name="l53"><span class="ln">53   </span></a> 
+<a name="l54"><span class="ln">54   </span></a> In AArch65, 31 general purpose registers. If named X0... they are 
+<a name="l55"><span class="ln">55   </span></a> 64-bit. If named W0... they are the bottom 32 bits of the 
+<a name="l56"><span class="ln">56   </span></a> corresponding 64 bit register. 
+<a name="l57"><span class="ln">57   </span></a> 
+<a name="l58"><span class="ln">58   </span></a> XZR and WZR are hardcoded to 0, and ignore writes. 
+<a name="l59"><span class="ln">59   </span></a> 
+<a name="l60"><span class="ln">60   </span></a> Arguments are in X0..X7. C++ uses X0 for ``this``. X0 holds simple return 
+<a name="l61"><span class="ln">61   </span></a> values (?) 
+<a name="l62"><span class="ln">62   </span></a> 
+<a name="l63"><span class="ln">63   </span></a> Whenever a W register is written, the top half of the X register is zeroed. 
+<a name="l64"><span class="ln">64   </span></a> */</span>
+<a name="l65"><span class="ln">65   </span></a>
+<a name="l66"><span class="ln">66   </span></a><span class="s2">static int</span>
+<a name="l67"><span class="ln">67   </span></a><span class="s1">slp_switch(</span><span class="s2">void</span><span class="s1">)</span>
+<a name="l68"><span class="ln">68   </span></a><span class="s1">{</span>
+<a name="l69"><span class="ln">69   </span></a>	<span class="s2">int </span><span class="s1">err;</span>
+<a name="l70"><span class="ln">70   </span></a>	<span class="s2">void </span><span class="s1">*fp;</span>
+<a name="l71"><span class="ln">71   </span></a>        <span class="s0">/* Windowz uses a 32-bit long on a 64-bit platform, unlike the rest of 
+<a name="l72"><span class="ln">72   </span></a>           the world, and in theory we can be compiled with GCC/llvm on 64-bit 
+<a name="l73"><span class="ln">73   </span></a>           windows. So we need a fixed-width type. 
+<a name="l74"><span class="ln">74   </span></a>        */</span>
+<a name="l75"><span class="ln">75   </span></a>        <span class="s1">int64_t *stackref, stsizediff;</span>
+<a name="l76"><span class="ln">76   </span></a>        <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;&quot; </span><span class="s1">: : : REGS_TO_SAVE);</span>
+<a name="l77"><span class="ln">77   </span></a>	<span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;str x29, %0&quot; </span><span class="s1">: </span><span class="s4">&quot;=m&quot;</span><span class="s1">(fp) : : );</span>
+<a name="l78"><span class="ln">78   </span></a>        <span class="s1">__asm__ (</span><span class="s4">&quot;mov %0, sp&quot; </span><span class="s1">: </span><span class="s4">&quot;=r&quot; </span><span class="s1">(stackref));</span>
+<a name="l79"><span class="ln">79   </span></a>        <span class="s1">{</span>
+<a name="l80"><span class="ln">80   </span></a>                <span class="s1">SLP_SAVE_STATE(stackref, stsizediff);</span>
+<a name="l81"><span class="ln">81   </span></a>                <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span>
+<a name="l82"><span class="ln">82   </span></a>                    <span class="s4">&quot;add sp,sp,%0</span><span class="s2">\n</span><span class="s4">&quot;</span>
+<a name="l83"><span class="ln">83   </span></a>                    <span class="s4">&quot;add x29,x29,%0</span><span class="s2">\n</span><span class="s4">&quot;</span>
+<a name="l84"><span class="ln">84   </span></a>                    <span class="s1">:</span>
+<a name="l85"><span class="ln">85   </span></a>                    <span class="s1">: </span><span class="s4">&quot;r&quot; </span><span class="s1">(stsizediff)</span>
+<a name="l86"><span class="ln">86   </span></a>                    <span class="s1">);</span>
+<a name="l87"><span class="ln">87   </span></a>		<span class="s1">SLP_RESTORE_STATE();</span>
+<a name="l88"><span class="ln">88   </span></a>		<span class="s0">/* SLP_SAVE_STATE macro contains some return statements 
+<a name="l89"><span class="ln">89   </span></a>           (of -1 and 1).  It falls through only when 
+<a name="l90"><span class="ln">90   </span></a>           the return value of slp_save_state() is zero, which 
+<a name="l91"><span class="ln">91   </span></a>           is placed in x0. 
+<a name="l92"><span class="ln">92   </span></a>           In that case we (slp_switch) also want to return zero 
+<a name="l93"><span class="ln">93   </span></a>           (also in x0 of course). 
+<a name="l94"><span class="ln">94   </span></a>           Now, some GCC versions (seen with 4.8) think it's a 
+<a name="l95"><span class="ln">95   </span></a>           good idea to save/restore x0 around the call to 
+<a name="l96"><span class="ln">96   </span></a>           slp_restore_state(), instead of simply zeroing it 
+<a name="l97"><span class="ln">97   </span></a>           at the return below.  But slp_restore_state 
+<a name="l98"><span class="ln">98   </span></a>           writes random values to the stack slot used for this 
+<a name="l99"><span class="ln">99   </span></a>           save/restore (from when it once was saved above in 
+<a name="l100"><span class="ln">100  </span></a>           SLP_SAVE_STATE, when it was still uninitialized), so 
+<a name="l101"><span class="ln">101  </span></a>           &quot;restoring&quot; that precious zero actually makes us 
+<a name="l102"><span class="ln">102  </span></a>           return random values.  There are some ways to make 
+<a name="l103"><span class="ln">103  </span></a>           GCC not use that zero value in the normal return path 
+<a name="l104"><span class="ln">104  </span></a>           (e.g. making err volatile, but that costs a little 
+<a name="l105"><span class="ln">105  </span></a>           stack space), and the simplest is to call a function 
+<a name="l106"><span class="ln">106  </span></a>           that returns an unknown value (which happens to be zero), 
+<a name="l107"><span class="ln">107  </span></a>           so the saved/restored value is unused. 
+<a name="l108"><span class="ln">108  </span></a> 
+<a name="l109"><span class="ln">109  </span></a>                   Thus, this line stores a 0 into the ``err`` variable 
+<a name="l110"><span class="ln">110  </span></a>                   (which must be held in a register for this instruction, 
+<a name="l111"><span class="ln">111  </span></a>                    of course). The ``w`` qualifier causes the instruction 
+<a name="l112"><span class="ln">112  </span></a>                    to use W0 instead of X0, otherwise we get a warning 
+<a name="l113"><span class="ln">113  </span></a>                    about a value size mismatch (because err is an int, 
+<a name="l114"><span class="ln">114  </span></a>                    and aarch64 platforms are LP64: 32-bit int, 64 bit long 
+<a name="l115"><span class="ln">115  </span></a>                   and pointer). 
+<a name="l116"><span class="ln">116  </span></a>                */</span>
+<a name="l117"><span class="ln">117  </span></a>           <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;mov %w0, #0&quot; </span><span class="s1">: </span><span class="s4">&quot;=r&quot; </span><span class="s1">(err));</span>
+<a name="l118"><span class="ln">118  </span></a>        <span class="s1">}</span>
+<a name="l119"><span class="ln">119  </span></a>        <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;ldr x29, %0&quot; </span><span class="s1">: : </span><span class="s4">&quot;m&quot; </span><span class="s1">(fp) :);</span>
+<a name="l120"><span class="ln">120  </span></a>        <span class="s1">__asm__ </span><span class="s2">volatile </span><span class="s1">(</span><span class="s4">&quot;&quot; </span><span class="s1">: : : REGS_TO_SAVE);</span>
+<a name="l121"><span class="ln">121  </span></a>        <span class="s2">return </span><span class="s1">err;</span>
+<a name="l122"><span class="ln">122  </span></a><span class="s1">}</span>
+<a name="l123"><span class="ln">123  </span></a>
+<a name="l124"><span class="ln">124  </span></a><span class="s2">#endif</span>
+<a name="l125"><span class="ln">125  </span></a></pre>
+</body>
+</html>
